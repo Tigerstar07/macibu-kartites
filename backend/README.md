@@ -1,4 +1,4 @@
-# Backend — Mācību kartītes
+# Backend: Mācību kartītes
 
 Python 3.12 + FastAPI REST API (Pydantic datu validācija, SQLAlchemy ORM,
 JWT autentifikācija ar lomām guest / user / admin).

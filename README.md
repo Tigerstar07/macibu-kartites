@@ -1,6 +1,6 @@
 # Mācību kartītes (RRV Ranked Flashcards)
 
-Moderna atkārtošanas (*spaced repetition*) mācību kartīšu tīmekļa lietotne — Anki tipa
+Moderna atkārtošanas (*spaced repetition*) mācību kartīšu tīmekļa lietotne, Anki tipa
 rīks ar mūsdienīgu, tīru dizainu un **iebūvētu rangu sistēmu**, kas motivē mācīties
 regulāri.
 
@@ -9,7 +9,7 @@ regulāri.
 Lietotāji veido kartīšu kopas (*decks*) ar jautājuma/atbildes kartītēm un mācās tās
 ar atkārtošanas algoritmu (SM-2), kas katrai kartītei aprēķina nākamo atkārtošanas
 reizi. Par regulāru mācīšanos, atbilžu precizitāti un dienu sērijām (*streak*)
-lietotājs pelna rangu punktus (RP), ceļas pa līgām (Bronze → Diamond) un sacenšas
+lietotājs pelna rangu punktus (RP), ceļas pa līgām no Bronze līdz Diamond un sacenšas
 nedēļas līderu tabulā.
 
 ### Lietotāju lomas
@@ -23,14 +23,14 @@ nedēļas līderu tabulā.
 ## Galvenā funkcionalitāte (plānota)
 
 - Kartīšu kopu un kartīšu **pilns CRUD** ar datu validāciju un dzēšanas apstiprinājumu
-- Atkārtošanas (*spaced repetition*) mācību sesija — SM-2 algoritms
+- Atkārtošanas (*spaced repetition*) mācību sesija, SM-2 algoritms
 - **Rangu sistēma:** RP aprēķins, līgas, nedēļas / visu laiku līderu tabula
 - Publisko kopu pārlūkošana ar **meklēšanu un filtrēšanu** (kategorija, tags, valoda)
 - Lietotāja statistika: atkārtoto kartīšu skaits, precizitāte, dienu sērija
 - Administratora panelis satura un lietotāju moderācijai
 - Responsīvs, konsekvents lietotāja interfeiss ar vienotu datuma / laika / skaitļu formātu
 
-Sīkāka prasību specifikācija — [`docs/04-prasibu-melnraksts.md`](docs/04-prasibu-melnraksts.md)
+Sīkāka prasību specifikācija, [`docs/04-prasibu-melnraksts.md`](docs/04-prasibu-melnraksts.md)
 (tiek precizēta 2. posmā).
 
 ## Izmantotās tehnoloģijas
@@ -44,7 +44,7 @@ Sīkāka prasību specifikācija — [`docs/04-prasibu-melnraksts.md`](docs/04-p
 | Versiju kontrole | Git + GitHub (viens kopīgs repozitorijs) |
 | Uzdevumu pārvaldība | Trello (Kanban) |
 
-Izvēles pamatojums — [`docs/03-tehnologiju-izvele.md`](docs/03-tehnologiju-izvele.md).
+Izvēles pamatojums: [`docs/03-tehnologiju-izvele.md`](docs/03-tehnologiju-izvele.md).
 
 ## Projekta struktūra
 
@@ -96,7 +96,7 @@ backend un testēšanas darbos; katram ir arī primārā atbildības joma.
 | **Rihards** | Frontend (UI komponentes, dizaina konsekvence, responsivitāte) | Backend, testēšana |
 | **Valerijs** | Backend (autentifikācija, rangu sistēmas loģika, atkārtošanas algoritms), testēšanas plāns | Frontend, testēšana |
 
-Detalizēts sadalījums — [`docs/02-lomu-sadalijums.md`](docs/02-lomu-sadalijums.md).
+Detalizēts sadalījums: [`docs/02-lomu-sadalijums.md`](docs/02-lomu-sadalijums.md).
 
 ---
 

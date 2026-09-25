@@ -1,11 +1,11 @@
 # 2. Lomu un pienākumu sadalījums
 
-Komanda: **RRV** — Roberts, Rihards, Valerijs.
+Komanda **RRV**: Roberts, Rihards, Valerijs.
 Metodoloģija: Agile / Kanban. Rīki: GitHub (viens kopīgs repozitorijs), Trello.
 
 ## 2.1. Princips
 
-Visi trīs dalībnieki strādā pie **frontend, backend un testēšanas** — neviena daļa
+Visi trīs dalībnieki strādā pie **frontend, backend un testēšanas**: neviena daļa
 nav tikai viena autora ziņā. Lai pienākumi būtu skaidri un izsekojami, katram
 dalībniekam ir noteikta **primārā atbildības joma**: šajā jomā dalībnieks plāno
 uzdevumus, pārskata citu darbu un atbild par kvalitāti.
@@ -14,9 +14,9 @@ uzdevumus, pārskata citu darbu un atbild par kvalitāti.
 
 | Dalībnieks | Primārā atbildība | Piedalās arī |
 |-----------|-------------------|--------------|
-| **Roberts** | Komandas koordinācija; GitHub un Trello uzturēšana; backend — REST API struktūra, datubāze, arhitektūra | Frontend komponentes, testēšana, dokumentācija |
-| **Rihards** | Frontend — UI komponentes, lietotāja plūsma, dizaina un formātu konsekvence, responsivitāte | Backend endpointi, testēšana, saskarnes skices |
-| **Valerijs** | Backend — autentifikācija un lomas, rangu sistēmas loģika, atkārtošanas (SM-2) algoritms; testēšanas plāna īpašnieks | Frontend (statistika, līderu tabula), dokumentācija |
+| **Roberts** | Komandas koordinācija; GitHub un Trello uzturēšana; backend (REST API struktūra, datubāze, arhitektūra) | Frontend komponentes, testēšana, dokumentācija |
+| **Rihards** | Frontend: UI komponentes, lietotāja plūsma, dizaina un formātu konsekvence, responsivitāte | Backend endpointi, testēšana, saskarnes skices |
+| **Valerijs** | Backend: autentifikācija un lomas, rangu sistēmas loģika, atkārtošanas (SM-2) algoritms; testēšanas plāna īpašnieks | Frontend (statistika, līderu tabula), dokumentācija |
 
 ## 2.3. Kopīgie pienākumi (visi)
 
@@ -28,10 +28,10 @@ uzdevumus, pārskata citu darbu un atbild par kvalitāti.
 
 ## 2.4. Kanban darba noteikumi
 
-- Kolonnas: **Backlog → To Do → In Progress → Review → Done**.
+- Kolonnas: **Backlog**, **To Do**, **In Progress**, **Review**, **Done**.
 - **WIP limits:** ne vairāk kā **2 kartītes** kolonnā *In Progress* uz katru
   dalībnieku vienlaikus.
-- Katra kartīte = viens konkrēts uzdevums (ieteicams 1–4 stundas), ar aprakstu,
+- Katra kartīte = viens konkrēts uzdevums (ieteicams 1-4 stundas), ar aprakstu,
   izpildes kritērijiem (*Definition of Done*), atbildīgo un termiņu.
 - Pabeigtās kartītes pārvieto uz *Done*, tās nedzēš.
 - Katram `commit` / *Pull Request* atbilst vismaz viena Trello kartīte.

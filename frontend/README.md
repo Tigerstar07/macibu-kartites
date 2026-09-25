@@ -1,4 +1,4 @@
-# Frontend — Mācību kartītes
+# Frontend: Mācību kartītes
 
 React 18 + Vite + TypeScript + Tailwind CSS klienta lietotne.
 

@@ -1,4 +1,4 @@
-# 5. Rangu sistēma — sākotnējā koncepcija
+# 5. Rangu sistēma: sākotnējā koncepcija
 
 > Melnraksts 1. posmam. Precīzas formulas un robežas tiek apstiprinātas 2. posmā.
 
@@ -18,7 +18,7 @@ RP piešķir **servera pusē** pēc katras mācību sesijas:
 
 - Sērijas reizinātājs aug par 0.1 par katru secīgu mācību dienu, maksimums ×1.5
   (7 dienas). Izlaista diena atiestata sēriju uz ×1.0.
-- Skaita **unikālas** kartītes dienā — vienas kartītes atkārtota "grindošana"
+- Skaita **unikālas** kartītes dienā, vienas kartītes atkārtota "grindošana"
   papildu RP nedod.
 
 ## 5.2. Līgas
@@ -27,16 +27,16 @@ Pēc **nedēļas RP** (atiestatās pirmdienās 00:00):
 
 | Līga | Nedēļas RP |
 |------|-----------|
-| Bronze | 0 – 199 |
-| Silver | 200 – 499 |
-| Gold | 500 – 999 |
-| Platinum | 1000 – 1999 |
+| Bronze | 0, 199 |
+| Silver | 200, 499 |
+| Gold | 500, 999 |
+| Platinum | 1000, 1999 |
 | Diamond | 2000+ |
 
 ## 5.3. Līderu tabula
 
-- **Nedēļas** — kārto pēc nedēļas RP, atiestatās katru pirmdienu.
-- **Visu laiku** — kārto pēc kopējā RP.
+- **Nedēļas**: kārto pēc nedēļas RP, atiestatās katru pirmdienu.
+- **Visu laiku**: kārto pēc kopējā RP.
 - Rāda pozīciju, lietotājvārdu, līgu, sēriju.
 
 ## 5.4. Antimanipulācijas pasākumi

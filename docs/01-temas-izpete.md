@@ -2,7 +2,7 @@
 
 ## 1.1. Tēma
 
-**Mācību kartītes ar rangu sistēmu** — tīmekļa lietotne atkārtošanas
+**Mācību kartītes ar rangu sistēmu**: tīmekļa lietotne atkārtošanas
 (*spaced repetition*) mācībām, kas apvieno pierādītu atmiņas nostiprināšanas
 metodi ar mūsdienīgu dizainu un motivējošu rangu / līgu sistēmu.
 
@@ -17,7 +17,7 @@ metodi ar mūsdienīgu dizainu un motivējošu rangu / līgu sistēmu.
   sertifikācijas eksāmeniem.
 - **Esošajiem rīkiem ir būtiski trūkumi** (skat. 1.4.): novecojis interfeiss un
   sarežģīta iesākšana (Anki) vai funkcionalitāte aiz maksas sienas un vājš,
-  necaurspīdīgs algoritms (Quizlet). Trūkst ilgtermiņa **motivācijas slāņa** —
+  necaurspīdīgs algoritms (Quizlet). Trūkst ilgtermiņa **motivācijas slāņa**: 
   iemesla atgriezties katru dienu.
 - **Rangu sistēma risina motivācijas problēmu.** Punkti, līgas un līderu tabula
   pārvērš regulāru atkārtošanu par ieradumu, līdzīgi kā valodu lietotnēs
@@ -47,14 +47,14 @@ metodi ar mūsdienīgu dizainu un motivējošu rangu / līgu sistēmu.
 
 1. **Moderns, tīrs, responsīvs interfeiss** ar tumšo režīmu un vienkāršu iesākšanu
    (daži klikšķi līdz pirmajai mācību sesijai).
-2. **Iebūvēta rangu sistēma** — RP, līgas Bronze → Diamond, nedēļas līderu tabula.
+2. **Iebūvēta rangu sistēma**: RP, līgas no Bronze līdz Diamond, nedēļas līderu tabula.
    To nepiedāvā ne Anki, ne Brainscape.
-3. **Caurspīdīgs algoritms** — lietotājam redzams, kāpēc konkrētā kartīte
+3. **Caurspīdīgs algoritms**: lietotājam redzams, kāpēc konkrētā kartīte
    jāatkārto tieši tagad un kad būs nākamā reize.
 4. **Bezmaksas pamata funkcionalitāte**, paša veidots saturs + publiskās kopas ar
    moderāciju.
 5. **Vairāku lomu sistēma** (viesis / lietotājs / administrators) ar satura
-   moderāciju — piemērota lietošanai mācību grupā.
+   moderāciju: piemērota lietošanai mācību grupā.
 
 ## 1.6. Riski un izaicinājumi
 
@@ -62,4 +62,4 @@ metodi ar mūsdienīgu dizainu un motivējošu rangu / līgu sistēmu.
 - Rangu punktu balansēšana, lai novērstu "spēlēšanos" ar sistēmu
   (skat. [`05-rangu-sistema.md`](05-rangu-sistema.md) antimanipulācijas sadaļu).
 - Publisko kopu satura moderācija.
-- Apjoma kontrole — koncentrēties uz obligātajām prasībām, papildu idejas atlikt.
+- Apjoma kontrole: koncentrēties uz obligātajām prasībām, papildu idejas atlikt.
