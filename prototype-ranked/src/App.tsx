@@ -22,6 +22,7 @@ import NotFound from './pages/NotFound';
 export default function App() {
   const reducedMotion = useGame((s) => s.settings.reducedMotion);
   const lang = useGame((s) => s.settings.lang);
+  const darkMode = useGame((s) => s.settings.darkMode);
   const hasProfile = useGame((s) => !!s.profile);
   const tick = useGame((s) => s.tick);
 
@@ -35,6 +36,14 @@ export default function App() {
       window.removeEventListener('focus', tick);
     };
   }, [tick]);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', !!darkMode);
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+      meta.setAttribute('content', darkMode ? '#0e0d18' : '#0a0a1f');
+    }
+  }, [darkMode]);
 
   useEffect(() => {
     document.documentElement.classList.toggle('reduce-motion', reducedMotion);

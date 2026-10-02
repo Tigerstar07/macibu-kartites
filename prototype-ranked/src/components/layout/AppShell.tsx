@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, NavLink, useLocation, useOutlet } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
-import { Crown, Flame, Gift, House, Layers, Trophy, User, Volume2, VolumeX, type LucideIcon } from 'lucide-react';
+import { Crown, Flame, Gift, House, Layers, Moon, Sun, Trophy, User, Volume2, VolumeX, type LucideIcon } from 'lucide-react';
 import { effectiveStreak, useGame } from '../../store/useGame';
 import { rankFromRP, rankName, rankProgress } from '../../lib/rank';
 import { cosmetic } from '../../lib/cosmetics';
@@ -221,6 +221,22 @@ function TopBar() {
           aria-label={settings.sound ? t('Izslēgt skaņu', 'Mute') : t('Ieslēgt skaņu', 'Unmute')}
         >
           {settings.sound ? <Volume2 className="size-5" strokeWidth={2.3} /> : <VolumeX className="size-5" strokeWidth={2.3} />}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            sfx.tap();
+            updateSettings({ darkMode: !settings.darkMode });
+          }}
+          className={ICON_BUTTON}
+          aria-label={settings.darkMode ? t('Gaišais režīms', 'Light mode') : t('Tumšais režīms', 'Dark mode')}
+          title={settings.darkMode ? t('Gaišais režīms', 'Light mode') : t('Tumšais režīms', 'Dark mode')}
+        >
+          {settings.darkMode ? (
+            <Sun className="size-5 text-amber-300 transition-transform duration-300 hover:rotate-45" strokeWidth={2.3} />
+          ) : (
+            <Moon className="size-5 transition-transform duration-300 hover:-rotate-12" strokeWidth={2.3} />
+          )}
         </button>
       </div>
     </header>

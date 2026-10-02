@@ -464,6 +464,9 @@ function SettingsTab() {
             ]}
           />
         </Row>
+        <Row title={t('Tumšais režīms', 'Dark mode')} desc={t('Pārslēgt starp gaišo un tumšo vizuālo tēmu', 'Switch between light and dark theme')}>
+          <Switch checked={!!settings.darkMode} onChange={(v) => updateSettings({ darkMode: v })} label={t('Tumšais režīms', 'Dark mode')} />
+        </Row>
         <Row title={t('Skaņas efekti', 'Sound effects')} desc={t('Sintezētas skaņas — bez audio failiem', 'Synthesised in the browser — no audio files')}>
           <Switch checked={settings.sound} onChange={(v) => updateSettings({ sound: v })} label={t('Skaņas efekti', 'Sound effects')} />
         </Row>

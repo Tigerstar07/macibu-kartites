@@ -29,6 +29,7 @@ export interface Settings {
   reducedMotion: boolean;
   sessionLength: number;
   autoAdvance: boolean;
+  darkMode: boolean;
 }
 
 export interface Stats {
@@ -271,7 +272,14 @@ export const useGame = create<GameState>()(
   persist(
     (set, get) => ({
       ...freshGame(),
-      settings: { lang: 'lv', sound: true, reducedMotion: false, sessionLength: 10, autoAdvance: true },
+      settings: {
+        lang: 'lv',
+        sound: true,
+        reducedMotion: false,
+        sessionLength: 10,
+        autoAdvance: true,
+        darkMode: typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)').matches ? true : false,
+      },
       events: [],
       openChestId: null,
       ceremony: null,
@@ -628,7 +636,13 @@ export const useGame = create<GameState>()(
         quests: s.quests,
       }),
       onRehydrateStorage: () => (state) => {
-        if (state) setSoundEnabled(state.settings.sound);
+        if (state) {
+          setSoundEnabled(state.settings.sound);
+          if (state.settings.darkMode === undefined) {
+            state.settings.darkMode =
+              typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)').matches ? true : false;
+          }
+        }
       },
     },
   ),

@@ -665,3 +665,100 @@
     --color-dim: oklch(0.4 0.02 285);
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Dark Mode — ARCADE PAPER Dark Theme
+   ═══════════════════════════════════════════════════════════════════════ */
+
+html.dark {
+  color-scheme: dark;
+  background-color: var(--color-paper);
+  scrollbar-color: var(--color-ink) var(--color-paper-2);
+
+  /* Deep arcade midnight paper & surfaces */
+  --color-paper: oklch(0.155 0.02 285);
+  --color-paper-2: oklch(0.195 0.024 285);
+  --color-paper-3: oklch(0.245 0.026 285);
+  --color-card: oklch(0.215 0.022 285);
+  --color-ink: oklch(0.89 0.015 285);
+
+  /* Dark ramp */
+  --color-ink-950: oklch(0.12 0.02 285);
+  --color-ink-900: oklch(0.155 0.02 285);
+  --color-ink-850: oklch(0.195 0.022 285);
+  --color-ink-800: oklch(0.235 0.024 285);
+  --color-ink-700: oklch(0.295 0.026 285);
+  --color-ink-600: oklch(0.375 0.028 285);
+
+  /* High-contrast readable typography */
+  --color-fg: oklch(0.96 0.008 88);
+  --color-muted: oklch(0.74 0.018 285);
+  --color-dim: oklch(0.56 0.022 285);
+  --color-line: oklch(0.95 0.01 285 / 0.12);
+  --color-line-strong: oklch(0.95 0.01 285 / 0.28);
+
+  /* Rich dark-tinted soft blocks */
+  --color-brand-soft: oklch(0.30 0.09 285);
+  --color-acid-soft: oklch(0.33 0.09 124);
+  --color-gold-soft: oklch(0.32 0.08 91);
+  --color-good-soft: oklch(0.30 0.08 150);
+  --color-bad-soft: oklch(0.30 0.08 27);
+  --color-streak-soft: oklch(0.31 0.08 58);
+  --color-info-soft: oklch(0.30 0.06 232);
+  --color-candy-soft: oklch(0.30 0.07 352);
+}
+
+/* Subtle background grid & shapes in dark mode */
+html.dark .paper-grid {
+  background-image:
+    linear-gradient(oklch(0.95 0.01 285 / 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0.95 0.01 285 / 0.055) 1px, transparent 1px);
+}
+html.dark .paper-shape {
+  opacity: 0.35;
+}
+html.dark .halftone {
+  --dots: radial-gradient(oklch(0.95 0.01 285 / 0.15) 1.1px, transparent 1.4px);
+}
+
+/* Ensure bright saturated blocks retain dark ink text & icons for contrast */
+html.dark .bg-acid,
+html.dark .bg-gold,
+html.dark .bg-good,
+html.dark .bg-bad,
+html.dark .bg-streak,
+html.dark [class*="bg-acid"]:not(.bg-acid-soft),
+html.dark [class*="bg-gold"]:not(.bg-gold-soft) {
+  --color-ink: oklch(0.18 0.022 285);
+  color: oklch(0.18 0.022 285);
+}
+html.dark .bg-acid svg,
+html.dark .bg-gold svg,
+html.dark .bg-good svg,
+html.dark .bg-bad svg,
+html.dark .bg-streak svg {
+  color: oklch(0.18 0.022 285);
+}
+
+/* Modal and dialog dark overlay */
+html.dark .bg-ink\/45 {
+  background-color: oklch(0 0 0 / 0.72);
+}
+
+/* Dark select chevron */
+html.dark select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23e5e3f1' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+/* Form inputs & textareas in dark mode */
+html.dark .field,
+html.dark input:not([type="checkbox"]):not([type="radio"]),
+html.dark textarea {
+  color: var(--color-fg);
+}
+
+/* Recessed wells in dark mode */
+html.dark .well {
+  box-shadow: inset 0 0 0 2px var(--color-ink), inset 0 3px 0 0 oklch(0 0 0 / 0.35);
+}
+
