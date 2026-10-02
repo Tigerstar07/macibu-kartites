@@ -1,0 +1,667 @@
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ARCADE PAPER — a neo-brutalist design system.
+   Warm paper, ink outlines, hard offset shadows you can press into, and
+   flat colour blocks that each carry exactly one meaning. OKLCH tokens are
+   exposed as Tailwind v4 theme variables (bg-card, border-ink, …).
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@theme {
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Bricolage Grotesque Variable", "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, "SFMono-Regular", Consolas, monospace;
+
+  /* Fluid display type: clamp(min, fluid, max) — no breakpoint jumps. */
+  --text-display-xl: clamp(2.6rem, 1.55rem + 4.2vw, 5rem);
+  --text-display-xl--line-height: 0.98;
+  --text-display-xl--letter-spacing: -0.045em;
+  --text-display-lg: clamp(2.1rem, 1.4rem + 2.8vw, 3.6rem);
+  --text-display-lg--line-height: 1.02;
+  --text-display-lg--letter-spacing: -0.04em;
+  --text-display-md: clamp(1.6rem, 1.28rem + 1.3vw, 2.4rem);
+  --text-display-md--line-height: 1.08;
+  --text-display-md--letter-spacing: -0.03em;
+
+  /* Paper & ink. */
+  --color-paper: oklch(0.972 0.016 88);
+  --color-paper-2: oklch(0.942 0.022 86);
+  --color-paper-3: oklch(0.9 0.028 84);
+  --color-card: oklch(0.996 0.004 90);
+  --color-ink: oklch(0.2 0.022 285);
+
+  /* Dark ramp (overlays, dark surfaces). */
+  --color-ink-950: oklch(0.16 0.02 285);
+  --color-ink-900: oklch(0.2 0.022 285);
+  --color-ink-850: oklch(0.24 0.024 285);
+  --color-ink-800: oklch(0.28 0.026 285);
+  --color-ink-700: oklch(0.34 0.028 285);
+  --color-ink-600: oklch(0.42 0.03 285);
+
+  /* Text emphasis on paper: fg 15:1, muted 8:1, dim 5:1. */
+  --color-fg: oklch(0.2 0.022 285);
+  --color-muted: oklch(0.42 0.022 285);
+  --color-dim: oklch(0.53 0.022 285);
+  --color-line: oklch(0.2 0.022 285 / 0.14);
+  --color-line-strong: oklch(0.2 0.022 285 / 0.3);
+
+  /* Flat colour blocks — one meaning each, everywhere. */
+  --color-brand: oklch(0.58 0.235 285); /* ranked · primary action */
+  --color-brand-soft: oklch(0.88 0.075 292);
+  --color-acid: oklch(0.91 0.2 124); /* selection · highlight */
+  --color-acid-soft: oklch(0.96 0.1 122);
+  --color-gold: oklch(0.87 0.175 91); /* RP · coins · rewards */
+  --color-gold-soft: oklch(0.95 0.08 95);
+  --color-good: oklch(0.79 0.19 150); /* correct */
+  --color-good-soft: oklch(0.93 0.075 152);
+  --color-bad: oklch(0.69 0.2 27); /* mistakes */
+  --color-bad-soft: oklch(0.92 0.055 25);
+  --color-streak: oklch(0.77 0.175 58); /* streaks · combos */
+  --color-streak-soft: oklch(0.93 0.065 65);
+  --color-info: oklch(0.8 0.125 232); /* information · speed */
+  --color-info-soft: oklch(0.93 0.045 232);
+  --color-candy: oklch(0.81 0.14 352); /* flair */
+  --color-candy-soft: oklch(0.94 0.045 352);
+
+  --radius-card: 1.25rem;
+  --radius-tile: 1rem;
+
+  --shadow-hard-sm: 2px 2px 0 0 var(--color-ink);
+  --shadow-hard: 4px 4px 0 0 var(--color-ink);
+  --shadow-hard-lg: 7px 7px 0 0 var(--color-ink);
+
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Native spring via linear(): ~6% overshoot, settles by 70%. */
+  --ease-spring: linear(0, 0.02 1.2%, 0.08 3%, 0.28 7%, 0.55 12%, 0.77 17%, 0.92 22%, 1.01 27%, 1.05 32%, 1.062 36%, 1.058 41%, 1.037 48%, 1.013 57%, 0.999 67%, 0.996 80%, 1);
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-float-slow: float 9s ease-in-out infinite;
+  --animate-spin-slow: spin 16s linear infinite;
+  --animate-spin-slower: spin 40s linear infinite;
+  --animate-flicker: flicker 1.7s ease-in-out infinite;
+  --animate-pulse-glow: pulse-glow 2.4s ease-in-out infinite;
+  --animate-gradient: gradient-pan 9s ease infinite;
+  --animate-bob: bob 2.2s ease-in-out infinite;
+  --animate-wiggle: wiggle 2.6s ease-in-out infinite;
+  --animate-marquee: marquee 28s linear infinite;
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) }
+    50% { transform: translateY(-10px) }
+  }
+  @keyframes flicker {
+    0%, 100% { transform: scale(1) rotate(-2deg); filter: brightness(1) }
+    25% { transform: scale(1.07) rotate(2deg); filter: brightness(1.15) }
+    50% { transform: scale(0.96) rotate(-1deg); filter: brightness(1) }
+    75% { transform: scale(1.04) rotate(1deg); filter: brightness(1.1) }
+  }
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 0.55 }
+    50% { opacity: 1 }
+  }
+  @keyframes gradient-pan {
+    0% { background-position: 0% 50% }
+    50% { background-position: 100% 50% }
+    100% { background-position: 0% 50% }
+  }
+  @keyframes bob {
+    0%, 100% { transform: translateY(0) }
+    50% { transform: translateY(-4px) }
+  }
+  @keyframes wiggle {
+    0%, 100% { rotate: -3deg }
+    50% { rotate: 3deg }
+  }
+  @keyframes marquee {
+    from { transform: translateX(0) }
+    to { transform: translateX(-50%) }
+  }
+}
+
+/* Procedural paper grain (SVG feTurbulence → faint ink speckles). */
+:root {
+  --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .1 0 0 0 0 .09 0 0 0 0 .14 0 0 0 .16 -.05'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  /* Halftone dots for colour blocks. */
+  --dots: radial-gradient(oklch(0.2 0.022 285 / 0.13) 1.1px, transparent 1.4px);
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    background-color: var(--color-paper);
+    -webkit-tap-highlight-color: transparent;
+    scrollbar-color: var(--color-ink) var(--color-paper-2);
+    scrollbar-width: thin;
+    accent-color: var(--color-brand);
+    text-size-adjust: 100%;
+  }
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.55;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  ::selection {
+    background: var(--color-acid);
+    color: var(--color-ink);
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-brand);
+    outline-offset: 3px;
+  }
+  button {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-dim);
+  }
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2317161f' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.9rem center;
+    padding-right: 2.75rem;
+  }
+  kbd {
+    font-family: var(--font-mono);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Surfaces
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Card: white sheet, ink outline, hard shadow. */
+@utility glass {
+  background-color: var(--color-card);
+  border: 2px solid var(--color-ink);
+  box-shadow: 4px 4px 0 0 var(--color-ink);
+}
+
+/* Secondary block: paper tone, outline, no shadow. */
+@utility glass-soft {
+  background-color: var(--color-paper-2);
+  border: 2px solid var(--color-ink);
+}
+
+/* Floating chrome (bars, dialogs, toasts). */
+@utility chrome {
+  background-color: var(--color-card);
+  border: 2px solid var(--color-ink);
+  box-shadow: 3px 3px 0 0 var(--color-ink);
+}
+
+/* Recessed track: progress bars, toggle tracks. */
+@utility well {
+  background-color: var(--color-paper-2);
+  box-shadow: inset 0 0 0 2px var(--color-ink), inset 0 3px 0 0 oklch(0.2 0.022 285 / 0.08);
+}
+
+/* Form field. */
+@utility field {
+  background-color: var(--color-card);
+  border: 2px solid var(--color-ink);
+  box-shadow: 3px 3px 0 0 var(--color-ink);
+  transition: box-shadow 140ms, translate 140ms, border-color 140ms;
+  &:focus,
+  &:focus-visible {
+    outline: none;
+    box-shadow: 4px 4px 0 0 var(--color-brand);
+    translate: -1px -1px;
+  }
+  &[aria-invalid="true"] {
+    border-color: var(--color-bad);
+    box-shadow: 3px 3px 0 0 var(--color-bad);
+  }
+}
+
+/* Solid colour block with an ink outline. Set --c (and optionally --c-ink). */
+@utility tint {
+  color: var(--c-ink, var(--color-ink));
+  background-color: var(--c, var(--color-brand-soft));
+  border: 2px solid var(--color-ink);
+}
+
+/* Soft tinted surface derived from --c. */
+@utility tint-surface {
+  background-color: color-mix(in oklch, var(--c, var(--color-brand)) 24%, var(--color-card));
+  border: 2px solid var(--color-ink);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Tactile controls — the face sits on a hard ink shadow. Hover lifts it,
+   press drives it into the shadow. Uses the individual `translate`
+   property so it composes with anime.js transforms (shake, pop).
+   Knob: --lift (shadow depth, default 3px).
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@utility tactile {
+  border: 2px solid var(--color-ink);
+  box-shadow: var(--lift, 3px) var(--lift, 3px) 0 0 var(--color-ink);
+  transition-property: translate, box-shadow, background-color, color, filter, opacity;
+  transition-duration: 130ms;
+  transition-timing-function: var(--ease-out-quint);
+  &:hover:not(:disabled) {
+    translate: -1px -1px;
+    box-shadow: calc(var(--lift, 3px) + 1px) calc(var(--lift, 3px) + 1px) 0 0 var(--color-ink);
+  }
+  &:active:not(:disabled) {
+    translate: var(--lift, 3px) var(--lift, 3px);
+    box-shadow: 0 0 0 0 var(--color-ink);
+    transition-duration: 45ms;
+  }
+}
+
+/* A control that has been chosen stays pressed in. */
+@utility pressed {
+  translate: var(--lift, 3px) var(--lift, 3px) !important;
+  box-shadow: 0 0 0 0 var(--color-ink) !important;
+}
+
+/* Keyboard keycap. */
+@utility keycap {
+  display: inline-grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-ink);
+  background-color: var(--color-card);
+  border: 2px solid var(--color-ink);
+  border-radius: 0.6rem;
+  box-shadow: 0 2px 0 0 var(--color-ink);
+}
+
+/* Mono uppercase label (pair with a text size class). */
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Ink-outlined display text (stickers, banners, grades). */
+@utility stroke-text {
+  -webkit-text-stroke: var(--stroke, 2px) var(--color-ink);
+  paint-order: stroke fill;
+}
+
+/* Highlighter swipe behind a word. */
+@utility marker {
+  background: linear-gradient(transparent 58%, var(--mk, var(--color-acid)) 58%, var(--mk, var(--color-acid)) 92%, transparent 92%);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  padding-inline: 0.08em;
+}
+
+@utility halftone {
+  background-image: var(--dots);
+  background-size: 12px 12px;
+}
+
+@utility stripes {
+  background-image: repeating-linear-gradient(-45deg, oklch(1 0 0 / 0.28) 0 6px, transparent 6px 12px);
+}
+
+@utility noise-overlay {
+  background-image: var(--noise);
+  pointer-events: none;
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Kept for API compatibility: now a solid brand fill rather than a gradient. */
+@utility text-gradient {
+  color: var(--color-brand);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Paper background: graph grid, grain, a few floating sticker shapes.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.paper {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background-color: var(--color-paper);
+}
+.paper-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(oklch(0.2 0.022 285 / 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0.2 0.022 285 / 0.055) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: linear-gradient(180deg, #000 0%, #000 55%, oklch(0 0 0 / 0.35) 100%);
+}
+.paper-grain {
+  position: absolute;
+  inset: 0;
+  background-image: var(--noise);
+}
+.paper-shape {
+  position: absolute;
+  border: 2px solid var(--color-ink);
+  box-shadow: 4px 4px 0 0 var(--color-ink);
+  animation: shape-drift var(--d, 14s) ease-in-out infinite alternate;
+}
+@keyframes shape-drift {
+  from { translate: 0 0; rotate: var(--r0, 0deg) }
+  to { translate: var(--dx, 14px) var(--dy, -18px); rotate: var(--r1, 8deg) }
+}
+
+/* Marquee ticker. */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: var(--animate-marquee);
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Hue slider: the track shows the spectrum.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.hue-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 16px;
+  border-radius: 9999px;
+  border: 2px solid var(--color-ink);
+  background: linear-gradient(90deg, hsl(0 85% 62%), hsl(60 90% 58%), hsl(120 70% 52%), hsl(180 75% 52%), hsl(240 85% 66%), hsl(300 80% 62%), hsl(359 85% 62%));
+  cursor: pointer;
+}
+.hue-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--color-card);
+  border: 3px solid var(--color-ink);
+  box-shadow: 2px 2px 0 0 var(--color-ink);
+  transition: scale 150ms var(--ease-out-quint);
+}
+.hue-slider:active::-webkit-slider-thumb {
+  scale: 1.15;
+}
+.hue-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-card);
+  border: 3px solid var(--color-ink);
+  box-shadow: 2px 2px 0 0 var(--color-ink);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   FX layer (anime.js particles live here)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+#fx-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 350;
+  overflow: hidden;
+}
+.fx-particle {
+  position: absolute;
+  pointer-events: none;
+  will-change: transform, opacity;
+  outline: 1.5px solid var(--color-ink);
+}
+.fx-ring {
+  position: absolute;
+  border-radius: 9999px;
+  border-style: solid;
+  pointer-events: none;
+}
+/* "+15 RP" pop-ups: sticker text readable on any background. */
+.fx-float {
+  position: absolute;
+  translate: -50% -50%;
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+  -webkit-text-stroke: 5px var(--color-ink);
+  paint-order: stroke fill;
+  text-shadow: 3px 3px 0 var(--color-ink);
+  pointer-events: none;
+}
+.fx-flash {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+.fx-coin {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff7cc 0 18%, #fcd34d 22% 55%, #d97706 100%);
+  border: 2px solid var(--color-ink);
+  box-shadow: 2px 2px 0 var(--color-ink);
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Reusable effects
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.shine {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.shine::after {
+  content: "";
+  position: absolute;
+  inset: -20% auto -20% 0;
+  width: 34%;
+  background: linear-gradient(100deg, transparent, oklch(1 0 0 / 0.45), transparent);
+  transform: translateX(-160%) skewX(-18deg);
+  animation: shine-sweep 4.4s var(--ease-out-quint) infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+@keyframes shine-sweep {
+  0% { transform: translateX(-160%) skewX(-18deg) }
+  40%, 100% { transform: translateX(420%) skewX(-18deg) }
+}
+
+@property --angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes spin-angle {
+  to { --angle: 360deg }
+}
+
+/* Animated gradient border (fever mode, legendary items). */
+.spin-border {
+  position: absolute;
+  inset: -6px;
+  border-radius: inherit;
+  padding: 4px;
+  background: conic-gradient(from var(--angle), var(--b1, #f97316), var(--b2, #facc15), var(--b3, #ef4444), var(--b4, #f472b6), var(--b1, #f97316));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: spin-angle 2.4s linear infinite;
+  pointer-events: none;
+}
+
+/* Sunburst rays for celebrations and hero emblems. */
+.sunburst {
+  background: repeating-conic-gradient(from 0deg, var(--ray, oklch(0.2 0.022 285 / 0.1)) 0deg 9deg, transparent 9deg 18deg);
+  mask-image: radial-gradient(circle, #000 18%, transparent 68%);
+  -webkit-mask-image: radial-gradient(circle, #000 18%, transparent 68%);
+}
+
+.emblem-shine {
+  animation: emblem-shine 4.8s ease-in-out infinite;
+}
+@keyframes emblem-shine {
+  0% { transform: translateX(-60px) }
+  38%, 100% { transform: translateX(170px) }
+}
+
+.cd-ring {
+  animation: cd-ring 0.65s ease-out forwards;
+}
+@keyframes cd-ring {
+  from { transform: scale(0.6); opacity: 1 }
+  to { transform: scale(1.45); opacity: 0 }
+}
+
+.theme-animated {
+  background-size: 300% 300% !important;
+  animation: gradient-pan 12s ease infinite;
+}
+
+.ring-spin {
+  animation: spin 7s linear infinite;
+}
+
+/* Embers rising in fever mode. */
+.ember {
+  position: absolute;
+  bottom: -10px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff7cc, #fb923c 45%, transparent 70%);
+  animation: ember-rise var(--t, 2.6s) linear infinite;
+  animation-delay: var(--delay, 0s);
+  opacity: 0;
+}
+@keyframes ember-rise {
+  0% { transform: translate(0, 0) scale(1); opacity: 0 }
+  12% { opacity: 1 }
+  100% { transform: translate(var(--dx, 20px), -70vh) scale(0.3); opacity: 0 }
+}
+
+/* Question timer: pure CSS so it never re-renders React. The colour is a
+   registered custom property so it animates smoothly. */
+@property --timer-c {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #22c55e;
+}
+.timer-fill {
+  transform-origin: left center;
+  background-color: var(--timer-c);
+  background-image: repeating-linear-gradient(-45deg, oklch(1 0 0 / 0.3) 0 6px, transparent 6px 12px);
+  animation:
+    timer-deplete var(--dur) linear forwards,
+    timer-color var(--dur) linear forwards;
+  animation-delay: var(--delay, 0ms);
+}
+.timer-fill.paused {
+  animation-play-state: paused;
+}
+@keyframes timer-deplete {
+  from { transform: scaleX(1) }
+  to { transform: scaleX(0) }
+}
+@keyframes timer-color {
+  0% { --timer-c: #22c55e }
+  55% { --timer-c: #a3e635 }
+  75% { --timer-c: #facc15 }
+  90%, 100% { --timer-c: #ff5a4e }
+}
+
+/* splitText clips each word while its letters rise; give the clip box room
+   for diacritics (ā, ē, ņ …) and descenders so nothing is shaved at rest. */
+.split-title [style*="overflow: clip"] {
+  padding-block: 0.14em;
+  margin-block: -0.14em;
+}
+
+/* Scroll-driven entrance for below-the-fold sections (progressive
+   enhancement: static where unsupported or when motion is reduced). */
+@keyframes reveal-up {
+  from { opacity: 0; translate: 0 32px }
+  to { opacity: 1; translate: 0 0 }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    html:not(.reduce-motion) .reveal {
+      animation: reveal-up linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 55%;
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Reduced motion
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+/* The question timer is information, not decoration — it keeps running. */
+.reduce-motion .timer-fill {
+  animation-duration: var(--dur) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .timer-fill {
+    animation-duration: var(--dur) !important;
+  }
+}
+
+/* Higher-contrast preference: pure black ink, darker secondary text. */
+@media (prefers-contrast: more) {
+  :root {
+    --color-ink: oklch(0 0 0);
+    --color-muted: oklch(0.3 0.02 285);
+    --color-dim: oklch(0.4 0.02 285);
+  }
+}
