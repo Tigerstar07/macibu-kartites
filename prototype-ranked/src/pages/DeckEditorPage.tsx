@@ -86,13 +86,20 @@ function toDraft(deck: Deck | undefined): Draft {
     ask: deck.ask ?? '',
     reverseAsk: deck.reverseAsk ?? '',
     isPublic: deck.isPublic,
-    cards: deck.cards.map((c) => ({
-      id: c.id,
-      question: c.question,
-      answer: c.answer,
-      wrong: c.wrong && c.wrong.length >= 3 ? [...c.wrong] : [...(c.wrong ?? []), '', '', ''].slice(0, 3),
-      explanation: c.explanation ?? '',
-    })),
+    cards: (() => {
+      const seenIds = new Set<string>();
+      return deck.cards.map((c) => {
+        const id = !c.id || seenIds.has(c.id) ? uid('k') : c.id;
+        seenIds.add(id);
+        return {
+          id,
+          question: c.question,
+          answer: c.answer,
+          wrong: c.wrong && c.wrong.length >= 3 ? [...c.wrong] : [...(c.wrong ?? []), '', '', ''].slice(0, 3),
+          explanation: c.explanation ?? '',
+        };
+      });
+    })(),
     createdAt: deck.createdAt,
   };
 }
@@ -118,7 +125,7 @@ function validate(d: Draft, t: (lv: string, en: string) => string): Errors {
     if (!q) ce.question = t('Jautājums ir obligāts.', 'A question is required.');
     else if (q.length > 200) ce.question = t('Jautājums var būt līdz 200 simboliem.', 'Up to 200 characters.');
     else if (seen.has(q.toLowerCase())) ce.question = t('Šāds jautājums kopā jau ir.', 'This question is already in the deck.');
-    seen.add(q.toLowerCase());
+    if (q) seen.add(q.toLowerCase());
     if (!a) ce.answer = t('Atbilde ir obligāta.', 'An answer is required.');
     else if (a.length > 120) ce.answer = t('Atbilde var būt līdz 120 simboliem.', 'Up to 120 characters.');
     const wr = c.wrong.map((w) => w.trim()).filter(Boolean);
@@ -127,10 +134,10 @@ function validate(d: Draft, t: (lv: string, en: string) => string): Errors {
     else if (new Set(wr.map((w) => w.toLowerCase())).size !== wr.length) ce.wrong = t('Varianti atkārtojas.', 'Options repeat.');
     if (Object.keys(ce).length) e.card[c.id] = ce;
   }
-  if (!e.cards && d.cards.length < 4 && !d.cards.every((c) => c.wrong.filter((w) => w.trim()).length >= 2)) {
+  if (!e.cards && (d.cards.length < 3 || (d.cards.length < 4 && !d.cards.every((c) => c.wrong.filter((w) => w.trim()).length >= 2)))) {
     e.cards = t(
-      'Vajag vismaz 4 kartītes vai katrai kartītei vismaz 2 nepareizus variantus.',
-      'You need at least 4 cards, or at least 2 wrong options on every card.',
+      'Kopā jābūt vismaz 4 kartītēm vai vismaz 3 kartītēm ar 2+ nepareiziem variantiem katrai.',
+      'You need at least 4 cards, or at least 3 cards with 2+ wrong options each.',
     );
   }
   return e;

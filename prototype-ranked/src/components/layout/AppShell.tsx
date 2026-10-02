@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation, useOutlet } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import { Crown, Flame, Gift, House, Layers, Moon, Sun, Trophy, User, Volume2, VolumeX, type LucideIcon } from 'lucide-react';
@@ -144,6 +144,24 @@ function TopBar() {
   const streak = effectiveStreak(stats);
   const rank = rankFromRP(stats.totalRP);
 
+  const prevCoins = useRef(coins);
+  const [coinBump, setCoinBump] = useState(0);
+  useEffect(() => {
+    if (coins > prevCoins.current) {
+      setCoinBump((b) => b + 1);
+    }
+    prevCoins.current = coins;
+  }, [coins]);
+
+  const prevRP = useRef(stats.totalRP);
+  const [rpBump, setRpBump] = useState(0);
+  useEffect(() => {
+    if (stats.totalRP > prevRP.current) {
+      setRpBump((b) => b + 1);
+    }
+    prevRP.current = stats.totalRP;
+  }, [stats.totalRP]);
+
   return (
     <header className="sticky top-0 z-40 flex items-center gap-2 px-4 py-3.5 sm:px-6 lg:px-10">
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-paper via-paper/85 to-paper/0" />
@@ -178,12 +196,18 @@ function TopBar() {
             <span className="font-mono tabular">{streak}</span>
           </div>
           <Divider />
-          <div className="flex items-center gap-1.5 px-3" title={t('Monētas', 'Coins')}>
+          <motion.div
+            key={`coins-${coinBump}`}
+            animate={coinBump > 0 ? { scale: [1, 1.25, 0.95, 1], rotate: [0, -3, 3, 0] } : {}}
+            transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+            className="flex items-center gap-1.5 px-3"
+            title={t('Monētas', 'Coins')}
+          >
             <span data-coin-target className="grid place-items-center">
               <CoinIcon size={19} />
             </span>
             <Counter value={coins} format={fmt} delay={550} className="font-mono" />
-          </div>
+          </motion.div>
           {boosts > 0 && (
             <>
               <Divider className="hidden sm:block" />
@@ -199,9 +223,16 @@ function TopBar() {
             className="hidden items-center gap-1.5 bg-brand-soft pl-1.5 pr-3 transition-colors duration-150 hover:bg-acid dark:hover:bg-brand-soft/80 sm:flex"
             title={rankName(rank, lang)}
           >
-            <RankEmblem rankIndex={rank.index} size={28} idle={false} glow={false} />
-            <Counter value={stats.totalRP} format={fmt} className="font-mono" />
-            <span className="font-mono text-[11px] font-bold text-muted">RP</span>
+            <motion.div
+              key={`rp-${rpBump}`}
+              animate={rpBump > 0 ? { scale: [1, 1.2, 0.95, 1] } : {}}
+              transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+              className="flex items-center gap-1.5"
+            >
+              <RankEmblem rankIndex={rank.index} size={28} idle={false} glow={false} />
+              <Counter value={stats.totalRP} format={fmt} className="font-mono" />
+              <span className="font-mono text-[11px] font-bold text-muted">RP</span>
+            </motion.div>
           </Link>
         </div>
 
@@ -316,13 +347,13 @@ export function AppShell() {
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar />
         <main className="flex-1 px-4 pb-32 pt-2 sm:px-6 lg:px-10 lg:pb-14">
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="popLayout" initial={false}>
             <motion.div
               key={location.pathname}
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
+              initial={{ opacity: 0, y: 12, scale: 0.99 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -8, scale: 0.99 }}
+              transition={{ type: 'spring', stiffness: 420, damping: 32 }}
               className="@container mx-auto w-full max-w-6xl"
             >
               <FrozenOutlet />

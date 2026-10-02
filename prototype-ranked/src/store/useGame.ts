@@ -6,7 +6,7 @@ import { BUILTIN_DECKS } from '../data/decks';
 import { gradeAnswer, newProgress, sm2 } from '../lib/sm2';
 import { TIME_LIMIT, gradeFor, sessionRP, type Grade, type RPBreakdown } from '../lib/rp';
 import { rankIndexFromRP, roadFor } from '../lib/rank';
-import { DAY, dayKey, daysBetween, parseDayKey, weekId } from '../lib/time';
+import { DAY, dayKey, daysBetween, weekId } from '../lib/time';
 import { questDef, rollDailyQuests, type QuestKind, type QuestState } from '../lib/quests';
 import { ACHIEVEMENTS, achievementDef } from '../lib/achievements';
 import { BOOST_PRICE, DEFAULT_EQUIPPED, DEFAULT_OWNED, SHOP_CHEST, cosmetic, rollChest } from '../lib/cosmetics';
@@ -258,7 +258,7 @@ function bumpQuests(q: QuestBook, kind: QuestKind, value: number, mode: 'add' | 
   const completed: string[] = [];
   const items = q.items.map((it) => {
     const def = questDef(it.id);
-    if (def.kind !== kind || it.claimed) return it;
+    if (!def || def.kind !== kind || it.claimed) return it;
     const before = it.progress;
     const progress = Math.min(def.target, mode === 'add' ? before + value : Math.max(before, value));
     if (before < def.target && progress >= def.target) completed.push(it.id);
@@ -395,12 +395,14 @@ export const useGame = create<GameState>()(
         let streakUp = false;
         if (answered >= 3 && prev.lastActiveDay !== today) {
           const gap = prev.lastActiveDay ? daysBetween(prev.lastActiveDay, today) : 99;
-          streak = gap === 1 ? prev.streak + 1 : 1;
-          bestStreak = Math.max(bestStreak, streak);
-          lastActiveDay = today;
-          streakUp = true;
+          if (gap > 0) {
+            streak = gap === 1 ? prev.streak + 1 : 1;
+            bestStreak = Math.max(bestStreak, streak);
+            lastActiveDay = today;
+            streakUp = true;
+          }
         }
-        const liveStreak = lastActiveDay && daysBetween(lastActiveDay, today) <= 1 ? streak : 0;
+        const liveStreak = lastActiveDay && daysBetween(lastActiveDay, today) >= 0 && daysBetween(lastActiveDay, today) <= 1 ? streak : 0;
 
         const breakdown = sessionRP({
           answerRP: answerRPSum,
@@ -540,7 +542,7 @@ export const useGame = create<GameState>()(
         const q = st.quests.items.find((x) => x.id === id);
         if (!q || q.claimed) return 0;
         const def = questDef(id);
-        if (q.progress < def.target) return 0;
+        if (!def || q.progress < def.target) return 0;
         const items = st.quests.items.map((x) => (x.id === id ? { ...x, claimed: true } : x));
         let chests = st.chests;
         let bonusClaimed = st.quests.bonusClaimed;
@@ -616,7 +618,11 @@ export const useGame = create<GameState>()(
         const patch: Partial<GameState> = {};
         if (st.stats.weekId !== wk) {
           if (st.stats.weeklyRP > 0) {
-            const prevWeekTime = st.stats.weekId ? parseDayKey(st.stats.weekId) + 3_600_000 : now - 7 * DAY;
+            const prevWeekTime = (() => {
+              if (!st.stats.weekId) return now - 7 * DAY;
+              const [y, m, d] = st.stats.weekId.split('-').map(Number);
+              return y && m && d ? new Date(y, m - 1, d, 12, 0, 0).getTime() : now - 7 * DAY;
+            })();
             const place = finalWeeklyPlace(st.stats.weeklyRP, prevWeekTime);
             const r = grantItems(walletOf(st), weeklyRewards(place), 'weekly');
             Object.assign(patch, r.wallet);
@@ -659,7 +665,47 @@ export const useGame = create<GameState>()(
     {
       name: 'rrv-ranked-v1',
       version: 1,
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => ({
+        getItem: (k: string) => {
+          try {
+            return localStorage.getItem(k);
+          } catch {
+            return null;
+          }
+        },
+        setItem: (k: string, v: string) => {
+          try {
+            localStorage.setItem(k, v);
+          } catch (e) {
+            console.warn('[Storage] Quota exceeded or storage blocked', e);
+          }
+        },
+        removeItem: (k: string) => {
+          try {
+            localStorage.removeItem(k);
+          } catch {}
+        },
+      })),
+      merge: (persistedState, currentState) => {
+        const p = (persistedState ?? {}) as Partial<GameState>;
+        const pStats = p.stats ?? ({} as Partial<Stats>);
+        const fresh = freshGame();
+        return {
+          ...currentState,
+          ...p,
+          settings: { ...currentState.settings, ...(p.settings ?? {}) },
+          equipped: { ...currentState.equipped, ...(p.equipped ?? {}) },
+          quests: { ...currentState.quests, ...(p.quests ?? {}) },
+          stats: {
+            ...currentState.stats,
+            ...pStats,
+            todayDecks: pStats.todayDecks ?? fresh.stats.todayDecks,
+            activity: pStats.activity ?? {},
+            rpByDay: pStats.rpByDay ?? {},
+            decksStudied: pStats.decksStudied ?? [],
+          },
+        };
+      },
       partialize: (s) => ({
         profile: s.profile,
         settings: s.settings,
@@ -702,7 +748,8 @@ export function useDeck(id: string | undefined): Deck | undefined {
 /** Streak as shown to the player: it survives until the end of the day after the last session. */
 export function effectiveStreak(stats: Stats, now = Date.now()): number {
   if (!stats.lastActiveDay) return 0;
-  return daysBetween(stats.lastActiveDay, dayKey(now)) <= 1 ? stats.streak : 0;
+  const gap = daysBetween(stats.lastActiveDay, dayKey(now));
+  return gap >= 0 && gap <= 1 ? stats.streak : 0;
 }
 
 export const playedToday = (stats: Stats, now = Date.now()) => stats.lastActiveDay === dayKey(now);

@@ -79,7 +79,18 @@ export function SessionResults({
         const el = gradeRef.current;
         if (!el) return;
         if (prefersReducedMotion()) el.style.opacity = '1';
-        else animate(el, { scale: [3.2, 1], rotate: [-24, 0], opacity: [0, 1], duration: 560, ease: 'out(4)' });
+        else {
+          animate(el, {
+            scale: [3.2, 1],
+            rotate: [-24, 0],
+            opacity: [0, 1],
+            duration: 560,
+            ease: 'out(4)',
+            onComplete: () => {
+              el.classList.add('animate-bob');
+            },
+          });
+        }
         timers.push(
           window.setTimeout(() => {
             const c = centerOf(el);
@@ -153,13 +164,15 @@ export function SessionResults({
                   <Target className="size-4 text-emerald-300" />
                   <span className="text-muted">{t('Pareizi', 'Correct')}</span>
                   <b className="tabular">
-                    {outcome.correct}/{outcome.total}
+                    <Counter value={outcome.correct} from={0} duration={600} delay={500} format={fmt} />/{outcome.total}
                   </b>
                 </div>
                 <div className="flex items-center gap-2">
                   <Flame className="size-4 text-orange-300" />
                   <span className="text-muted">{t('Labākais combo', 'Best combo')}</span>
-                  <b className="tabular">×{outcome.bestCombo}</b>
+                  <b className="tabular">
+                    ×<Counter value={outcome.bestCombo} from={0} duration={600} delay={650} format={fmt} />
+                  </b>
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock className="size-4 text-sky-300" />

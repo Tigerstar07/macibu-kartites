@@ -16,6 +16,11 @@ export function setSoundEnabled(v: boolean) {
 function audio(): AudioContext | null {
   if (!enabled || typeof window === 'undefined') return null;
   try {
+    if (ctx && ctx.state === 'closed') {
+      ctx = null;
+      master = null;
+      noiseBuf = null;
+    }
     if (!ctx) {
       const AC =
         window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
@@ -29,13 +34,21 @@ function audio(): AudioContext | null {
       master.connect(comp);
       comp.connect(ctx.destination);
     }
-    if (ctx.state === 'suspended') {
+    if (ctx.state === 'suspended' || (ctx.state as string) === 'interrupted') {
       void ctx.resume().catch(() => {});
     }
     return ctx;
   } catch {
     return null;
   }
+}
+
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && ctx && (ctx.state === 'suspended' || (ctx.state as string) === 'interrupted')) {
+      void ctx.resume().catch(() => {});
+    }
+  });
 }
 
 interface ToneOpts {

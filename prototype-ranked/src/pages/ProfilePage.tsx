@@ -26,7 +26,7 @@ import { AVATARS } from '../lib/bots';
 import { dayKey, weekStart } from '../lib/time';
 import { fmtDate, fmtPct, fmtSec, fmtShortDate } from '../lib/format';
 import { useLang, useNumFmt, useT } from '../lib/i18n';
-import { confettiBurst } from '../lib/fx';
+import { burst, centerOf, confettiBurst } from '../lib/fx';
 import { sfx } from '../lib/sound';
 import { cn } from '../lib/cn';
 import { RankEmblem } from '../components/rank/RankEmblem';
@@ -321,7 +321,16 @@ function CollectionTab() {
                         {t('Izmantots', 'Equipped')}
                       </span>
                     ) : has ? (
-                      <Button size="sm" variant="secondary" onClick={() => equip(c.id)}>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={(e) => {
+                          sfx.tap();
+                          const pos = centerOf(e.currentTarget);
+                          burst(pos.x, pos.y, { count: 12, spread: 70, colors: ['#a78bfa', '#fde68a', '#ffffff'] });
+                          equip(c.id);
+                        }}
+                      >
                         {t('Izmantot', 'Equip')}
                       </Button>
                     ) : (

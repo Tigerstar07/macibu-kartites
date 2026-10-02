@@ -590,7 +590,8 @@
   background-image: repeating-linear-gradient(-45deg, oklch(1 0 0 / 0.3) 0 6px, transparent 6px 12px);
   animation:
     timer-deplete var(--dur) linear forwards,
-    timer-color var(--dur) linear forwards;
+    timer-color var(--dur) linear forwards,
+    timer-urgency var(--dur) linear forwards;
   animation-delay: var(--delay, 0ms);
 }
 .timer-fill.paused {
@@ -605,6 +606,10 @@
   55% { --timer-c: #a3e635 }
   75% { --timer-c: #facc15 }
   90%, 100% { --timer-c: #ff5a4e }
+}
+@keyframes timer-urgency {
+  0%, 74% { filter: none }
+  75%, 100% { filter: drop-shadow(0 0 8px rgba(255, 90, 78, 0.85)) brightness(1.15) }
 }
 
 /* splitText clips each word while its letters rise; give the clip box room

@@ -150,10 +150,12 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
 
   const finish = (completed: boolean) => {
     window.clearTimeout(advanceTimer.current);
+    if (outcome || live.current.phase === 'results') return;
     if (answers.current.length === 0) {
       navigate('/');
       return;
     }
+    live.current.phase = 'results';
     const out = finishSession({
       deckId: deck.id,
       answers: answers.current,
@@ -162,7 +164,6 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
       boosted,
       durationMs: performance.now() - sessionStart.current,
     });
-    live.current.phase = 'results';
     setOutcome(out);
     setPhase('results');
   };
@@ -176,6 +177,7 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
       return;
     }
     live.current.phase = 'question';
+    live.current.index = index + 1;
     setIndex(index + 1);
     setPicked(null);
     setTimedOut(false);
@@ -304,10 +306,18 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
   // Keyboard: 1–4 answer, ←/→ for true/false, Enter/Space continue, Esc quit.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (confirmQuit || useGame.getState().ceremony || e.repeat) return;
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+        return;
+      }
+      const st = useGame.getState();
+      if (confirmQuit || st.ceremony || st.openChestId || !st.profile || st.events.some((ev) => ev.type === 'weekly') || e.repeat) {
+        return;
+      }
       const { phase, queue, index } = live.current;
       const cur = queue[index];
       if (e.key === 'Escape' && (phase === 'question' || phase === 'feedback')) {
+        window.clearTimeout(advanceTimer.current);
         setConfirmQuit(true);
         return;
       }
@@ -315,10 +325,15 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
         const n = Number(e.key);
         if (Number.isInteger(n) && n >= 1 && n <= cur.options.length) {
           e.preventDefault();
-          void answerRef.current(n - 1);
+          const btn = optionRefs.current[n - 1];
+          if (btn) btn.classList.add('pressed');
+          setTimeout(() => void answerRef.current(n - 1), 45);
         } else if (cur.type === 'tf' && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
           e.preventDefault();
-          void answerRef.current(e.key === 'ArrowLeft' ? 0 : 1);
+          const idx = e.key === 'ArrowLeft' ? 0 : 1;
+          const btn = optionRefs.current[idx];
+          if (btn) btn.classList.add('pressed');
+          setTimeout(() => void answerRef.current(idx), 45);
         }
       } else if (phase === 'feedback' && (e.key === 'Enter' || e.key === ' ')) {
         e.preventDefault();
@@ -378,7 +393,10 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
         boosted={boosted}
         sound={settings.sound}
         onToggleSound={() => updateSettings({ sound: !settings.sound })}
-        onQuit={() => setConfirmQuit(true)}
+        onQuit={() => {
+          window.clearTimeout(advanceTimer.current);
+          setConfirmQuit(true);
+        }}
       />
 
       <div ref={stageRef} className="relative flex flex-1 items-start justify-center px-4 pb-12 pt-2 sm:items-center sm:pt-0">

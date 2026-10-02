@@ -6,7 +6,7 @@ import type { RewardItem } from '../../types';
 import { useGame, type Chest } from '../../store/useGame';
 import { RARITY_META } from '../../lib/cosmetics';
 import { useLang, useT } from '../../lib/i18n';
-import { burst, centerOf, confettiBurst, prefersReducedMotion, ring } from '../../lib/fx';
+import { burst, centerOf, confettiBurst, flyCoins, prefersReducedMotion, ring, visibleEl } from '../../lib/fx';
 import { sfx } from '../../lib/sound';
 import { ChestIcon } from './ChestIcon';
 import { RewardCard } from '../ui/Reward';
@@ -82,7 +82,7 @@ function ChestView({ chest, onDone }: { chest: Chest; onDone: () => void }) {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  });
+  }, [phase, onDone]);
 
   return (
     <motion.div
@@ -142,7 +142,26 @@ function ChestView({ chest, onDone }: { chest: Chest; onDone: () => void }) {
                   </motion.div>
                 ))}
               </div>
-              <Button variant="primary" size="lg" className="mt-9 min-w-44" shine onClick={onDone}>
+              <Button
+                variant="primary"
+                size="lg"
+                className="mt-9 min-w-44"
+                shine
+                onClick={(e) => {
+                  sfx.tap();
+                  const coinTarget = visibleEl('[data-coin-target]');
+                  const coinItem = items.find((it) => it.kind === 'coins');
+                  if (coinItem && coinTarget) {
+                    const c = centerOf(e.currentTarget);
+                    flyCoins(c, coinTarget, 10, (i) => {
+                      if (i % 2 === 0) sfx.coin();
+                    });
+                    setTimeout(onDone, 340);
+                  } else {
+                    onDone();
+                  }
+                }}
+              >
                 {t('Paņemt', 'Collect')}
               </Button>
             </motion.div>

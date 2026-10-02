@@ -6,7 +6,7 @@ export const cardKey = (deckId: string, cardId: string) => `${deckId}::${cardId}
 const norm = (s: string) => s.trim().toLowerCase();
 
 function parseNumeric(s: string): number | null {
-  const clean = s.trim().replace(/\s/g, '').replace(/,/g, '.');
+  const clean = s.trim().replace(/\s/g, '').replace(/[−–]/g, '-').replace(/,/g, '.');
   if (!clean || !/^[-+]?\d+(\.\d+)?$/.test(clean)) return null;
   const n = Number(clean);
   return Number.isFinite(n) ? n : null;

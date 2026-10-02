@@ -35,6 +35,20 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
           >
             {lv ? 'Uz sākumu' : 'Go home'}
           </button>
+          <div className="mt-4">
+            <button
+              type="button"
+              onClick={() => {
+                try {
+                  localStorage.removeItem('rrv-ranked-v1');
+                } catch {}
+                window.location.assign('/');
+              }}
+              className="text-xs text-rose-300 underline hover:text-rose-200"
+            >
+              {lv ? 'Dzēst datus un atiestatīt' : 'Clear local data & reset'}
+            </button>
+          </div>
         </div>
       </div>
     );

@@ -155,7 +155,7 @@ export const AnswerButton = forwardRef<
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        'tactile group relative flex min-h-[80px] w-full items-center gap-4 rounded-2xl px-4 py-4 text-left text-ink [--lift:5px] disabled:cursor-default sm:px-5',
+        'tactile group relative flex min-h-[80px] w-full items-center gap-4 rounded-2xl px-4 py-4 text-left text-ink [--lift:5px] disabled:cursor-default touch-manipulation select-none transition-transform active:scale-[0.985] sm:px-5',
         SLOT_FILL[slot >= 0 ? slot : 0],
         OPTION_STYLE[state],
         tf && 'justify-center sm:min-h-[104px]',

@@ -114,23 +114,33 @@ export default function DecksPage() {
         </div>
 
         <div className="mt-4 flex flex-wrap gap-2">
-          {[{ id: 'all' as const, lv: 'Visas', en: 'All' }, ...CATEGORIES].map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => {
-                sfx.tap();
-                setCat(c.id);
-              }}
-              aria-pressed={cat === c.id}
-              className={cn(
-                'rounded-xl px-3.5 py-1.5 text-sm font-semibold transition',
-                cat === c.id ? 'border-2 border-ink bg-ink text-paper dark:bg-brand dark:text-white shadow-hard-sm' : 'border-2 border-transparent bg-paper-2 text-muted hover:border-ink/20 hover:text-ink',
-              )}
-            >
-              {c[lang]}
-            </button>
-          ))}
+          {[{ id: 'all' as const, lv: 'Visas', en: 'All' }, ...CATEGORIES].map((c) => {
+            const active = cat === c.id;
+            return (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => {
+                  sfx.tap();
+                  setCat(c.id);
+                }}
+                aria-pressed={active}
+                className={cn(
+                  'relative rounded-xl px-3.5 py-1.5 text-sm font-semibold transition-colors duration-150',
+                  active ? 'text-paper dark:text-white' : 'border-2 border-transparent bg-paper-2 text-muted hover:border-ink/20 hover:text-ink',
+                )}
+              >
+                {active && (
+                  <motion.span
+                    layoutId="deck-cat-pill"
+                    className="absolute inset-0 rounded-xl border-2 border-ink bg-ink dark:bg-brand shadow-hard-sm"
+                    transition={{ type: 'spring', stiffness: 450, damping: 32 }}
+                  />
+                )}
+                <span className="relative z-10">{c[lang]}</span>
+              </button>
+            );
+          })}
         </div>
         <div className="mt-3 flex flex-wrap gap-1.5">
           {tags.map((tg) => (

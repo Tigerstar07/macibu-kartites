@@ -1,4 +1,5 @@
-import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, type ReactNode } from 'react';
+import { motion, type HTMLMotionProps } from 'motion/react';
 import { cn } from '../../lib/cn';
 import { sfx } from '../../lib/sound';
 
@@ -26,23 +27,28 @@ const SIZE: Record<Size, string> = {
   xl: 'h-15 px-8 text-lg rounded-2xl gap-3 [--lift:4px]',
 };
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends Omit<HTMLMotionProps<'button'>, 'children'> {
   variant?: Variant;
   size?: Size;
   icon?: ReactNode;
   iconRight?: ReactNode;
   shine?: boolean;
   silent?: boolean;
+  children?: ReactNode;
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { variant = 'secondary', size = 'md', icon, iconRight, shine, silent, className, children, onClick, type = 'button', ...rest },
+  { variant = 'secondary', size = 'md', icon, iconRight, shine, silent, className, children, onClick, type = 'button', disabled, ...rest },
   ref,
 ) {
   return (
-    <button
+    <motion.button
       ref={ref}
       type={type}
+      disabled={disabled}
+      whileHover={disabled ? undefined : { y: -2, x: -1 }}
+      whileTap={disabled ? undefined : { y: 2, x: 2, scale: 0.985 }}
+      transition={{ type: 'spring', stiffness: 500, damping: 25 }}
       className={cn(
         'relative inline-flex select-none items-center justify-center font-bold tracking-[-0.01em] whitespace-nowrap disabled:pointer-events-none disabled:opacity-50',
         VARIANT[variant],
@@ -59,6 +65,6 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       {icon}
       {children !== undefined && <span className="relative">{children}</span>}
       {iconRight}
-    </button>
+    </motion.button>
   );
 });

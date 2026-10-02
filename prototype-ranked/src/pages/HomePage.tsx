@@ -20,7 +20,7 @@ import { QuestList } from '../components/rewards/QuestList';
 import { DeckCard } from '../components/decks/DeckCard';
 import { Avatar } from '../components/ui/Avatar';
 import { Button } from '../components/ui/Button';
-import { ProgressBar } from '../components/ui/Meters';
+import { Counter, ProgressBar } from '../components/ui/Meters';
 import { Panel } from '../components/ui/Panel';
 import { RewardChip } from '../components/ui/Reward';
 import { SplitTitle } from '../components/ui/SplitTitle';
@@ -51,10 +51,12 @@ function StatTile({
   label: string;
 }) {
   return (
-    <div className={cn('relative overflow-hidden rounded-tile border-2 border-ink p-4 shadow-hard @md:p-5', className)}>
+    <div className={cn('relative overflow-hidden rounded-tile border-2 border-ink p-4 shadow-hard transition-[translate,box-shadow] duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard-lg @md:p-5', className)}>
       <div className="halftone pointer-events-none absolute inset-0 opacity-70 dark:opacity-20" />
       <div className={cn('relative grid size-10 place-items-center rounded-full border-2 border-ink bg-card text-ink', iconCls)}>{icon}</div>
-      <div className="relative mt-4 font-display text-[1.9rem] font-extrabold leading-none tracking-[-0.04em] tabular @md:text-[2.4rem]">{value}</div>
+      <div className="relative mt-4 font-display text-[1.9rem] font-extrabold leading-none tracking-[-0.04em] tabular @md:text-[2.4rem]">
+        {typeof value === 'number' ? <Counter value={value} /> : value}
+      </div>
       <div className="relative mt-1.5 text-xs font-bold text-ink/75 dark:text-muted @md:text-sm">{label}</div>
     </div>
   );
