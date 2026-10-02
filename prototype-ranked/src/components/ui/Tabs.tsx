@@ -37,11 +37,11 @@ export function Tabs<T extends string>({
             }}
             className={cn(
               'relative flex shrink-0 items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition-colors duration-150',
-              active ? 'text-paper' : 'text-muted hover:bg-paper-2 hover:text-ink',
+              active ? 'text-paper dark:text-white' : 'text-muted hover:bg-paper-2 hover:text-ink',
             )}
           >
             {active && (
-              <motion.span layoutId={layoutId} className="absolute inset-0 rounded-lg bg-ink" transition={{ type: 'spring', stiffness: 460, damping: 36 }} />
+              <motion.span layoutId={layoutId} className="absolute inset-0 rounded-lg bg-ink dark:bg-brand" transition={{ type: 'spring', stiffness: 460, damping: 36 }} />
             )}
             <span className="relative flex items-center gap-2">
               {o.icon}

@@ -119,13 +119,13 @@ export default function RankPage() {
               <div
                 key={lg.id}
                 className={cn(
-                  'ladder-item relative flex flex-col items-center rounded-3xl border p-5 pt-6 text-center',
-                  current ? 'border-white/25 bg-white/8' : 'border-white/8 bg-white/3',
+                  'ladder-item relative flex flex-col items-center rounded-3xl border-2 p-5 pt-6 text-center',
+                  current ? 'border-brand bg-brand-soft/20 shadow-hard' : 'border-ink/15 bg-card/60 shadow-hard-sm',
                 )}
                 style={current ? { boxShadow: `0 0 50px -14px ${lg.glow}` } : undefined}
               >
                 {current && (
-                  <span className="absolute -top-3 rounded-full bg-violet-500 px-3 py-0.5 text-[11px] font-extrabold uppercase tracking-wider">
+                  <span className="absolute -top-3 rounded-full border-2 border-ink bg-brand px-3 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-white shadow-hard-sm">
                     {t('Tu esi šeit', 'You are here')}
                   </span>
                 )}
@@ -140,7 +140,7 @@ export default function RankPage() {
                       key={d}
                       title={`${lg[lang]} ${d}`}
                       className="h-1.5 w-6 rounded-full"
-                      style={{ background: rank.index >= li * 3 + di ? lg.c2 : 'rgba(255,255,255,0.12)' }}
+                      style={{ background: rank.index >= li * 3 + di ? lg.c2 : 'var(--color-line-strong)' }}
                     />
                   ))}
                 </div>
@@ -157,7 +157,7 @@ export default function RankPage() {
         </div>
         <div ref={roadRef} className="no-scrollbar mt-4 overflow-x-auto pb-4">
           <div className="relative flex min-w-max gap-4 px-1 pt-6">
-            <div className="absolute top-[62px] h-1.5 rounded-full bg-white/10" style={{ left: NODE / 2, right: NODE / 2 }} />
+            <div className="absolute top-[62px] h-1.5 rounded-full bg-ink/15" style={{ left: NODE / 2, right: NODE / 2 }} />
             <div
               className="absolute top-[62px] h-1.5 rounded-full bg-gradient-to-r from-violet-500 via-fuchsia-400 to-cyan-300 shadow-[0_0_14px_rgba(167,139,250,0.8)] transition-[width] duration-1000"
               style={{ left: NODE / 2, width: Math.min(lineWidth, (ROAD.length - 1) * (NODE + GAP)) }}
@@ -170,19 +170,19 @@ export default function RankPage() {
                 <div key={step.rankIndex} data-road={step.rankIndex} className="relative flex shrink-0 flex-col items-center text-center" style={{ width: NODE }}>
                   <div
                     className={cn(
-                      'relative grid size-20 place-items-center rounded-full border-2 bg-ink-850',
-                      claimed ? 'border-emerald-400/70' : next ? 'animate-pulse-glow border-violet-300' : 'border-white/10',
+                      'relative grid size-20 place-items-center rounded-full border-2 bg-card shadow-hard-sm',
+                      claimed ? 'border-good' : next ? 'animate-pulse-glow border-brand ring-4 ring-brand/20' : 'border-ink/20',
                     )}
                     style={next ? { boxShadow: `0 0 34px -4px ${r.league.glow}` } : undefined}
                   >
                     <RankEmblem rankIndex={step.rankIndex} size={54} idle={false} glow={false} locked={!claimed && !next} />
                     {claimed && (
-                      <span className="absolute -bottom-1 -right-1 grid size-6 place-items-center rounded-full bg-emerald-400 text-emerald-950">
+                      <span className="absolute -bottom-1 -right-1 grid size-6 place-items-center rounded-full border-2 border-ink bg-good text-ink">
                         <Check className="size-4" strokeWidth={3} />
                       </span>
                     )}
                     {!claimed && !next && (
-                      <span className="absolute -bottom-1 -right-1 grid size-6 place-items-center rounded-full bg-ink-700 text-dim">
+                      <span className="absolute -bottom-1 -right-1 grid size-6 place-items-center rounded-full border-2 border-ink bg-paper-2 text-dim">
                         <Lock className="size-3.5" />
                       </span>
                     )}

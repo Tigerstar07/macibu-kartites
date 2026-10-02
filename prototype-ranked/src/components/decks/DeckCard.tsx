@@ -63,7 +63,7 @@ export const DeckCard = forwardRef<HTMLDivElement, { deck: Deck; counts: Counts;
         className="group relative flex h-full cursor-pointer flex-col overflow-hidden rounded-card border-2 border-ink bg-card shadow-hard transition-[translate,box-shadow] duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard-lg"
       >
         {/* cover: flat deck colour, halftone dots and a big outlined icon */}
-        <div className="relative h-32 overflow-hidden border-b-2 border-ink" style={{ backgroundColor: `hsl(${deck.hue} 88% 72%)` }}>
+        <div className="deck-cover relative h-32 overflow-hidden border-b-2 border-ink" style={{ backgroundColor: `hsl(${deck.hue} 88% 72%)` }}>
           <div className="halftone absolute inset-0" />
           <div
             className="absolute -bottom-10 -right-8 size-40 rounded-full border-2 border-ink"

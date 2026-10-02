@@ -64,7 +64,7 @@ function Heatmap() {
   }, [activity]);
 
   const color = (n: number) =>
-    n === 0 ? 'rgba(255,255,255,0.06)' : n < 5 ? 'rgba(139,92,246,0.4)' : n < 15 ? 'rgba(167,139,250,0.7)' : n < 30 ? 'rgba(34,211,238,0.75)' : '#a5f3fc';
+    n === 0 ? 'var(--color-line-strong)' : n < 5 ? 'rgba(139,92,246,0.45)' : n < 15 ? 'rgba(167,139,250,0.75)' : n < 30 ? 'rgba(34,211,238,0.85)' : '#38bdf8';
   const days = lang === 'lv' ? ['P', '', 'T', '', 'Pk', '', 'Sv'] : ['M', '', 'W', '', 'F', '', 'S'];
 
   return (
@@ -133,7 +133,7 @@ function RPChart() {
               initial={{ height: 0 }}
               animate={{ height: `${Math.max(d.rp ? 6 : 2, (d.rp / max) * 100)}%` }}
               transition={{ delay: 0.1 + i * 0.03, type: 'spring', stiffness: 140, damping: 18 }}
-              className={cn('w-full rounded-t-lg', i === 13 ? 'bg-gradient-to-t from-violet-500 to-cyan-300' : d.rp ? 'bg-gradient-to-t from-violet-600/70 to-violet-400/80' : 'bg-white/8')}
+              className={cn('w-full rounded-t-lg', i === 13 ? 'bg-gradient-to-t from-violet-500 to-cyan-300' : d.rp ? 'bg-gradient-to-t from-violet-600/70 to-violet-400/80' : 'bg-paper-3')}
             />
           </div>
         ))}
@@ -217,8 +217,8 @@ function AchievementsTab() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.03 }}
-              className={cn('relative flex gap-4 overflow-hidden rounded-2xl border p-4', got ? 'bg-white/5' : 'border-white/6 bg-white/[0.02]')}
-              style={got ? { borderColor: `${color}55` } : undefined}
+              className={cn('relative flex gap-4 overflow-hidden rounded-2xl border-2 p-4', got ? 'border-ink bg-card shadow-hard-sm' : 'border-ink/20 bg-paper-2 opacity-75')}
+              style={got ? { borderColor: `${color}88` } : undefined}
             >
               <div
                 className="grid size-12 shrink-0 place-items-center rounded-2xl"
@@ -301,8 +301,8 @@ function CollectionTab() {
                   <div
                     key={c.id}
                     className={cn(
-                      'flex items-center gap-4 rounded-2xl border p-3.5 transition-colors',
-                      on ? 'border-violet-400/60 bg-violet-500/10' : has ? 'border-white/10 bg-white/5' : 'border-white/5 bg-white/[0.02]',
+                      'flex items-center gap-4 rounded-2xl border-2 p-3.5 transition-colors',
+                      on ? 'border-brand bg-brand-soft/30 shadow-hard-sm' : has ? 'border-ink bg-card shadow-hard-sm' : 'border-ink/15 bg-paper-2 opacity-65',
                     )}
                   >
                     <div className={cn(!has && 'opacity-40 grayscale')}>
@@ -385,7 +385,7 @@ function ShopTab() {
         <span className="ml-auto hidden text-sm text-dim sm:inline">{t('Pelni monētas ar uzdevumiem, lādēm un sasniegumiem', 'Earn coins from quests, chests and achievements')}</span>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="flex items-center gap-4 rounded-2xl border border-cyan-300/25 bg-cyan-400/5 p-4">
+        <div className="flex items-center gap-4 rounded-2xl border-2 border-info/50 bg-card shadow-hard-sm p-4">
           <BoostIcon size={48} />
           <div className="min-w-0 flex-1">
             <div className="font-bold">{t('RP pastiprinājums', 'RP boost')}</div>
@@ -393,7 +393,7 @@ function ShopTab() {
           </div>
           <PriceButton p={{ kind: 'boost', price: BOOST_PRICE, name: t('RP pastiprinājums', 'RP boost') }} />
         </div>
-        <div className="flex items-center gap-4 rounded-2xl border border-sky-300/25 bg-sky-400/5 p-4">
+        <div className="flex items-center gap-4 rounded-2xl border-2 border-brand/50 bg-card shadow-hard-sm p-4">
           <ChestIcon rarity={SHOP_CHEST.rarity} size={52} glow={false} />
           <div className="min-w-0 flex-1">
             <div className="font-bold">{t('Reta lāde', 'Rare chest')}</div>
@@ -402,7 +402,7 @@ function ShopTab() {
           <PriceButton p={{ kind: 'chest', price: SHOP_CHEST.price, name: t('Reta lāde', 'Rare chest') }} />
         </div>
         {items.map((c) => (
-          <div key={c.id} className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+          <div key={c.id} className="flex items-center gap-4 rounded-2xl border-2 border-ink bg-card shadow-hard-sm p-4">
             <CosmeticPreview item={c} size={48} />
             <div className="min-w-0 flex-1">
               <div className="truncate font-bold">{c[lang]}</div>
@@ -431,7 +431,7 @@ function ShopTab() {
 
 function Row({ title, desc, children }: { title: string; desc?: string; children: React.ReactNode }) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/6 py-4 last:border-0">
+    <div className="flex flex-wrap items-center justify-between gap-4 border-b border-ink/15 py-4 last:border-0">
       <div className="min-w-0">
         <div className="font-semibold">{title}</div>
         {desc && <div className="text-sm text-muted">{desc}</div>}
@@ -564,8 +564,8 @@ function EditProfile({ open, onClose }: { open: boolean; onClose: () => void }) 
             aria-label={t('Segvārds', 'Nickname')}
             aria-invalid={!valid}
             className={cn(
-              'h-12 w-full rounded-2xl border bg-white/5 px-4 font-semibold outline-none transition focus:bg-white/8',
-              valid ? 'border-white/10 focus:border-violet-400/70' : 'border-rose-400/70',
+              'h-12 w-full rounded-2xl border-2 bg-card px-4 font-semibold outline-none transition text-fg placeholder:text-dim',
+              valid ? 'border-ink/20 focus:border-ink focus:shadow-hard-sm' : 'border-bad ring-2 ring-bad/20',
             )}
           />
           <input
@@ -588,13 +588,13 @@ function EditProfile({ open, onClose }: { open: boolean; onClose: () => void }) 
             onClick={() => setAvatar(a)}
             aria-pressed={a === avatar}
             aria-label={a}
-            className={cn('grid aspect-square place-items-center rounded-xl text-2xl transition', a === avatar ? 'bg-violet-500/30 ring-2 ring-violet-300' : 'bg-white/5 hover:bg-white/10')}
+            className={cn('grid aspect-square place-items-center rounded-xl text-2xl transition', a === avatar ? 'border-2 border-ink bg-brand text-white shadow-hard-sm' : 'border-2 border-transparent bg-paper-2 hover:border-ink/20')}
           >
             {a}
           </button>
         ))}
       </div>
-      {!valid && <p className="mt-3 text-sm text-rose-300">{t('Vārdam jābūt 2–16 simboliem (burti, cipari, atstarpe, . _ -).', 'Name must be 2–16 characters (letters, digits, space, . _ -).')}</p>}
+      {!valid && <p className="mt-3 text-sm text-bad font-semibold">{t('Vārdam jābūt 2–16 simboliem (burti, cipari, atstarpe, . _ -).', 'Name must be 2–16 characters (letters, digits, space, . _ -).')}</p>}
       <div className="mt-6 flex justify-end gap-3">
         <Button variant="ghost" onClick={onClose}>
           {t('Atcelt', 'Cancel')}
@@ -641,7 +641,7 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={() => setEditing(true)}
-                className="grid size-9 shrink-0 place-items-center rounded-xl glass-soft text-muted transition hover:text-white"
+                className="grid size-9 shrink-0 place-items-center rounded-xl glass-soft text-muted transition hover:text-ink"
                 aria-label={t('Rediģēt profilu', 'Edit profile')}
               >
                 <Pencil className="size-4" />

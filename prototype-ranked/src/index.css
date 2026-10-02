@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ═══════════════════════════════════════════════════════════════════════
    ARCADE PAPER — a neo-brutalist design system.
    Warm paper, ink outlines, hard offset shadows you can press into, and
@@ -66,9 +68,10 @@
   --radius-card: 1.25rem;
   --radius-tile: 1rem;
 
-  --shadow-hard-sm: 2px 2px 0 0 var(--color-ink);
-  --shadow-hard: 4px 4px 0 0 var(--color-ink);
-  --shadow-hard-lg: 7px 7px 0 0 var(--color-ink);
+  --shadow-color: var(--color-ink);
+  --shadow-hard-sm: 2px 2px 0 0 var(--shadow-color, var(--color-ink));
+  --shadow-hard: 4px 4px 0 0 var(--shadow-color, var(--color-ink));
+  --shadow-hard-lg: 7px 7px 0 0 var(--shadow-color, var(--color-ink));
 
   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
   /* Native spring via linear(): ~6% overshoot, settles by 70%. */
@@ -193,7 +196,7 @@
 @utility glass {
   background-color: var(--color-card);
   border: 2px solid var(--color-ink);
-  box-shadow: 4px 4px 0 0 var(--color-ink);
+  box-shadow: 4px 4px 0 0 var(--shadow-color, var(--color-ink));
 }
 
 /* Secondary block: paper tone, outline, no shadow. */
@@ -206,7 +209,7 @@
 @utility chrome {
   background-color: var(--color-card);
   border: 2px solid var(--color-ink);
-  box-shadow: 3px 3px 0 0 var(--color-ink);
+  box-shadow: 3px 3px 0 0 var(--shadow-color, var(--color-ink));
 }
 
 /* Recessed track: progress bars, toggle tracks. */
@@ -219,7 +222,7 @@
 @utility field {
   background-color: var(--color-card);
   border: 2px solid var(--color-ink);
-  box-shadow: 3px 3px 0 0 var(--color-ink);
+  box-shadow: 3px 3px 0 0 var(--shadow-color, var(--color-ink));
   transition: box-shadow 140ms, translate 140ms, border-color 140ms;
   &:focus,
   &:focus-visible {
@@ -255,17 +258,17 @@
 
 @utility tactile {
   border: 2px solid var(--color-ink);
-  box-shadow: var(--lift, 3px) var(--lift, 3px) 0 0 var(--color-ink);
+  box-shadow: var(--lift, 3px) var(--lift, 3px) 0 0 var(--shadow-color, var(--color-ink));
   transition-property: translate, box-shadow, background-color, color, filter, opacity;
   transition-duration: 130ms;
   transition-timing-function: var(--ease-out-quint);
   &:hover:not(:disabled) {
     translate: -1px -1px;
-    box-shadow: calc(var(--lift, 3px) + 1px) calc(var(--lift, 3px) + 1px) 0 0 var(--color-ink);
+    box-shadow: calc(var(--lift, 3px) + 1px) calc(var(--lift, 3px) + 1px) 0 0 var(--shadow-color, var(--color-ink));
   }
   &:active:not(:disabled) {
     translate: var(--lift, 3px) var(--lift, 3px);
-    box-shadow: 0 0 0 0 var(--color-ink);
+    box-shadow: 0 0 0 0 var(--shadow-color, var(--color-ink));
     transition-duration: 45ms;
   }
 }
@@ -667,77 +670,117 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   Dark Mode — ARCADE PAPER Dark Theme
+   Dark Mode — refined, premium arcade theme
    ═══════════════════════════════════════════════════════════════════════ */
 
 html.dark {
   color-scheme: dark;
   background-color: var(--color-paper);
-  scrollbar-color: var(--color-ink) var(--color-paper-2);
+  scrollbar-color: var(--color-paper-3) var(--color-paper);
 
-  /* Deep arcade midnight paper & surfaces */
-  --color-paper: oklch(0.155 0.02 285);
-  --color-paper-2: oklch(0.195 0.024 285);
-  --color-paper-3: oklch(0.245 0.026 285);
-  --color-card: oklch(0.215 0.022 285);
-  --color-ink: oklch(0.89 0.015 285);
+  /* Deep arcade midnight canvas & layers */
+  --color-paper: oklch(0.142 0.018 285);      /* #111019 deep canvas */
+  --color-paper-2: oklch(0.185 0.022 285);   /* #1a1928 secondary surface */
+  --color-paper-3: oklch(0.23 0.025 285);    /* #242236 recessed */
+  --color-card: oklch(0.195 0.02 285);       /* #1c1a2b elevated card */
 
-  /* Dark ramp */
-  --color-ink-950: oklch(0.12 0.02 285);
-  --color-ink-900: oklch(0.155 0.02 285);
-  --color-ink-850: oklch(0.195 0.022 285);
-  --color-ink-800: oklch(0.235 0.024 285);
-  --color-ink-700: oklch(0.295 0.026 285);
-  --color-ink-600: oklch(0.375 0.028 285);
+  /* Outline ink in dark mode:
+     A refined structural border with subtle slate tint.
+     Clear and crisp without blinding white glare. */
+  --color-ink: oklch(0.36 0.026 285);        /* #37344e crisp structural border */
 
-  /* High-contrast readable typography */
-  --color-fg: oklch(0.96 0.008 88);
-  --color-muted: oklch(0.74 0.018 285);
-  --color-dim: oklch(0.56 0.022 285);
-  --color-line: oklch(0.95 0.01 285 / 0.12);
-  --color-line-strong: oklch(0.95 0.01 285 / 0.28);
+  /* Typography: bright and high-contrast on dark surfaces */
+  --color-fg: oklch(0.96 0.006 88);          /* #f6f5ee crisp white text */
+  --color-muted: oklch(0.72 0.016 285);      /* #aba8be readable secondary */
+  --color-dim: oklch(0.54 0.02 285);         /* #7d7a94 muted labels */
+  --color-line: oklch(1 0 0 / 0.08);
+  --color-line-strong: oklch(1 0 0 / 0.18);
 
-  /* Rich dark-tinted soft blocks */
-  --color-brand-soft: oklch(0.30 0.09 285);
-  --color-acid-soft: oklch(0.33 0.09 124);
-  --color-gold-soft: oklch(0.32 0.08 91);
-  --color-good-soft: oklch(0.30 0.08 150);
-  --color-bad-soft: oklch(0.30 0.08 27);
-  --color-streak-soft: oklch(0.31 0.08 58);
-  --color-info-soft: oklch(0.30 0.06 232);
-  --color-candy-soft: oklch(0.30 0.07 352);
+  /* Dark ramps */
+  --color-ink-950: oklch(0.11 0.016 285);
+  --color-ink-900: oklch(0.142 0.018 285);
+  --color-ink-850: oklch(0.175 0.02 285);
+  --color-ink-800: oklch(0.215 0.022 285);
+  --color-ink-700: oklch(0.285 0.025 285);
+  --color-ink-600: oklch(0.365 0.028 285);
+
+  /* Brand in dark mode: rich royal purple that pops without blinding glare */
+  --color-brand: oklch(0.54 0.22 285);
+  --color-brand-soft: oklch(0.27 0.08 285);
+
+  /* Accents in dark mode: rich, high-contrast, non-glaring */
+  --color-acid: oklch(0.86 0.18 124);
+  --color-acid-soft: oklch(0.28 0.08 124);
+  --color-gold: oklch(0.85 0.16 91);
+  --color-gold-soft: oklch(0.28 0.08 91);
+  --color-good: oklch(0.76 0.18 150);
+  --color-good-soft: oklch(0.27 0.08 150);
+  --color-bad: oklch(0.68 0.19 27);
+  --color-bad-soft: oklch(0.27 0.08 27);
+  --color-streak: oklch(0.76 0.17 58);
+  --color-streak-soft: oklch(0.28 0.08 58);
+  --color-info: oklch(0.77 0.12 232);
+  --color-info-soft: oklch(0.27 0.06 232);
+  --color-candy: oklch(0.76 0.14 352);
+  --color-candy-soft: oklch(0.27 0.07 352);
+
+  /* Shadows: Deep black neo-brutalist offset shadows! NO white blocks! */
+  --shadow-color: #000000;
+  --shadow-hard-sm: 2px 2px 0 0 #000000;
+  --shadow-hard: 4px 4px 0 0 #000000;
+  --shadow-hard-lg: 6px 6px 0 0 #000000;
 }
 
-/* Subtle background grid & shapes in dark mode */
+/* Hide ambient sticker shapes in dark mode to prevent accidental cutoffs */
+html.dark .paper-shape {
+  display: none;
+}
+
+/* Subtle background grid in dark mode */
 html.dark .paper-grid {
   background-image:
-    linear-gradient(oklch(0.95 0.01 285 / 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, oklch(0.95 0.01 285 / 0.055) 1px, transparent 1px);
-}
-html.dark .paper-shape {
-  opacity: 0.35;
+    linear-gradient(oklch(1 0 0 / 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(1 0 0 / 0.035) 1px, transparent 1px);
 }
 html.dark .halftone {
-  --dots: radial-gradient(oklch(0.95 0.01 285 / 0.15) 1.1px, transparent 1.4px);
+  --dots: radial-gradient(oklch(1 0 0 / 0.08) 1.1px, transparent 1.4px);
 }
 
-/* Ensure bright saturated blocks retain dark ink text & icons for contrast */
-html.dark .bg-acid,
-html.dark .bg-gold,
-html.dark .bg-good,
-html.dark .bg-bad,
-html.dark .bg-streak,
-html.dark [class*="bg-acid"]:not(.bg-acid-soft),
-html.dark [class*="bg-gold"]:not(.bg-gold-soft) {
-  --color-ink: oklch(0.18 0.022 285);
-  color: oklch(0.18 0.022 285);
+/* In dark mode, text-ink on neutral cards/buttons inherits light text */
+html.dark .text-ink {
+  color: var(--color-fg);
 }
-html.dark .bg-acid svg,
-html.dark .bg-gold svg,
-html.dark .bg-good svg,
-html.dark .bg-bad svg,
-html.dark .bg-streak svg {
-  color: oklch(0.18 0.022 285);
+
+/* Bright saturated buttons / badges maintain dark ink for crystal readability */
+html.dark .bg-acid:not([class*="dark:bg-"]),
+html.dark .bg-acid:not([class*="dark:bg-"]) .text-ink,
+html.dark .bg-gold:not([class*="dark:bg-"]),
+html.dark .bg-gold:not([class*="dark:bg-"]) .text-ink,
+html.dark .bg-good:not([class*="dark:bg-"]),
+html.dark .bg-good:not([class*="dark:bg-"]) .text-ink,
+html.dark .bg-bad:not([class*="dark:bg-"]),
+html.dark .bg-bad:not([class*="dark:bg-"]) .text-ink,
+html.dark .bg-streak:not([class*="dark:bg-"]),
+html.dark .bg-streak:not([class*="dark:bg-"]) .text-ink {
+  color: #100f18 !important;
+}
+html.dark .bg-acid:not([class*="dark:bg-"]) svg,
+html.dark .bg-gold:not([class*="dark:bg-"]) svg,
+html.dark .bg-good:not([class*="dark:bg-"]) svg,
+html.dark .bg-bad:not([class*="dark:bg-"]) svg,
+html.dark .bg-streak:not([class*="dark:bg-"]) svg {
+  color: #100f18 !important;
+}
+
+/* Deck card headers in dark mode: deep, rich saturation instead of blinding pastel */
+html.dark .deck-cover {
+  filter: saturate(0.85) brightness(0.72);
+}
+
+/* Dark ticker & dark strips */
+html.dark .bg-ink {
+  background-color: oklch(0.12 0.016 285) !important;
+  color: var(--color-fg);
 }
 
 /* Modal and dialog dark overlay */
@@ -759,6 +802,6 @@ html.dark textarea {
 
 /* Recessed wells in dark mode */
 html.dark .well {
-  box-shadow: inset 0 0 0 2px var(--color-ink), inset 0 3px 0 0 oklch(0 0 0 / 0.35);
+  box-shadow: inset 0 0 0 2px var(--color-ink), inset 0 3px 0 0 oklch(0 0 0 / 0.4);
 }
 

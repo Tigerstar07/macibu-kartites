@@ -140,8 +140,8 @@ const hasErrors = (e: Errors) => !!(e.title || e.description || e.tags || e.card
 
 const inputCls = (err?: boolean) =>
   cn(
-    'w-full rounded-2xl border bg-white/5 px-4 py-3 outline-none transition placeholder:text-dim focus:bg-white/8',
-    err ? 'border-rose-400/70' : 'border-white/10 focus:border-violet-400/70',
+    'w-full rounded-2xl border-2 bg-card px-4 py-3 outline-none transition placeholder:text-dim text-fg',
+    err ? 'border-bad ring-2 ring-bad/20' : 'border-ink/20 focus:border-ink focus:shadow-hard-sm',
   );
 
 function Field({ label, error, hint, children, htmlFor }: { label: string; error?: string; hint?: string; children: ReactNode; htmlFor?: string }) {
@@ -262,7 +262,7 @@ export default function DeckEditorPage() {
       <button
         type="button"
         onClick={() => (dirty ? setConfirmLeave(true) : leave())}
-        className="inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-white"
+        className="inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-ink"
       >
         <ArrowLeft className="size-4" /> {t('Atpakaļ', 'Back')}
       </button>
@@ -300,18 +300,18 @@ export default function DeckEditorPage() {
             </Field>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label={t('Kategorija', 'Category')} htmlFor="deck-cat">
-                <select id="deck-cat" value={draft.category} onChange={(e) => set('category', e.target.value as CategoryId)} className={cn(inputCls(), 'bg-ink-800')}>
+                <select id="deck-cat" value={draft.category} onChange={(e) => set('category', e.target.value as CategoryId)} className={inputCls()}>
                   {CATEGORIES.map((c) => (
-                    <option key={c.id} value={c.id}>
+                    <option key={c.id} value={c.id} className="bg-card text-fg">
                       {c[lang]}
                     </option>
                   ))}
                 </select>
               </Field>
               <Field label={t('Valoda', 'Language')} htmlFor="deck-lang">
-                <select id="deck-lang" value={draft.language} onChange={(e) => set('language', e.target.value as Lang)} className={cn(inputCls(), 'bg-ink-800')}>
-                  <option value="lv">Latviešu (LV)</option>
-                  <option value="en">English (EN)</option>
+                <select id="deck-lang" value={draft.language} onChange={(e) => set('language', e.target.value as Lang)} className={inputCls()}>
+                  <option value="lv" className="bg-card text-fg">Latviešu (LV)</option>
+                  <option value="en" className="bg-card text-fg">English (EN)</option>
                 </select>
               </Field>
             </div>
@@ -383,7 +383,7 @@ export default function DeckEditorPage() {
                   aria-label={ic}
                   className={cn(
                     'grid aspect-square place-items-center rounded-xl transition',
-                    draft.icon === ic ? 'bg-violet-500/30 text-white ring-2 ring-violet-300' : 'bg-white/5 text-muted hover:bg-white/10 hover:text-white',
+                    draft.icon === ic ? 'border-2 border-ink bg-brand text-white shadow-hard-sm' : 'border-2 border-transparent bg-paper-2 text-muted hover:border-ink/20 hover:text-ink',
                   )}
                 >
                   <I className="size-5" />
@@ -415,7 +415,7 @@ export default function DeckEditorPage() {
           </Button>
         }
       >
-        {show && errors.cards && <p className="mb-3 rounded-xl bg-rose-500/10 px-4 py-2.5 text-sm text-rose-200">{errors.cards}</p>}
+        {show && errors.cards && <p className="mb-3 rounded-xl border border-bad bg-bad-soft px-4 py-2.5 text-sm font-semibold text-ink">{errors.cards}</p>}
         <ol className="space-y-3">
           <AnimatePresence initial={false}>
             {draft.cards.map((c, i) => {
@@ -427,14 +427,14 @@ export default function DeckEditorPage() {
                   initial={{ opacity: 0, y: -10, scale: 0.98 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, x: -40, transition: { duration: 0.2 } }}
-                  className="rounded-2xl border border-white/8 bg-white/[0.035] p-4"
+                  className="rounded-2xl border-2 border-ink bg-card shadow-hard-sm p-4"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="grid size-8 place-items-center rounded-lg bg-white/8 font-display text-sm font-bold">{i + 1}</span>
+                    <span className="grid size-8 place-items-center rounded-lg border-2 border-ink bg-paper-2 font-display text-sm font-bold text-ink">{i + 1}</span>
                     <button
                       type="button"
                       onClick={() => requestRemove(c)}
-                      className="grid size-9 place-items-center rounded-xl text-dim transition hover:bg-rose-500/15 hover:text-rose-300"
+                      className="grid size-9 place-items-center rounded-xl text-dim transition hover:bg-bad hover:text-ink"
                       aria-label={t(`Dzēst kartīti ${i + 1}`, `Delete card ${i + 1}`)}
                     >
                       <Trash2 className="size-4" />
@@ -498,15 +498,15 @@ export default function DeckEditorPage() {
         <button
           type="button"
           onClick={addCard}
-          className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-white/12 py-4 font-semibold text-muted transition hover:border-violet-400/50 hover:text-white"
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-ink/25 py-4 font-bold text-muted transition hover:border-ink hover:text-ink hover:bg-paper-2"
         >
           <Plus className="size-5" /> {t('Pievienot kartīti', 'Add card')}
         </button>
       </Panel>
 
-      <div className="sticky bottom-24 z-30 mt-5 flex flex-wrap items-center justify-end gap-3 rounded-3xl border border-white/10 bg-ink-900/90 p-3 backdrop-blur-xl lg:bottom-4">
+      <div className="sticky bottom-24 z-30 mt-5 flex flex-wrap items-center justify-end gap-3 rounded-3xl border-2 border-ink bg-card p-3 shadow-hard-lg lg:bottom-4">
         {show && errCount > 0 && (
-          <span className="mr-auto pl-2 text-sm text-rose-300">
+          <span className="mr-auto pl-2 text-sm text-bad font-semibold">
             {t(`Izlabo ${errCount} kļūdas`, `Fix ${errCount} issue(s)`)}
           </span>
         )}

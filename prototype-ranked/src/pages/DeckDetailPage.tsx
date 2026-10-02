@@ -17,10 +17,10 @@ import { Ring } from '../components/ui/Meters';
 import { DECK_ICONS } from '../components/ui/Icons';
 
 const MASTERY_META: Record<Mastery, { lv: string; en: string; cls: string }> = {
-  new: { lv: 'Jauna', en: 'New', cls: 'bg-slate-400/15 text-slate-300' },
-  learning: { lv: 'Mācās', en: 'Learning', cls: 'bg-amber-400/15 text-amber-200' },
-  review: { lv: 'Atkārto', en: 'Reviewing', cls: 'bg-sky-400/15 text-sky-200' },
-  mastered: { lv: 'Apgūta', en: 'Mastered', cls: 'bg-emerald-400/15 text-emerald-200' },
+  new: { lv: 'Jauna', en: 'New', cls: 'bg-slate-500/15 text-slate-700 dark:text-slate-300 border border-slate-500/20' },
+  learning: { lv: 'Mācās', en: 'Learning', cls: 'bg-amber-500/15 text-amber-800 dark:text-amber-200 border border-amber-500/20' },
+  review: { lv: 'Atkārto', en: 'Reviewing', cls: 'bg-sky-500/15 text-sky-800 dark:text-sky-200 border border-sky-500/20' },
+  mastered: { lv: 'Apgūta', en: 'Mastered', cls: 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 border border-emerald-500/20' },
 };
 
 export default function DeckDetailPage() {
@@ -69,15 +69,15 @@ export default function DeckDetailPage() {
   };
 
   const tiles = [
-    { label: t('Kartītes', 'Cards'), value: counts.total, color: '#e2e8f0' },
-    { label: t('Jāatkārto', 'Due'), value: counts.due, color: '#fb7185' },
-    { label: t('Jaunas', 'New'), value: counts.fresh, color: '#a5b4fc' },
-    { label: t('Apgūtas', 'Mastered'), value: counts.mastered, color: '#34d399' },
+    { label: t('Kartītes', 'Cards'), value: counts.total, color: 'var(--color-fg)' },
+    { label: t('Jāatkārto', 'Due'), value: counts.due, color: 'var(--color-bad)' },
+    { label: t('Jaunas', 'New'), value: counts.fresh, color: 'var(--color-brand)' },
+    { label: t('Apgūtas', 'Mastered'), value: counts.mastered, color: 'var(--color-good)' },
   ];
 
   return (
     <div>
-      <Link to="/decks" className="inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-white">
+      <Link to="/decks" className="inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-ink">
         <ArrowLeft className="size-4" /> {t('Visas kopas', 'All decks')}
       </Link>
 
@@ -104,16 +104,16 @@ export default function DeckDetailPage() {
               <h1 className="font-display text-3xl font-extrabold leading-tight sm:text-4xl">{deck.title}</h1>
               <p className="mt-2 text-lg text-muted">{deck.description}</p>
               <div className="mt-4 flex flex-wrap gap-2 text-sm">
-                {category && <span className="rounded-lg bg-white/8 px-2.5 py-1 font-semibold">{category[lang]}</span>}
-                <span className="rounded-lg bg-white/8 px-2.5 py-1 font-semibold uppercase">{deck.language}</span>
-                <span className="rounded-lg bg-white/8 px-2.5 py-1 text-muted">
+                {category && <span className="rounded-lg border border-ink/15 bg-paper-2 px-2.5 py-1 font-semibold">{category[lang]}</span>}
+                <span className="rounded-lg border border-ink/15 bg-paper-2 px-2.5 py-1 font-semibold uppercase">{deck.language}</span>
+                <span className="rounded-lg border border-ink/15 bg-paper-2 px-2.5 py-1 text-muted">
                   {t('Autors', 'By')}: {deck.author}
                 </span>
-                <span className="rounded-lg bg-white/8 px-2.5 py-1 text-muted">
+                <span className="rounded-lg border border-ink/15 bg-paper-2 px-2.5 py-1 text-muted">
                   {t('Atjaunots', 'Updated')} {fmtDate(deck.updatedAt, lang)}
                 </span>
                 {deck.tags.map((tg) => (
-                  <span key={tg} className="rounded-lg bg-cyan-400/10 px-2.5 py-1 text-cyan-200">
+                  <span key={tg} className="rounded-lg border border-info/30 bg-info-soft px-2.5 py-1 font-semibold text-ink dark:text-sky-300">
                     #{tg}
                   </span>
                 ))}
@@ -190,10 +190,10 @@ export default function DeckDetailPage() {
                 initial={{ opacity: 0, x: -12 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: Math.min(i, 14) * 0.03 }}
-                className="grid gap-2 rounded-2xl border border-white/6 bg-white/[0.035] p-4 sm:grid-cols-[1fr_1fr_auto] sm:items-center sm:gap-5"
+                className="grid gap-2 rounded-2xl border-2 border-ink bg-card shadow-hard-sm p-4 sm:grid-cols-[1fr_1fr_auto] sm:items-center sm:gap-5"
               >
                 <div className="font-semibold">{c.question}</div>
-                <div className="text-emerald-200">{c.answer}</div>
+                <div className="font-medium text-emerald-600 dark:text-emerald-300">{c.answer}</div>
                 <div className="flex items-center gap-2 sm:justify-end">
                   <span className={cn('rounded-lg px-2 py-0.5 text-xs font-bold', MASTERY_META[m].cls)}>{MASTERY_META[m][lang]}</span>
                   {p && <span className="text-xs text-dim">{fmtRelDue(p.due, now, lang)}</span>}

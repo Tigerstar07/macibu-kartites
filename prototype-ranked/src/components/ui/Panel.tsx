@@ -20,7 +20,7 @@ export function Panel({
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <h2 className="flex items-center gap-3 font-display text-xl font-extrabold tracking-[-0.03em]">
             {icon && (
-              <span className="grid size-10 shrink-0 place-items-center rounded-xl border-2 border-ink bg-acid shadow-hard-sm [&_svg]:text-ink">
+              <span className="grid size-10 shrink-0 place-items-center rounded-xl border-2 border-ink bg-acid dark:bg-brand-soft/40 dark:border-brand-soft/50 shadow-hard-sm [&_svg]:text-ink dark:[&_svg]:text-brand-soft">
                 {icon}
               </span>
             )}
@@ -44,7 +44,7 @@ export function Switch({ checked, onChange, label }: { checked: boolean; onChang
       onClick={() => onChange(!checked)}
       className={cn(
         'relative h-8 w-14 shrink-0 rounded-full border-2 border-ink shadow-hard-sm transition-colors duration-200',
-        checked ? 'bg-acid' : 'bg-paper-2',
+        checked ? 'bg-acid dark:bg-brand' : 'bg-paper-2',
       )}
     >
       <span

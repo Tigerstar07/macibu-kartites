@@ -59,7 +59,7 @@ function SideNavItem({ n }: { n: NavDef }) {
       className={({ isActive }) =>
         cn(
           'group relative flex items-center gap-3 rounded-xl px-2 py-2 font-bold transition-colors duration-150',
-          isActive ? 'text-ink' : 'text-muted hover:bg-paper-2 hover:text-ink',
+          isActive ? 'text-ink dark:text-white' : 'text-muted hover:bg-paper-2 hover:text-ink',
         )
       }
     >
@@ -68,14 +68,16 @@ function SideNavItem({ n }: { n: NavDef }) {
           {isActive && (
             <motion.span
               layoutId="side-pill"
-              className="absolute inset-0 rounded-xl border-2 border-ink bg-acid shadow-hard-sm"
+              className="absolute inset-0 rounded-xl border-2 border-ink dark:border-brand-soft/60 bg-acid dark:bg-brand shadow-hard-sm"
               transition={{ type: 'spring', stiffness: 440, damping: 34 }}
             />
           )}
           <span
             className={cn(
               'relative grid size-9 place-items-center rounded-lg border-2 transition-colors duration-150',
-              isActive ? 'border-ink bg-card' : 'border-transparent bg-paper-2 group-hover:border-ink/25',
+              isActive
+                ? 'border-ink bg-card text-ink dark:border-white/25 dark:bg-white/10 dark:text-white'
+                : 'border-transparent bg-paper-2 text-muted group-hover:border-ink/25 group-hover:text-ink',
             )}
           >
             <n.icon className="size-[18px]" strokeWidth={2.3} />
@@ -126,7 +128,7 @@ function MiniProfile() {
   );
 }
 
-const Divider = ({ className }: { className?: string }) => <span className={cn('w-0.5 shrink-0 self-stretch bg-ink', className)} aria-hidden="true" />;
+const Divider = ({ className }: { className?: string }) => <span className={cn('w-0.5 shrink-0 self-stretch bg-ink dark:bg-white/10', className)} aria-hidden="true" />;
 
 function TopBar() {
   const t = useT();
@@ -169,7 +171,7 @@ function TopBar() {
         {/* Segmented stats bar — one HUD object instead of five pills. */}
         <div className="flex h-11 items-stretch overflow-hidden rounded-xl border-2 border-ink bg-card font-bold shadow-hard-sm">
           <div
-            className={cn('flex items-center gap-1.5 px-3', streak > 0 ? 'bg-streak-soft text-ink' : 'text-dim')}
+            className={cn('flex items-center gap-1.5 px-3', streak > 0 ? 'bg-streak-soft text-ink dark:bg-streak/15 dark:text-orange-300' : 'text-dim')}
             title={t('Dienu sērija', 'Day streak')}
           >
             <Flame className={cn('size-[18px]', streak > 0 && 'animate-flicker fill-streak text-ink')} strokeWidth={2.3} />
@@ -194,7 +196,7 @@ function TopBar() {
           <Divider className="hidden sm:block" />
           <Link
             to="/rank"
-            className="hidden items-center gap-1.5 bg-brand-soft pl-1.5 pr-3 transition-colors duration-150 hover:bg-acid sm:flex"
+            className="hidden items-center gap-1.5 bg-brand-soft pl-1.5 pr-3 transition-colors duration-150 hover:bg-acid dark:hover:bg-brand-soft/80 sm:flex"
             title={rankName(rank, lang)}
           >
             <RankEmblem rankIndex={rank.index} size={28} idle={false} glow={false} />
@@ -257,7 +259,7 @@ function BottomNav() {
           end={n.end}
           onClick={() => sfx.tap()}
           className={({ isActive }) =>
-            cn('relative flex flex-1 flex-col items-center gap-0.5 rounded-xl py-2 text-[11px] font-bold', isActive ? 'text-ink' : 'text-dim')
+            cn('relative flex flex-1 flex-col items-center gap-0.5 rounded-xl py-2 text-[11px] font-bold', isActive ? 'text-ink dark:text-white' : 'text-dim')
           }
         >
           {({ isActive }) => (
@@ -265,7 +267,7 @@ function BottomNav() {
               {isActive && (
                 <motion.span
                   layoutId="bottom-pill"
-                  className="absolute inset-0 rounded-xl border-2 border-ink bg-acid"
+                  className="absolute inset-0 rounded-xl border-2 border-ink dark:border-brand-soft/60 bg-acid dark:bg-brand"
                   transition={{ type: 'spring', stiffness: 440, damping: 34 }}
                 />
               )}

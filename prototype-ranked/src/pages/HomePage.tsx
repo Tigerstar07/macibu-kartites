@@ -29,7 +29,7 @@ import { CountdownText } from '../components/ui/CountdownText';
 const FLOAT_ROT = [-8, 7, -4];
 
 /** Place badges: gold, silver, bronze. */
-const MEDAL = ['', 'bg-gold', 'bg-[oklch(0.9_0.01_260)]', 'bg-[oklch(0.78_0.12_55)]'];
+const MEDAL = ['', 'bg-gold text-ink', 'bg-[oklch(0.9_0.01_260)] text-ink', 'bg-[oklch(0.78_0.12_55)] text-ink'];
 
 const INK_LINK =
   'inline-flex items-center gap-1 text-sm font-bold text-ink underline decoration-brand decoration-2 underline-offset-4 transition-colors hover:decoration-ink';
@@ -37,13 +37,25 @@ const INK_LINK =
 const PILL = 'rounded-full border-2 border-ink bg-card px-3 py-1 font-mono text-[11px] font-semibold text-ink';
 
 /** Colour-block KPI tile. */
-function StatTile({ className, icon, value, label }: { className: string; icon: ReactNode; value: ReactNode; label: string }) {
+function StatTile({
+  className,
+  iconCls,
+  icon,
+  value,
+  label,
+}: {
+  className: string;
+  iconCls?: string;
+  icon: ReactNode;
+  value: ReactNode;
+  label: string;
+}) {
   return (
     <div className={cn('relative overflow-hidden rounded-tile border-2 border-ink p-4 shadow-hard @md:p-5', className)}>
-      <div className="halftone pointer-events-none absolute inset-0 opacity-70" />
-      <div className="relative grid size-10 place-items-center rounded-full border-2 border-ink bg-card">{icon}</div>
+      <div className="halftone pointer-events-none absolute inset-0 opacity-70 dark:opacity-20" />
+      <div className={cn('relative grid size-10 place-items-center rounded-full border-2 border-ink bg-card text-ink', iconCls)}>{icon}</div>
       <div className="relative mt-4 font-display text-[1.9rem] font-extrabold leading-none tracking-[-0.04em] tabular @md:text-[2.4rem]">{value}</div>
-      <div className="relative mt-1.5 text-xs font-bold text-ink/75 @md:text-sm">{label}</div>
+      <div className="relative mt-1.5 text-xs font-bold text-ink/75 dark:text-muted @md:text-sm">{label}</div>
     </div>
   );
 }
@@ -114,12 +126,15 @@ function MiniBoard() {
           return (
             <li
               key={p.id}
-              className={cn('flex items-center gap-3 rounded-xl border-2 px-2.5 py-2', p.isYou ? 'border-ink bg-acid shadow-hard-sm' : 'border-ink/15 bg-paper')}
+              className={cn(
+                'flex items-center gap-3 rounded-xl border-2 px-2.5 py-2',
+                p.isYou ? 'border-ink bg-acid dark:bg-brand dark:border-brand-soft/60 dark:text-white shadow-hard-sm' : 'border-ink/15 bg-paper',
+              )}
             >
               <span
                 className={cn(
                   'grid size-7 shrink-0 place-items-center rounded-lg border-2 border-ink font-mono text-[13px] font-bold tabular',
-                  place <= 3 ? MEDAL[place] : 'bg-card',
+                  place <= 3 ? MEDAL[place] : 'bg-card text-ink',
                 )}
               >
                 {place}
@@ -127,7 +142,7 @@ function MiniBoard() {
               <Avatar avatar={p.avatar} hue={p.hue} frame={p.frame} size={32} />
               <span className="min-w-0 flex-1 truncate font-bold">
                 {p.name}
-                {p.isYou && <span className="text-ink/60"> · {t('tu', 'you')}</span>}
+                {p.isYou && <span className="text-ink/60 dark:text-white/70"> · {t('tu', 'you')}</span>}
               </span>
               <span className="font-mono text-sm font-bold tabular">{fmt(p.weeklyRP)}</span>
             </li>
@@ -247,8 +262,8 @@ export default function HomePage() {
         >
           <div className="pointer-events-none absolute inset-0" aria-hidden="true">
             <div className="absolute inset-0 bg-[radial-gradient(oklch(1_0_0/0.2)_1.2px,transparent_1.5px)] [background-size:14px_14px] [mask-image:linear-gradient(120deg,transparent_30%,black_80%)]" />
-            <div className="absolute -bottom-28 -right-20 size-72 rounded-full border-2 border-ink bg-acid" />
-            <div className="absolute -left-10 -top-12 size-28 rounded-full border-2 border-ink bg-candy" />
+            <div className="absolute -bottom-28 -right-20 size-72 rounded-full border-2 border-ink bg-acid dark:opacity-20 dark:blur-2xl dark:border-transparent" />
+            <div className="absolute -left-10 -top-12 size-28 rounded-full border-2 border-ink bg-candy dark:opacity-20 dark:blur-2xl dark:border-transparent" />
           </div>
 
           <div className="pointer-events-none absolute right-0 top-0 hidden h-full w-[270px] @2xl/hero:block" aria-hidden="true">
@@ -259,7 +274,7 @@ export default function HomePage() {
                 <div className="stripes h-full w-2/3 border-r-2 border-ink bg-good" />
               </div>
             </div>
-            <div className="float-card absolute right-28 top-44 flex w-44 items-center gap-2.5 rounded-2xl border-2 border-ink bg-good p-2.5 pr-3 text-ink shadow-hard">
+            <div className="float-card absolute right-28 top-44 flex w-44 items-center gap-2.5 rounded-2xl border-2 border-ink bg-good dark:bg-emerald-950/80 dark:border-emerald-500/50 dark:text-emerald-300 p-2.5 pr-3 text-ink shadow-hard">
               <span className="grid size-8 place-items-center rounded-lg border-2 border-ink bg-card">
                 <Check className="size-4" strokeWidth={3.2} />
               </span>
@@ -315,15 +330,23 @@ export default function HomePage() {
 
         <div className="grid grid-cols-3 gap-3 @md:gap-5 @4xl:col-span-2">
           <StatTile
-            className="bg-streak"
-            icon={<Flame className={cn('size-5 text-ink', streak > 0 && 'animate-flicker fill-gold')} strokeWidth={2.4} />}
+            className="bg-streak dark:bg-card dark:border-streak/60 dark:text-orange-400"
+            iconCls="dark:bg-streak/15 dark:border-streak/40 dark:text-orange-400"
+            icon={<Flame className={cn('size-5 text-ink dark:text-orange-400', streak > 0 && 'animate-flicker fill-gold')} strokeWidth={2.4} />}
             value={streak}
             label={plural(streak, lang, 'dienas sērija', 'dienu sērija', 'day streak', 'day streak')}
           />
-          <StatTile className="bg-info" icon={<Trophy className="size-5 text-ink" strokeWidth={2.4} />} value={`#${place}`} label={t('nedēļas tabulā', 'this week')} />
           <StatTile
-            className="bg-good"
-            icon={<GraduationCap className="size-5 text-ink" strokeWidth={2.4} />}
+            className="bg-info dark:bg-card dark:border-info/60 dark:text-sky-400"
+            iconCls="dark:bg-info/15 dark:border-info/40 dark:text-sky-400"
+            icon={<Trophy className="size-5 text-ink dark:text-sky-400" strokeWidth={2.4} />}
+            value={`#${place}`}
+            label={t('nedēļas tabulā', 'this week')}
+          />
+          <StatTile
+            className="bg-good dark:bg-card dark:border-good/60 dark:text-emerald-400"
+            iconCls="dark:bg-good/15 dark:border-good/40 dark:text-emerald-400"
+            icon={<GraduationCap className="size-5 text-ink dark:text-emerald-400" strokeWidth={2.4} />}
             value={mastered}
             label={plural(mastered, lang, 'apgūta kartīte', 'apgūtas kartītes', 'card mastered', 'cards mastered')}
           />

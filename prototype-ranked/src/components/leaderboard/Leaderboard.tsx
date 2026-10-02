@@ -104,23 +104,21 @@ export function LeaderboardList({ players, board, flashYou }: { players: Player[
             key={p.id}
             data-layout-id={p.id}
             className={cn(
-              'flex items-center gap-3 rounded-2xl border px-3 py-2.5 transition-[background-color,box-shadow] duration-700 sm:gap-4 sm:px-4',
+              'flex items-center gap-3 rounded-2xl border-2 px-3 py-2.5 transition-[background-color,box-shadow] duration-700 sm:gap-4 sm:px-4',
               p.isYou
                 ? cn(
-                    'border-violet-400/60 bg-gradient-to-r from-violet-500/25 via-indigo-500/10 to-transparent',
-                    flashYou ? 'shadow-[0_0_48px_-6px_rgba(167,139,250,1)]' : 'shadow-[0_0_30px_-12px_rgba(139,92,246,0.8)]',
+                    'border-brand bg-brand-soft/25 shadow-hard-sm',
+                    flashYou && 'shadow-[0_0_48px_-6px_rgba(167,139,250,1)]',
                   )
                 : place <= 3
-                  ? 'border-amber-300/15 bg-amber-300/[0.05]'
-                  : place <= 10
-                    ? 'border-white/8 bg-white/[0.045]'
-                    : 'border-white/5 bg-white/[0.025]',
+                  ? 'border-gold/40 bg-gold-soft/30 shadow-hard-sm'
+                  : 'border-ink/15 bg-card',
             )}
           >
             <span
               className={cn(
                 'w-8 shrink-0 text-center font-display font-bold tabular',
-                place === 1 ? 'text-amber-300' : place === 2 ? 'text-slate-200' : place === 3 ? 'text-orange-300' : place <= 10 ? 'text-white' : 'text-dim',
+                place === 1 ? 'text-amber-500 dark:text-amber-300' : place === 2 ? 'text-slate-600 dark:text-slate-200' : place === 3 ? 'text-orange-500 dark:text-orange-300' : 'text-ink',
               )}
             >
               {place}
@@ -129,7 +127,7 @@ export function LeaderboardList({ players, board, flashYou }: { players: Player[
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <span className="truncate font-bold">{p.name}</span>
-                {p.isYou && <span className="shrink-0 rounded-md bg-violet-400/25 px-1.5 text-[11px] font-extrabold text-violet-100">{t('TU', 'YOU')}</span>}
+                {p.isYou && <span className="shrink-0 rounded-md bg-brand px-1.5 text-[11px] font-extrabold text-white">{t('TU', 'YOU')}</span>}
               </div>
               <div className="truncate text-xs text-muted">{title?.[lang]}</div>
             </div>

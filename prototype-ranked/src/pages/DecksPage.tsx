@@ -84,7 +84,7 @@ export default function DecksPage() {
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t('Meklēt kopas, tēmas, tagus…', 'Search decks, topics, tags…')}
               aria-label={t('Meklēt kopas', 'Search decks')}
-              className="h-12 w-full rounded-2xl border border-white/10 bg-white/5 pl-12 pr-4 outline-none transition placeholder:text-dim focus:border-violet-400/60 focus:bg-white/8"
+              className="h-12 w-full rounded-2xl border-2 border-ink/20 bg-card pl-12 pr-4 outline-none transition placeholder:text-dim text-fg focus:border-ink focus:shadow-hard-sm"
             />
           </label>
           <Tabs
@@ -105,8 +105,8 @@ export default function DecksPage() {
             }}
             aria-pressed={mine}
             className={cn(
-              'h-12 rounded-2xl border px-4 font-semibold transition',
-              mine ? 'border-violet-400/60 bg-violet-500/20 text-white' : 'border-white/10 bg-white/5 text-muted hover:text-white',
+              'h-12 rounded-2xl border-2 px-4 font-semibold transition',
+              mine ? 'border-brand bg-brand-soft/30 text-ink dark:text-white shadow-hard-sm' : 'border-ink/20 bg-card text-muted hover:border-ink/40 hover:text-ink',
             )}
           >
             {t('Tikai manas', 'Mine only')}
@@ -125,7 +125,7 @@ export default function DecksPage() {
               aria-pressed={cat === c.id}
               className={cn(
                 'rounded-xl px-3.5 py-1.5 text-sm font-semibold transition',
-                cat === c.id ? 'bg-white text-ink-900' : 'bg-white/6 text-muted hover:bg-white/10 hover:text-white',
+                cat === c.id ? 'border-2 border-ink bg-ink text-paper dark:bg-brand dark:text-white shadow-hard-sm' : 'border-2 border-transparent bg-paper-2 text-muted hover:border-ink/20 hover:text-ink',
               )}
             >
               {c[lang]}
@@ -141,7 +141,7 @@ export default function DecksPage() {
               aria-pressed={tag === tg}
               className={cn(
                 'rounded-lg px-2.5 py-1 text-xs font-semibold transition',
-                tag === tg ? 'bg-cyan-400/25 text-cyan-100' : 'bg-white/5 text-muted hover:text-white',
+                tag === tg ? 'border-2 border-brand bg-brand text-white shadow-hard-sm' : 'border-2 border-transparent bg-paper-2 text-muted hover:border-ink/20 hover:text-ink',
               )}
             >
               #{tg}
@@ -160,7 +160,7 @@ export default function DecksPage() {
 
       {filtered.length === 0 && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-10 flex flex-col items-center text-center">
-          <div className="grid size-16 place-items-center rounded-2xl bg-white/5 text-muted">
+          <div className="grid size-16 place-items-center rounded-2xl border-2 border-ink bg-card text-muted shadow-hard-sm">
             <SearchX className="size-8" />
           </div>
           <p className="mt-4 text-lg font-semibold">{t('Nekas netika atrasts', 'Nothing found')}</p>

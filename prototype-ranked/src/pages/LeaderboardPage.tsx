@@ -128,7 +128,7 @@ export default function LeaderboardPage() {
             >
               <div className="space-y-2.5">
                 {PRIZE_TIERS.map((p) => (
-                  <div key={p.place} className="rounded-2xl bg-white/4 p-3">
+                  <div key={p.place} className="rounded-2xl border border-ink/15 bg-paper-2 p-3">
                     <div className="text-sm font-bold">{p[lang]}</div>
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       {weeklyRewards(p.place).map((it, i) => (
