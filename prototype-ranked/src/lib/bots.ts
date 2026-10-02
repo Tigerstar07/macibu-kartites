@@ -136,10 +136,15 @@ export interface Activity {
 /** Sessions rivals finished in the last `windowMin` minutes (2-minute resolution). */
 export function recentActivity(t: number, windowMin = 120, limit = 6): Activity[] {
   const out: Activity[] = [];
+  const currentWeekStart = weekStart(t);
+  const minutesIntoWeek = Math.max(0, Math.floor((t - currentWeekStart) / MINUTE));
+  const effectiveWindow = Math.min(windowMin, minutesIntoWeek);
+  if (effectiveWindow < 2) return [];
+
   for (const b of BOTS) {
     const nowRP = botWeekly(b, t);
-    if (nowRP <= botWeekly(b, t - windowMin * MINUTE)) continue;
-    for (let m = 2; m <= windowMin; m += 2) {
+    if (nowRP <= botWeekly(b, t - effectiveWindow * MINUTE)) continue;
+    for (let m = 2; m <= effectiveWindow; m += 2) {
       const v = botWeekly(b, t - m * MINUTE);
       if (v < nowRP) {
         const at = t - (m - 1) * MINUTE;

@@ -90,7 +90,7 @@ function toDraft(deck: Deck | undefined): Draft {
       id: c.id,
       question: c.question,
       answer: c.answer,
-      wrong: [...(c.wrong ?? []), '', '', ''].slice(0, 3),
+      wrong: c.wrong && c.wrong.length >= 3 ? [...c.wrong] : [...(c.wrong ?? []), '', '', ''].slice(0, 3),
       explanation: c.explanation ?? '',
     })),
     createdAt: deck.createdAt,
@@ -151,7 +151,7 @@ function Field({ label, error, hint, children, htmlFor }: { label: string; error
         {label}
       </label>
       <div className="mt-1.5">{children}</div>
-      {error ? <p className="mt-1.5 text-sm text-rose-300">{error}</p> : hint ? <p className="mt-1.5 text-sm text-dim">{hint}</p> : null}
+      {error ? <p className="mt-1.5 text-sm font-medium text-bad dark:text-rose-300">{error}</p> : hint ? <p className="mt-1.5 text-sm text-dim">{hint}</p> : null}
     </div>
   );
 }
@@ -182,7 +182,7 @@ export default function DeckEditorPage() {
     return (
       <div className="mt-16 text-center">
         <h1 className="font-display text-2xl font-bold">{t('Kopa nav atrasta', 'Deck not found')}</h1>
-        <Link to="/decks" className="mt-4 inline-flex items-center gap-2 font-semibold text-violet-300">
+        <Link to="/decks" className="mt-4 inline-flex items-center gap-2 font-semibold text-brand hover:text-brand-dark dark:text-violet-300">
           <ArrowLeft className="size-4" /> {t('Uz kopām', 'Back to decks')}
         </Link>
       </div>
@@ -193,7 +193,7 @@ export default function DeckEditorPage() {
       <div className="mx-auto mt-16 max-w-md rounded-3xl glass p-8 text-center">
         <h1 className="font-display text-2xl font-bold">{t('Iebūvēto kopu nevar rediģēt', "Built-in decks can't be edited")}</h1>
         <p className="mt-2 text-muted">{t('Atver kopu un izvēlies "Kopēt un rediģēt".', 'Open the deck and choose "Copy & edit".')}</p>
-        <Link to={`/decks/${existing.id}`} className="mt-5 inline-flex items-center gap-2 font-semibold text-violet-300">
+        <Link to={`/decks/${existing.id}`} className="mt-5 inline-flex items-center gap-2 font-semibold text-brand hover:text-brand-dark dark:text-violet-300">
           <ArrowLeft className="size-4" /> {t('Atpakaļ uz kopu', 'Back to deck')}
         </Link>
       </div>
@@ -221,7 +221,10 @@ export default function DeckEditorPage() {
     if (hasErrors(errors)) {
       sfx.wrong();
       shake(saveRef.current, 9);
-      setTimeout(() => document.querySelector('[aria-invalid="true"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60);
+      setTimeout(() => {
+        const el = document.querySelector('[aria-invalid="true"]') ?? document.getElementById('deck-cards-error');
+        el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 60);
       return;
     }
     const deck: Deck = {
@@ -415,7 +418,11 @@ export default function DeckEditorPage() {
           </Button>
         }
       >
-        {show && errors.cards && <p className="mb-3 rounded-xl border border-bad bg-bad-soft px-4 py-2.5 text-sm font-semibold text-ink">{errors.cards}</p>}
+        {show && errors.cards && (
+          <p id="deck-cards-error" tabIndex={-1} aria-invalid="true" className="mb-3 rounded-xl border border-bad bg-bad-soft px-4 py-2.5 text-sm font-semibold text-ink">
+            {errors.cards}
+          </p>
+        )}
         <ol className="space-y-3">
           <AnimatePresence initial={false}>
             {draft.cards.map((c, i) => {
@@ -441,8 +448,9 @@ export default function DeckEditorPage() {
                     </button>
                   </div>
                   <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                    <Field label={t('Jautājums *', 'Question *')} error={ce?.question}>
+                    <Field label={t('Jautājums *', 'Question *')} error={ce?.question} htmlFor={`card-${c.id}-q`}>
                       <textarea
+                        id={`card-${c.id}-q`}
                         ref={(el) => {
                           questionRefs.current[c.id] = el;
                         }}
@@ -453,8 +461,9 @@ export default function DeckEditorPage() {
                         className={cn(inputCls(!!ce?.question), 'resize-none')}
                       />
                     </Field>
-                    <Field label={t('Pareizā atbilde *', 'Correct answer *')} error={ce?.answer}>
+                    <Field label={t('Pareizā atbilde *', 'Correct answer *')} error={ce?.answer} htmlFor={`card-${c.id}-a`}>
                       <textarea
+                        id={`card-${c.id}-a`}
                         value={c.answer}
                         rows={2}
                         onChange={(e) => setCard(c.id, { answer: e.target.value })}
@@ -480,7 +489,7 @@ export default function DeckEditorPage() {
                         />
                       ))}
                     </div>
-                    {ce?.wrong && <p className="mt-1.5 text-sm text-rose-300">{ce.wrong}</p>}
+                    {ce?.wrong && <p className="mt-1.5 text-sm font-medium text-bad dark:text-rose-300">{ce.wrong}</p>}
                   </div>
                   <input
                     value={c.explanation}

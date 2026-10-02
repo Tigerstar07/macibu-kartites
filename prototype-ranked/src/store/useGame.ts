@@ -6,7 +6,7 @@ import { BUILTIN_DECKS } from '../data/decks';
 import { gradeAnswer, newProgress, sm2 } from '../lib/sm2';
 import { TIME_LIMIT, gradeFor, sessionRP, type Grade, type RPBreakdown } from '../lib/rp';
 import { rankIndexFromRP, roadFor } from '../lib/rank';
-import { dayKey, daysBetween, parseDayKey, weekId } from '../lib/time';
+import { DAY, dayKey, daysBetween, parseDayKey, weekId } from '../lib/time';
 import { questDef, rollDailyQuests, type QuestKind, type QuestState } from '../lib/quests';
 import { ACHIEVEMENTS, achievementDef } from '../lib/achievements';
 import { BOOST_PRICE, DEFAULT_EQUIPPED, DEFAULT_OWNED, SHOP_CHEST, cosmetic, rollChest } from '../lib/cosmetics';
@@ -57,7 +57,7 @@ export interface Stats {
   lastDeckId: string | null;
 }
 
-export type ChestSource = 'road' | 'quest' | 'weekly' | 'shop' | 'achievement' | 'welcome' | 'dev';
+export type ChestSource = 'road' | 'quest' | 'weekly' | 'shop' | 'achievement' | 'welcome' | 'dev' | 'chest';
 
 export interface Chest {
   id: string;
@@ -108,6 +108,7 @@ export interface SessionOutcome {
   promotions: { rankIndex: number; items: RewardItem[] }[];
   achievements: string[];
   completed: boolean;
+  boosted: boolean;
 }
 
 interface QuestBook {
@@ -297,10 +298,18 @@ export const useGame = create<GameState>()(
       },
 
       saveDeck: (deck) => {
+        const cardIds = new Set(deck.cards.map((c) => c.id));
         set((st) => ({
           userDecks: st.userDecks.some((d) => d.id === deck.id)
             ? st.userDecks.map((d) => (d.id === deck.id ? deck : d))
             : [...st.userDecks, deck],
+          progress: Object.fromEntries(
+            Object.entries(st.progress).filter(([k]) => {
+              if (!k.startsWith(`${deck.id}::`)) return true;
+              const cardId = k.slice(deck.id.length + 2);
+              return cardIds.has(cardId);
+            }),
+          ),
         }));
         get().unlockAchievements({});
       },
@@ -309,6 +318,15 @@ export const useGame = create<GameState>()(
         set((st) => ({
           userDecks: st.userDecks.filter((d) => d.id !== id),
           progress: Object.fromEntries(Object.entries(st.progress).filter(([k]) => !k.startsWith(`${id}::`))),
+          stats: {
+            ...st.stats,
+            lastDeckId: st.stats.lastDeckId === id ? null : st.stats.lastDeckId,
+            decksStudied: st.stats.decksStudied.filter((d) => d !== id),
+            todayDecks: {
+              ...st.stats.todayDecks,
+              ids: st.stats.todayDecks.ids.filter((d) => d !== id),
+            },
+          },
         })),
 
       recordAnswer: (a) => {
@@ -319,6 +337,17 @@ export const useGame = create<GameState>()(
         if (!a.relearn) {
           const q = gradeAnswer(a.correct, a.ms, TIME_LIMIT[a.type], a.type, a.timeout);
           progress[a.cardKey] = sm2(progress[a.cardKey] ?? newProgress(), q, now);
+        } else if (a.correct) {
+          const prevP = progress[a.cardKey];
+          if (prevP) {
+            progress[a.cardKey] = {
+              ...prevP,
+              due: Math.max(prevP.due, now + 12 * 3600000),
+              correct: prevP.correct + 1,
+              seen: prevP.seen + 1,
+              last: now,
+            };
+          }
         }
         const stats: Stats = {
           ...st.stats,
@@ -392,7 +421,7 @@ export const useGame = create<GameState>()(
         const rankAfter = rankIndexFromRP(rpAfter);
 
         const promo = applyPromotions(
-          { ...walletOf(st), boosts: input.boosted ? Math.max(0, st.boosts - 1) : st.boosts },
+          { ...walletOf(st), boosts: input.boosted && (input.completed || answered >= 3) ? Math.max(0, st.boosts - 1) : st.boosts },
           rankBefore,
           rankAfter,
           prev.roadClaimed,
@@ -423,15 +452,18 @@ export const useGame = create<GameState>()(
         };
 
         let quests = st.quests;
+        const events = [...st.events];
         const bump = (kind: QuestKind, value: number, mode: 'add' | 'max') => {
-          quests = bumpQuests(quests, kind, value, mode).quests;
+          const r = bumpQuests(quests, kind, value, mode);
+          quests = r.quests;
+          for (const id of r.completed) events.push({ id: uid('e'), type: 'quest', questId: id });
         };
         if (input.completed) bump('sessions', 1, 'add');
         if (breakdown.total > 0) bump('rp', breakdown.total, 'add');
         if (perfect) bump('perfect', 1, 'add');
         bump('decks', stats.todayDecks.ids.length, 'max');
 
-        set({ stats, quests, ...promo.wallet });
+        set({ stats, quests, events, ...promo.wallet });
         const achievements = get().unlockAchievements({
           perfect,
           hour: new Date(now).getHours(),
@@ -461,6 +493,7 @@ export const useGame = create<GameState>()(
           promotions: promo.promotions,
           achievements,
           completed: input.completed,
+          boosted: input.boosted,
         };
       },
 
@@ -468,6 +501,7 @@ export const useGame = create<GameState>()(
         const st = get();
         const s = st.stats;
         const rank = rankIndexFromRP(s.totalRP);
+        const liveStreak = effectiveStreak(s);
         const checks: Record<string, boolean> = {
           first: s.sessions >= 1,
           promoted: rank >= 1,
@@ -477,13 +511,13 @@ export const useGame = create<GameState>()(
           combo15: s.bestCombo >= 15,
           answers100: s.answered >= 100,
           correct250: s.correct >= 250,
-          streak3: s.streak >= 3,
-          streak7: s.streak >= 7,
+          streak3: liveStreak >= 3,
+          streak7: liveStreak >= 7,
           author: st.userDecks.length > 0,
           explorer: s.decksStudied.length >= 3,
           gold: rank >= 6,
           top10: ctx.weeklyPlace !== undefined && ctx.weeklyPlace <= 10 && s.weeklyRP > 0,
-          owl: !!ctx.completed && ctx.hour !== undefined && (ctx.hour >= 22 || ctx.hour < 4),
+          owl: !!ctx.completed && ctx.hour !== undefined && (ctx.hour >= 22 || ctx.hour < 5),
           early: !!ctx.completed && ctx.hour !== undefined && ctx.hour >= 5 && ctx.hour < 8,
         };
         const fresh = ACHIEVEMENTS.filter((a) => !st.achievements[a.id] && checks[a.id]).map((a) => a.id);
@@ -531,7 +565,7 @@ export const useGame = create<GameState>()(
         const chest = st.chests.find((c) => c.id === id);
         if (!chest) return [];
         const items = rollChest(chest.rarity, st.owned);
-        const r = grantItems({ ...walletOf(st), chests: st.chests.filter((c) => c.id !== id) }, items, 'achievement');
+        const r = grantItems({ ...walletOf(st), chests: st.chests.filter((c) => c.id !== id) }, items, 'chest');
         set(r.wallet);
         return r.applied;
       },
@@ -582,12 +616,17 @@ export const useGame = create<GameState>()(
         const patch: Partial<GameState> = {};
         if (st.stats.weekId !== wk) {
           if (st.stats.weeklyRP > 0) {
-            const place = finalWeeklyPlace(st.stats.weeklyRP, parseDayKey(st.stats.weekId) + 3_600_000);
+            const prevWeekTime = st.stats.weekId ? parseDayKey(st.stats.weekId) + 3_600_000 : now - 7 * DAY;
+            const place = finalWeeklyPlace(st.stats.weeklyRP, prevWeekTime);
             const r = grantItems(walletOf(st), weeklyRewards(place), 'weekly');
             Object.assign(patch, r.wallet);
             patch.events = [...st.events, { id: uid('e'), type: 'weekly', place, rp: st.stats.weeklyRP, rewards: r.applied }];
           }
           patch.stats = { ...st.stats, weekId: wk, weeklyRP: 0 };
+        }
+        // Streak maintenance: if lastActiveDay is more than 1 day in the past, reset stored streak
+        if (st.stats.lastActiveDay && daysBetween(st.stats.lastActiveDay, today) > 1 && st.stats.streak > 0) {
+          patch.stats = { ...(patch.stats ?? st.stats), streak: 0 };
         }
         if (st.quests.day !== today) patch.quests = { day: today, items: rollDailyQuests(today), bonusClaimed: false };
         if (Object.keys(patch).length) set(patch);

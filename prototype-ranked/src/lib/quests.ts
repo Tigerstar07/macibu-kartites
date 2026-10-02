@@ -38,8 +38,8 @@ export function rollDailyQuests(day: string): QuestState[] {
   const rnd = seeded('quests', day);
   const kinds = new Set<QuestKind>();
   return ([0, 1, 2] as const).map((tier) => {
-    // Never two quests of the same kind on one day (e.g. two combo quests).
-    const pool = QUESTS.filter((q) => q.tier === tier && !kinds.has(q.kind));
+    const eligible = QUESTS.filter((q) => q.tier === tier && !kinds.has(q.kind));
+    const pool = eligible.length ? eligible : QUESTS.filter((q) => q.tier === tier);
     const pick = pool[Math.floor(rnd() * pool.length)];
     kinds.add(pick.kind);
     return { id: pick.id, progress: 0, claimed: false };

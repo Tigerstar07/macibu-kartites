@@ -11,8 +11,11 @@ export function dayKey(t: number | Date = Date.now()): string {
 }
 
 export function parseDayKey(key: string): number {
-  const [y, m, d] = key.split('-').map(Number);
-  return new Date(y, m - 1, d).getTime();
+  if (!key) return 0;
+  const parts = key.split('-').map(Number);
+  if (parts.length !== 3 || parts.some(isNaN)) return 0;
+  const [y, m, d] = parts;
+  return Date.UTC(y, m - 1, d);
 }
 
 /** Whole days from a to b (DST-safe). */

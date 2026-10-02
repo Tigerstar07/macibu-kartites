@@ -69,6 +69,8 @@ export function SessionResults({
   const TOTAL_AT = ROWS_AT + rows.length * 0.18 + 0.15;
   const RANK_AT = TOTAL_AT + 0.9;
 
+  const ceremonyShownRef = useRef(false);
+
   useEffect(() => {
     const timers: number[] = [];
     timers.push(
@@ -89,13 +91,18 @@ export function SessionResults({
     );
     if (promoted) {
       timers.push(
-        window.setTimeout(
-          () => setCeremony({ from: outcome.rankBefore, to: outcome.rankAfter, items: outcome.promotions.flatMap((p) => p.items) }),
-          (RANK_AT + 1.5) * 1000,
-        ),
+        window.setTimeout(() => {
+          ceremonyShownRef.current = true;
+          setCeremony({ from: outcome.rankBefore, to: outcome.rankAfter, items: outcome.promotions.flatMap((p) => p.items) });
+        }, (RANK_AT + 1.5) * 1000),
       );
     }
-    return () => timers.forEach(clearTimeout);
+    return () => {
+      timers.forEach(clearTimeout);
+      if (promoted && !ceremonyShownRef.current) {
+        setCeremony({ from: outcome.rankBefore, to: outcome.rankAfter, items: outcome.promotions.flatMap((p) => p.items) });
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -208,7 +215,15 @@ export function SessionResults({
                 transition={{ delay: TOTAL_AT }}
                 className="mt-4 flex items-end justify-between"
               >
-                <span className="font-semibold">{t('Kopā', 'Total')}</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold">{t('Kopā', 'Total')}</span>
+                  {outcome.boosted && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-400/20 px-2 py-0.5 text-xs font-bold text-amber-300 ring-1 ring-amber-400/40">
+                      <Zap className="size-3 fill-amber-300" />
+                      2× RP
+                    </span>
+                  )}
+                </div>
                 <span className="flex items-center gap-2">
                   <span className="font-display text-5xl font-extrabold text-gradient">
                     +<Counter value={b.total} from={0} delay={TOTAL_AT * 1000} duration={1000} format={fmt} onTick={sfx.count} />

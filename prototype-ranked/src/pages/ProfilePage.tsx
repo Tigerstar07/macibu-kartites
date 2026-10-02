@@ -354,6 +354,7 @@ function ShopTab() {
   const coins = useGame((s) => s.coins);
   const owned = useGame((s) => s.owned);
   const boosts = useGame((s) => s.boosts);
+  const chests = useGame((s) => s.chests);
   const buyCosmetic = useGame((s) => s.buyCosmetic);
   const buyBoost = useGame((s) => s.buyBoost);
   const buyChest = useGame((s) => s.buyChest);
@@ -397,7 +398,9 @@ function ShopTab() {
           <ChestIcon rarity={SHOP_CHEST.rarity} size={52} glow={false} />
           <div className="min-w-0 flex-1">
             <div className="font-bold">{t('Reta lāde', 'Rare chest')}</div>
-            <div className="text-xs text-muted">{t('Monētas, pastiprinājums un iespēja uz kosmētiku', 'Coins, a boost and a shot at cosmetics')}</div>
+            <div className="text-xs text-muted">
+              {t(`Monētas, pastiprinājums un kosmētika · tev ir ${chests.length}`, `Coins, a boost and cosmetics · you have ${chests.length}`)}
+            </div>
           </div>
           <PriceButton p={{ kind: 'chest', price: SHOP_CHEST.price, name: t('Reta lāde', 'Rare chest') }} />
         </div>
@@ -549,6 +552,12 @@ function EditProfile({ open, onClose }: { open: boolean; onClose: () => void }) 
   const trimmed = name.trim();
   const valid = trimmed.length >= 2 && trimmed.length <= 16 && NAME_RE.test(trimmed);
 
+  const save = () => {
+    if (!valid) return;
+    setProfile({ name: trimmed, avatar, hue });
+    onClose();
+  };
+
   return (
     <Modal open={open} onClose={onClose} className="max-w-lg" labelledBy="edit-profile-title">
       <h2 id="edit-profile-title" className="font-display text-xl font-bold">
@@ -561,6 +570,9 @@ function EditProfile({ open, onClose }: { open: boolean; onClose: () => void }) 
             value={name}
             maxLength={20}
             onChange={(e) => setName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') save();
+            }}
             aria-label={t('Segvārds', 'Nickname')}
             aria-invalid={!valid}
             className={cn(
@@ -602,10 +614,7 @@ function EditProfile({ open, onClose }: { open: boolean; onClose: () => void }) 
         <Button
           variant="primary"
           disabled={!valid}
-          onClick={() => {
-            setProfile({ name: trimmed, avatar, hue });
-            onClose();
-          }}
+          onClick={save}
         >
           {t('Saglabāt', 'Save')}
         </Button>

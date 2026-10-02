@@ -36,7 +36,7 @@ export function Podium({ players, board }: { players: Player[]; board: Board }) 
             </div>
             <div className="mt-2 max-w-full truncate text-center font-bold">
               {p.name}
-              {p.isYou && <span className="text-violet-300"> · {t('tu', 'you')}</span>}
+              {p.isYou && <span className="font-extrabold text-brand dark:text-violet-300"> · {t('tu', 'you')}</span>}
             </div>
             <div className="font-display text-sm font-bold tabular" style={{ color: s.c1 }}>
               {fmt(board === 'weekly' ? p.weeklyRP : p.totalRP)} RP

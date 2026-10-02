@@ -207,7 +207,10 @@ function TopBar() {
 
         <button
           type="button"
-          onClick={() => updateSettings({ lang: lang === 'lv' ? 'en' : 'lv' })}
+          onClick={() => {
+            sfx.tap();
+            updateSettings({ lang: lang === 'lv' ? 'en' : 'lv' });
+          }}
           className={cn(ICON_BUTTON, 'w-12 font-mono text-[13px] font-bold')}
           aria-label={t('Mainīt valodu', 'Switch language')}
         >

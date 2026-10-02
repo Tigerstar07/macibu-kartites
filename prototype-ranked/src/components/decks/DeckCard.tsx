@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, useMotionValue, useSpring } from 'motion/react';
 import { Play } from 'lucide-react';
 import type { Deck } from '../../types';
@@ -53,12 +53,6 @@ export const DeckCard = forwardRef<HTMLDivElement, { deck: Deck; counts: Counts;
           ry.set(0);
         }}
         onClick={open}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') open();
-        }}
-        role="link"
-        tabIndex={0}
-        aria-label={deck.title}
         style={{ rotateX: srx, rotateY: sry }}
         className="group relative flex h-full cursor-pointer flex-col overflow-hidden rounded-card border-2 border-ink bg-card shadow-hard transition-[translate,box-shadow] duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard-lg"
       >
@@ -89,7 +83,11 @@ export const DeckCard = forwardRef<HTMLDivElement, { deck: Deck; counts: Counts;
         </div>
 
         <div className="flex flex-1 flex-col p-5">
-          <h3 className="font-display text-[19px] font-extrabold leading-tight tracking-[-0.03em]">{deck.title}</h3>
+          <h3 className="font-display text-[19px] font-extrabold leading-tight tracking-[-0.03em]">
+            <Link to={`/decks/${deck.id}`} onClick={(e: React.MouseEvent) => e.stopPropagation()} className="hover:underline focus-visible:outline-2 focus-visible:outline-ink">
+              {deck.title}
+            </Link>
+          </h3>
           <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted">{deck.description}</p>
           <div className="mt-3 flex flex-wrap gap-1.5">
             {deck.tags.slice(0, 3).map((tag) => (

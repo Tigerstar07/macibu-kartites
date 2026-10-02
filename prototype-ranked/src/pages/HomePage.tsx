@@ -154,7 +154,7 @@ function MiniBoard() {
           <Zap className="size-3.5 text-ink" strokeWidth={2.6} />
         </span>
         {ahead
-          ? t(`Līdz ${idx}. vietai trūkst ${fmt(ahead.weeklyRP - you.weeklyRP + 1)} RP`, `${fmt(ahead.weeklyRP - you.weeklyRP + 1)} RP to reach #${idx}`)
+          ? t(`Līdz ${idx}. vietai trūkst ${fmt(ahead.weeklyRP - you.weeklyRP)} RP`, `${fmt(ahead.weeklyRP - you.weeklyRP)} RP to reach #${idx}`)
           : t('Tu esi nedēļas līderis!', "You're leading the week!")}
       </p>
       <Link to="/leaderboard" className={cn(INK_LINK, 'mt-auto pt-4')}>
@@ -295,7 +295,7 @@ export default function HomePage() {
             <p className="mt-4 max-w-lg text-[17px] font-medium leading-relaxed text-white/85">
               {totalDue > 0
                 ? t(
-                    `Tev gaida ${totalDue} ${plural(totalDue, 'lv', 'kartīte', 'kartītes', '', '')} atkārtošanai. Katra pareiza atbilde nes RP!`,
+                    `Tevi gaida ${totalDue} ${plural(totalDue, 'lv', 'kartīte', 'kartītes', '', '')} atkārtošanai. Katra pareiza atbilde nes RP!`,
                     `${totalDue} ${plural(totalDue, 'en', '', '', 'card is', 'cards are')} due for review. Every right answer earns RP!`,
                   )
                 : t('Atkārtojamo kartīšu nav — laiks apgūt jaunas un kāpt rangā!', 'Nothing due — time to learn new cards and climb!')}

@@ -15,21 +15,27 @@ export function setSoundEnabled(v: boolean) {
 
 function audio(): AudioContext | null {
   if (!enabled || typeof window === 'undefined') return null;
-  if (!ctx) {
-    const AC =
-      window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!AC) return null;
-    ctx = new AC();
-    const comp = ctx.createDynamicsCompressor();
-    comp.threshold.value = -18;
-    comp.ratio.value = 6;
-    master = ctx.createGain();
-    master.gain.value = 0.32;
-    master.connect(comp);
-    comp.connect(ctx.destination);
+  try {
+    if (!ctx) {
+      const AC =
+        window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!AC) return null;
+      ctx = new AC();
+      const comp = ctx.createDynamicsCompressor();
+      comp.threshold.value = -18;
+      comp.ratio.value = 6;
+      master = ctx.createGain();
+      master.gain.value = 0.32;
+      master.connect(comp);
+      comp.connect(ctx.destination);
+    }
+    if (ctx.state === 'suspended') {
+      void ctx.resume().catch(() => {});
+    }
+    return ctx;
+  } catch {
+    return null;
   }
-  if (ctx.state === 'suspended') void ctx.resume();
-  return ctx;
 }
 
 interface ToneOpts {
@@ -45,56 +51,64 @@ interface ToneOpts {
 function tone(freq: number, o: ToneOpts = {}) {
   const c = audio();
   if (!c || !master) return;
-  const { type = 'sine', dur = 0.15, vol = 0.3, attack = 0.006, when = 0, slideTo, filter } = o;
-  const t0 = c.currentTime + when;
-  const osc = c.createOscillator();
-  const g = c.createGain();
-  osc.type = type;
-  osc.frequency.setValueAtTime(freq, t0);
-  if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, t0 + dur);
-  g.gain.setValueAtTime(0.0001, t0);
-  g.gain.exponentialRampToValueAtTime(vol, t0 + attack);
-  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-  let node: AudioNode = osc;
-  if (filter) {
-    const f = c.createBiquadFilter();
-    f.type = 'lowpass';
-    f.frequency.value = filter;
-    osc.connect(f);
-    node = f;
+  try {
+    const { type = 'sine', dur = 0.15, vol = 0.3, attack = 0.006, when = 0, slideTo, filter } = o;
+    const t0 = c.currentTime + when;
+    const osc = c.createOscillator();
+    const g = c.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t0);
+    if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, t0 + dur);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(vol, t0 + attack);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    let node: AudioNode = osc;
+    if (filter) {
+      const f = c.createBiquadFilter();
+      f.type = 'lowpass';
+      f.frequency.value = filter;
+      osc.connect(f);
+      node = f;
+    }
+    node.connect(g);
+    g.connect(master);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.05);
+  } catch {
+    // Audio scheduling failed or context in invalid state
   }
-  node.connect(g);
-  g.connect(master);
-  osc.start(t0);
-  osc.stop(t0 + dur + 0.05);
 }
 
 function noise(o: { dur?: number; vol?: number; when?: number; from?: number; to?: number; q?: number } = {}) {
   const c = audio();
   if (!c || !master) return;
-  const { dur = 0.3, vol = 0.2, when = 0, from = 600, to = 3000, q = 0.8 } = o;
-  if (!noiseBuf) {
-    noiseBuf = c.createBuffer(1, c.sampleRate, c.sampleRate);
-    const d = noiseBuf.getChannelData(0);
-    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  try {
+    const { dur = 0.3, vol = 0.2, when = 0, from = 600, to = 3000, q = 0.8 } = o;
+    if (!noiseBuf) {
+      noiseBuf = c.createBuffer(1, c.sampleRate, c.sampleRate);
+      const d = noiseBuf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    }
+    const t0 = c.currentTime + when;
+    const src = c.createBufferSource();
+    src.buffer = noiseBuf;
+    const f = c.createBiquadFilter();
+    f.type = 'bandpass';
+    f.Q.value = q;
+    f.frequency.setValueAtTime(from, t0);
+    f.frequency.exponentialRampToValueAtTime(to, t0 + dur);
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(vol, t0 + dur * 0.3);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    src.connect(f);
+    f.connect(g);
+    g.connect(master);
+    src.start(t0);
+    src.stop(t0 + dur + 0.05);
+  } catch {
+    // Noise scheduling failed or context in invalid state
   }
-  const t0 = c.currentTime + when;
-  const src = c.createBufferSource();
-  src.buffer = noiseBuf;
-  const f = c.createBiquadFilter();
-  f.type = 'bandpass';
-  f.Q.value = q;
-  f.frequency.setValueAtTime(from, t0);
-  f.frequency.exponentialRampToValueAtTime(to, t0 + dur);
-  const g = c.createGain();
-  g.gain.setValueAtTime(0.0001, t0);
-  g.gain.exponentialRampToValueAtTime(vol, t0 + dur * 0.3);
-  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-  src.connect(f);
-  f.connect(g);
-  g.connect(master);
-  src.start(t0);
-  src.stop(t0 + dur + 0.05);
 }
 
 /** C-major pentatonic from C5 — correct answers climb it as the combo grows. */

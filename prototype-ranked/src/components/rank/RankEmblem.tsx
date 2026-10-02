@@ -1,5 +1,6 @@
 import { useId } from 'react';
 import { rankAt, type LeagueId } from '../../lib/rank';
+import { useLang } from '../../lib/i18n';
 import { cn } from '../../lib/cn';
 
 const SHIELD = 'M60 14 L94 26 V58 C94 80 79 95 60 106 C41 95 26 80 26 58 V26 Z';
@@ -43,6 +44,7 @@ export function RankEmblem({ rankIndex, size = 96, idle = true, locked = false, 
   const L = rank.league;
   const s = SHAPES[L.id];
   const wingFeathers = WING.slice(0, s.wings);
+  const lang = useLang();
 
   return (
     <svg
@@ -59,7 +61,7 @@ export function RankEmblem({ rankIndex, size = 96, idle = true, locked = false, 
         opacity: locked ? 0.55 : 1,
       }}
       role="img"
-      aria-label={`${L.en} ${rank.division}`}
+      aria-label={`${L[lang]} ${rank.division}`}
     >
       <defs>
         <linearGradient id={`${id}-body`} x1="0" y1="0" x2="0.35" y2="1">

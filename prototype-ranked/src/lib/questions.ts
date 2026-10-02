@@ -4,7 +4,13 @@ import { shuffle } from './random';
 export const cardKey = (deckId: string, cardId: string) => `${deckId}::${cardId}`;
 
 const norm = (s: string) => s.trim().toLowerCase();
-const isNumeric = (s: string) => /^[-+]?\d[\d\s.,]*$/.test(s.trim());
+
+function parseNumeric(s: string): number | null {
+  const clean = s.trim().replace(/\s/g, '').replace(/,/g, '.');
+  if (!clean || !/^[-+]?\d+(\.\d+)?$/.test(clean)) return null;
+  const n = Number(clean);
+  return Number.isFinite(n) ? n : null;
+}
 
 /** Pick plausible wrong options: hand-written ones first, then look-alike answers from the deck. */
 function distractors(card: Card, deck: Deck, rnd: () => number, count: number, field: 'answer' | 'question'): string[] {
@@ -25,15 +31,16 @@ function distractors(card: Card, deck: Deck, rnd: () => number, count: number, f
     }
   }
 
+  const num = parseNumeric(target);
   if (out.length < count) {
-    const tNum = isNumeric(target);
+    const tNum = num !== null;
     const pool = deck.cards
       .filter((c) => c.id !== card.id)
       .map((c) => (field === 'answer' ? c.answer : c.question))
       .map((s) => ({
         s,
         score:
-          (isNumeric(s) === tNum ? 0 : 4) +
+          (Boolean(parseNumeric(s) !== null) === tNum ? 0 : 4) +
           Math.abs(s.length - target.length) / Math.max(target.length, 4) +
           rnd() * 0.9,
       }))
@@ -44,23 +51,31 @@ function distractors(card: Card, deck: Deck, rnd: () => number, count: number, f
     }
   }
 
-  if (out.length < count && isNumeric(target)) {
-    const n = Number(target.replace(/\s/g, '').replace(',', '.'));
-    const step = Math.max(1, Math.round(Math.abs(n) * 0.1));
-    for (let k = 1; out.length < count && k < 12; k++) add(String(n + (k % 2 ? k : -k) * step));
+  if (out.length < count && num !== null) {
+    const step = Math.max(1, Math.round(Math.abs(num) * 0.1));
+    for (let k = 1; out.length < count && k < 12; k++) {
+      const cand = num + (k % 2 ? k : -k) * step;
+      if (Number.isFinite(cand)) add(String(cand));
+    }
   }
   return out;
 }
 
 export function isPlayable(deck: Deck): boolean {
   if (deck.cards.length === 0) return false;
-  return deck.cards.length >= 4 || deck.cards.every((c) => (c.wrong?.filter(Boolean).length ?? 0) >= 2);
+  return (
+    deck.cards.length >= 4 ||
+    (deck.cards.length >= 3 && deck.cards.every((c) => (c.wrong?.filter(Boolean).length ?? 0) >= 2))
+  );
 }
 
 function pickType(deck: Deck, card: Card, rnd: () => number): QType {
   const r = rnd();
-  if (deck.reversible && card.question.length <= 60 && r < 0.18) return 'reverse';
-  if (r < 0.4) return 'tf';
+  if (deck.reversible && deck.cards.length >= 4 && card.question.length <= 60 && r < 0.18) return 'reverse';
+  if (r < 0.4) {
+    const [fake] = distractors(card, deck, rnd, 1, 'answer');
+    if (fake) return 'tf';
+  }
   return 'mc';
 }
 
@@ -78,29 +93,38 @@ export function buildQuestion(deck: Deck, card: Card, type: QType, rnd: () => nu
 
   if (type === 'tf') {
     const [fake] = distractors(card, deck, rnd, 1, 'answer');
-    const truthful = !fake || rnd() < 0.5;
-    return {
-      ...base,
-      type,
-      prompt: card.question,
-      ask: deck.ask,
-      statement: truthful ? card.answer : fake,
-      options: ['true', 'false'],
-      correctIndex: truthful ? 0 : 1,
-    };
+    if (fake) {
+      const truthful = rnd() < 0.5;
+      return {
+        ...base,
+        type,
+        prompt: card.question,
+        ask: deck.ask,
+        statement: truthful ? card.answer : fake,
+        options: ['true', 'false'],
+        correctIndex: truthful ? 0 : 1,
+      };
+    }
+    // Fall back to MC if no plausible fake statement exists
+    type = 'mc';
   }
 
   if (type === 'reverse') {
-    const opts = shuffle([card.question, ...distractors(card, deck, rnd, 3, 'question')], rnd);
-    return {
-      ...base,
-      type,
-      prompt: card.answer,
-      ask: deck.reverseAsk,
-      answer: card.question,
-      options: opts,
-      correctIndex: opts.indexOf(card.question),
-    };
+    const dist = distractors(card, deck, rnd, 3, 'question');
+    if (dist.length >= 2) {
+      const opts = shuffle([card.question, ...dist], rnd);
+      return {
+        ...base,
+        type,
+        prompt: card.answer,
+        ask: deck.reverseAsk,
+        answer: card.question,
+        options: opts,
+        correctIndex: opts.indexOf(card.question),
+      };
+    }
+    // Fall back to MC if not enough question distractors
+    type = 'mc';
   }
 
   const opts = shuffle([card.answer, ...distractors(card, deck, rnd, 3, 'answer')], rnd);

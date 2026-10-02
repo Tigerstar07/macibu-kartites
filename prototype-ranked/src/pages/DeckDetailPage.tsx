@@ -39,7 +39,7 @@ export default function DeckDetailPage() {
     return (
       <div className="mt-16 text-center">
         <h1 className="font-display text-2xl font-bold">{t('Kopa nav atrasta', 'Deck not found')}</h1>
-        <Link to="/decks" className="mt-4 inline-flex items-center gap-2 font-semibold text-violet-300">
+        <Link to="/decks" className="mt-4 inline-flex items-center gap-2 font-semibold text-brand hover:text-brand-dark dark:text-violet-300">
           <ArrowLeft className="size-4" /> {t('Uz kopām', 'Back to decks')}
         </Link>
       </div>
@@ -54,10 +54,12 @@ export default function DeckDetailPage() {
 
   const duplicate = () => {
     const ts = Date.now();
+    const suffix = ` (${t('kopija', 'copy')})`;
+    const baseTitle = deck.title.slice(0, Math.max(1, 60 - suffix.length));
     const copy: Deck = {
       ...deck,
       id: uid('d'),
-      title: `${deck.title} (${t('kopija', 'copy')})`.slice(0, 60),
+      title: `${baseTitle}${suffix}`,
       builtin: false,
       author: profile?.name ?? 'Es',
       createdAt: ts,
@@ -164,14 +166,17 @@ export default function DeckDetailPage() {
                 <Button variant="secondary" size="xl" icon={<Pencil className="size-5" />} onClick={() => navigate(`/decks/${deck.id}/edit`)}>
                   {t('Rediģēt', 'Edit')}
                 </Button>
-                <Button variant="ghost" size="xl" icon={<Trash2 className="size-5" />} className="hover:text-rose-300" onClick={() => setConfirmDel(true)}>
+                <Button variant="secondary" size="xl" icon={<Copy className="size-5" />} onClick={duplicate}>
+                  {t('Kopēt', 'Copy')}
+                </Button>
+                <Button variant="ghost" size="xl" icon={<Trash2 className="size-5" />} className="hover:text-bad dark:hover:text-rose-300" onClick={() => setConfirmDel(true)}>
                   {t('Dzēst', 'Delete')}
                 </Button>
               </>
             )}
           </div>
           {!playable && (
-            <p className="mt-3 text-sm text-amber-200">
+            <p className="mt-3 text-sm font-medium text-amber-800 dark:text-amber-200">
               {t('Pievieno vismaz 4 kartītes (vai 2 nepareizus variantus katrai), lai spēlētu.', 'Add at least 4 cards (or 2 wrong options per card) to play.')}
             </p>
           )}

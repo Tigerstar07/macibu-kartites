@@ -63,7 +63,7 @@ export default function LeaderboardPage() {
   const idx = players.findIndex((p) => p.isYou);
   const key = board === 'weekly' ? 'weeklyRP' : 'totalRP';
   const ahead = idx > 0 ? players[idx - 1] : null;
-  const gap = ahead && me ? ahead[key] - me[key] + 1 : 0;
+  const gap = ahead && me ? ahead[key] - me[key] : 0;
 
   return (
     <div>

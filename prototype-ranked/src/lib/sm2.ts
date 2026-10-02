@@ -54,7 +54,7 @@ export function sm2(p: CardProgress, q: number, now = Date.now()): CardProgress 
 export type Mastery = 'new' | 'learning' | 'review' | 'mastered';
 
 export function mastery(p: CardProgress | undefined): Mastery {
-  if (!p) return 'new';
+  if (!p || p.seen === 0) return 'new';
   if (p.reps < 2) return 'learning';
   if (p.interval < 21) return 'review';
   return 'mastered';

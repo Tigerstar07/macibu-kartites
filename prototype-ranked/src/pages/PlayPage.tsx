@@ -52,7 +52,7 @@ export default function PlayPage() {
               'A deck needs at least 4 cards, or every card needs at least 2 wrong options.',
             )}
           </p>
-          <Link to="/decks" className="mt-6 inline-flex items-center gap-2 font-semibold text-violet-300 hover:text-violet-200">
+          <Link to="/decks" className="mt-6 inline-flex items-center gap-2 font-semibold text-brand hover:text-brand-dark dark:text-violet-300 dark:hover:text-violet-200">
             <ArrowLeft className="size-4" /> {t('Uz kopām', 'Back to decks')}
           </Link>
         </div>
@@ -190,7 +190,9 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
     if (phase !== 'question' || !q) return;
     live.current.phase = 'feedback';
 
-    const ms = timeout ? TIME_LIMIT[q.type] : Math.max(250, performance.now() - clock.current.startedAt);
+    const start = clock.current.startedAt ? clock.current.startedAt - ENTER_MS : performance.now();
+    const rawMs = performance.now() - start;
+    const ms = timeout ? TIME_LIMIT[q.type] : Math.max(250, Math.round(rawMs));
     const correct = !timeout && i === q.correctIndex;
     const nextCombo = correct ? combo + 1 : 0;
     const relearn = !!q.relearn;
@@ -246,7 +248,14 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
       if (combo >= 3) setBanner({ id: Date.now(), text: t('Combo zaudēts', 'Combo lost'), tone: 'lost' });
       if (!relearn) {
         const card = deck.cards.find((c) => `${deck.id}::${c.id}` === q.cardKey);
-        if (card) setQueue((list) => [...list, buildQuestion(deck, card, 'mc', Math.random, true)]);
+        if (card) {
+          const retryQ = buildQuestion(deck, card, 'mc', Math.random, true);
+          setQueue((list) => {
+            const nextList = [...list, retryQ];
+            live.current.queue = nextList;
+            return nextList;
+          });
+        }
       }
     }
   };
@@ -343,7 +352,13 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
       : q.prompt.length > 28
         ? 'text-3xl sm:text-4xl'
         : 'text-4xl sm:text-6xl';
-  const correctText = q ? (q.type === 'tf' ? q.answer : q.options[q.correctIndex]) : '';
+  const correctText = !q
+    ? ''
+    : q.type === 'tf'
+      ? q.correctIndex === 0
+        ? t('Patiess', 'True')
+        : `${t('Aplams (patiesā atbilde:', 'False (correct answer:')} ${q.answer})`
+      : q.options[q.correctIndex];
 
   return (
     <div className="relative z-10 flex min-h-dvh flex-col overflow-x-hidden">
