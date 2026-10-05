@@ -33,6 +33,7 @@ export default function DeckDetailPage() {
   const saveDeck = useGame((s) => s.saveDeck);
   const deleteDeck = useGame((s) => s.deleteDeck);
   const profile = useGame((s) => s.profile);
+  const isAdmin = profile?.role === 'admin';
   const [confirmDel, setConfirmDel] = useState(false);
 
   if (!deck) {
@@ -183,31 +184,33 @@ export default function DeckDetailPage() {
         </div>
       </section>
 
-      <section className="mt-7">
-        <h2 className="font-display text-2xl font-bold">{t('Kartītes', 'Cards')}</h2>
-        <ul className="mt-4 space-y-2.5">
-          {deck.cards.map((c, i) => {
-            const p = progress[cardKey(deck.id, c.id)];
-            const m = mastery(p);
-            return (
-              <motion.li
-                key={c.id}
-                initial={{ opacity: 0, x: -12 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: Math.min(i, 14) * 0.03 }}
-                className="grid gap-2 rounded-2xl border-2 border-ink bg-card shadow-hard-sm p-4 sm:grid-cols-[1fr_1fr_auto] sm:items-center sm:gap-5"
-              >
-                <div className="font-semibold">{c.question}</div>
-                <div className="font-medium text-emerald-600 dark:text-emerald-300">{c.answer}</div>
-                <div className="flex items-center gap-2 sm:justify-end">
-                  <span className={cn('rounded-lg px-2 py-0.5 text-xs font-bold', MASTERY_META[m].cls)}>{MASTERY_META[m][lang]}</span>
-                  {p && <span className="text-xs text-dim">{fmtRelDue(p.due, now, lang)}</span>}
-                </div>
-              </motion.li>
-            );
-          })}
-        </ul>
-      </section>
+      {isAdmin && (
+        <section className="mt-7">
+          <h2 className="font-display text-2xl font-bold">{t('Kartītes', 'Cards')}</h2>
+          <ul className="mt-4 space-y-2.5">
+            {deck.cards.map((c, i) => {
+              const p = progress[cardKey(deck.id, c.id)];
+              const m = mastery(p);
+              return (
+                <motion.li
+                  key={c.id}
+                  initial={{ opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: Math.min(i, 14) * 0.03 }}
+                  className="grid gap-2 rounded-2xl border-2 border-ink bg-card p-4 shadow-hard-sm sm:grid-cols-[1fr_1fr_auto] sm:items-center sm:gap-5"
+                >
+                  <div className="font-semibold">{c.question}</div>
+                  <div className="font-medium text-emerald-600 dark:text-emerald-300">{c.answer}</div>
+                  <div className="flex items-center gap-2 sm:justify-end">
+                    <span className={cn('rounded-lg px-2 py-0.5 text-xs font-bold', MASTERY_META[m].cls)}>{MASTERY_META[m][lang]}</span>
+                    {p && <span className="text-xs text-dim">{fmtRelDue(p.due, now, lang)}</span>}
+                  </div>
+                </motion.li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
 
       <ConfirmDialog
         open={confirmDel}

@@ -1,4 +1,5 @@
 import type { Card, CategoryId, Deck } from '../types';
+import { SUBJECT_DECKS } from './subjectDecks';
 
 export const CATEGORIES: { id: CategoryId; lv: string; en: string }[] = [
   { id: 'geo', lv: 'Ģeogrāfija', en: 'Geography' },
@@ -266,4 +267,5 @@ export const BUILTIN_DECKS: Deck[] = [
       c('s16', 'Olympus Mons, the tallest volcano in the Solar System, is on…', 'Mars', ['the Moon', 'Venus', 'Io']),
     ],
   },
+  ...SUBJECT_DECKS,
 ];
