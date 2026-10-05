@@ -443,11 +443,11 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
                   </div>
 
                   {q.ask && <p className="relative mt-7 text-base font-medium text-white/70 sm:text-lg">{q.ask}</p>}
-                  <h1 className={cn('relative font-bold leading-tight tracking-[-0.02em] text-balance', q.ask ? 'mt-2' : 'mt-7', promptSize)}>{q.prompt}</h1>
+                  <h1 className={cn('relative font-bold leading-tight tracking-[-0.02em] text-balance text-white', q.ask ? 'mt-2' : 'mt-7', promptSize)}>{q.prompt}</h1>
                   {q.type === 'tf' && (
                     <div className="relative mt-5 inline-flex max-w-full items-center gap-3 rounded-2xl bg-black/30 px-5 py-3 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12),inset_0_2px_8px_rgba(0,0,0,0.3)]">
                       <ArrowRight className="size-6 shrink-0" style={{ color: theme.accent }} />
-                      <span className="text-2xl font-bold sm:text-3xl">{q.statement}</span>
+                      <span className="text-2xl font-bold text-white sm:text-3xl">{q.statement}</span>
                     </div>
                   )}
 
