@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useRef, useState, type RefObject } from 'react';
+import { forwardRef, useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { motion } from 'motion/react';
 import { animate, createTimeline } from 'animejs';
 import { Check, Flame, Volume2, VolumeX, X } from 'lucide-react';
@@ -10,23 +10,13 @@ import { useNumFmt, useT } from '../../lib/i18n';
 import { cn } from '../../lib/cn';
 import { Counter } from '../ui/Meters';
 import { BoostIcon, DECK_ICONS, RPIcon } from '../ui/Icons';
+import { HINT, HUD_BUTTON, HUD_VALUE, OPTION_STYLE, SLOT_FILL, type OptionState } from './gameStyles';
 
-const HUD_BUTTON = 'tactile grid size-11 shrink-0 place-items-center rounded-xl bg-card text-ink';
+export type { OptionState } from './gameStyles';
 
 // ── HUD ─────────────────────────────────────────────────────────────────
 
-export function GameHUD({
-  total,
-  results,
-  active,
-  rp,
-  rpRef,
-  combo,
-  boosted,
-  sound,
-  onToggleSound,
-  onQuit,
-}: {
+interface GameHUDProps {
   total: number;
   results: boolean[];
   active: boolean;
@@ -37,57 +27,63 @@ export function GameHUD({
   sound: boolean;
   onToggleSound: () => void;
   onQuit: () => void;
-}) {
-  const t = useT();
-  const fmt = useNumFmt();
+}
+
+function HudValue({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="group relative" title={label} tabIndex={0}>
+      {children}
+      <span className="pointer-events-none absolute right-0 top-full z-50 mt-2 whitespace-nowrap rounded-lg bg-ink px-2.5 py-1 text-xs font-semibold text-paper opacity-0 shadow-hard-sm transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+        {label}
+      </span>
+    </div>
+  );
+}
+
+function ProgressSegments({ total, results, active }: Pick<GameHUDProps, 'total' | 'results' | 'active'>) {
+  return (
+    <div
+      className="flex min-w-0 flex-1 items-center gap-1 sm:gap-1.5"
+      role="progressbar"
+      aria-valuemin={0}
+      aria-valuemax={total}
+      aria-valuenow={results.length}
+    >
+      {Array.from({ length: total }, (_, i) => {
+        const result = results[i];
+        const current = i === results.length && active;
+        return (
+          <motion.div
+            key={i}
+            layout
+            initial={{ scaleX: 0, opacity: 0 }}
+            animate={{ scaleX: 1, opacity: 1 }}
+            transition={{ delay: Math.min(i, 20) * 0.025, type: 'spring', stiffness: 300, damping: 26 }}
+            className={cn(
+              'h-4 flex-1 origin-left rounded-md border-2 border-ink transition-colors duration-300',
+              result === true ? 'bg-good' : result === false ? 'bg-bad' : current ? 'stripes bg-acid' : 'bg-card',
+            )}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+function ComboCounter({ combo }: { combo: number }) {
   const mult = comboMultiplier(combo);
   const hot = combo >= 3;
+  const t = useT();
 
   return (
-    <header className="relative z-20 flex items-center gap-2 px-3 py-3 sm:gap-3 sm:px-6 sm:py-4">
-      <button type="button" onClick={onQuit} className={HUD_BUTTON} aria-label={t('Pamest sesiju', 'Leave session')}>
-        <X className="size-5" strokeWidth={2.6} />
-      </button>
-
-      <div
-        className="flex min-w-0 flex-1 items-center gap-1 sm:gap-1.5"
-        role="progressbar"
-        aria-valuemin={0}
-        aria-valuemax={total}
-        aria-valuenow={results.length}
-      >
-        {Array.from({ length: total }, (_, i) => {
-          const r = results[i];
-          const current = i === results.length && active;
-          return (
-            <motion.div
-              key={i}
-              layout
-              initial={{ scaleX: 0, opacity: 0 }}
-              animate={{ scaleX: 1, opacity: 1 }}
-              transition={{ delay: Math.min(i, 20) * 0.025, type: 'spring', stiffness: 300, damping: 26 }}
-              className={cn(
-                'h-4 flex-1 origin-left rounded-md border-2 border-ink transition-colors duration-300',
-                r === true ? 'bg-good' : r === false ? 'bg-bad' : current ? 'stripes bg-acid' : 'bg-card',
-              )}
-            />
-          );
-        })}
-      </div>
-
-      {boosted && (
-        <div className="tint hidden h-11 items-center gap-1.5 rounded-xl px-3 font-mono text-sm font-bold shadow-hard-sm md:flex [--c:var(--color-info)]">
-          <BoostIcon size={18} />
-          ×1.5
-        </div>
-      )}
-
+    <HudValue label={t('Kombo', 'Combo')}>
       <div
         className={cn(
-          'flex h-11 items-center gap-1.5 rounded-xl border-2 border-ink px-2.5 font-mono font-bold shadow-hard-sm transition-colors duration-300 sm:px-3',
-          combo >= 5 ? 'stripes bg-streak text-ink' : hot ? 'bg-streak-soft text-ink' : 'bg-card text-dim',
+          HUD_VALUE,
+          'gap-1.5 px-2.5 font-mono font-bold transition-colors duration-300 sm:px-3',
+          combo >= 5 ? 'stripes bg-streak text-ink' : hot ? 'bg-streak-soft text-ink' : 'text-dim',
         )}
-        aria-label={`Combo ${combo}`}
+        aria-label={`${t('Kombo', 'Combo')} ${combo}`}
       >
         <Flame className={cn('size-5', hot && 'animate-flicker fill-gold text-ink')} strokeWidth={2.4} />
         <motion.span
@@ -101,46 +97,66 @@ export function GameHUD({
         </motion.span>
         {mult > 1 && <span className="hidden rounded-md border-2 border-ink bg-card px-1.5 text-[11px] sm:inline">RP ×{mult}</span>}
       </div>
+    </HudValue>
+  );
+}
 
-      <div className="flex h-11 items-center gap-2 rounded-xl border-2 border-ink bg-card pl-2.5 pr-3.5 shadow-hard-sm">
+function RPDisplay({ rp, rpRef }: { rp: number; rpRef: RefObject<HTMLSpanElement> }) {
+  const t = useT();
+  const fmt = useNumFmt();
+
+  return (
+    <HudValue label={t('Ranga punkti', 'Rank points')}>
+      <div className={cn(HUD_VALUE, 'gap-2 pl-2.5 pr-3.5')} aria-label={t('Ranga punkti', 'Rank points')}>
         <RPIcon size={22} />
         <span ref={rpRef} className="inline-block font-mono text-lg font-bold">
           <Counter value={rp} format={fmt} duration={450} />
         </span>
       </div>
+    </HudValue>
+  );
+}
 
-      <button
-        type="button"
-        onClick={onToggleSound}
-        className={cn(HUD_BUTTON, 'hidden sm:grid')}
-        aria-label={sound ? t('Izslēgt skaņu', 'Mute') : t('Ieslēgt skaņu', 'Unmute')}
-      >
-        {sound ? <Volume2 className="size-5" strokeWidth={2.4} /> : <VolumeX className="size-5" strokeWidth={2.4} />}
+function SoundButton({ sound, onToggle }: { sound: boolean; onToggle: () => void }) {
+  const t = useT();
+
+  return (
+    <button type="button" onClick={onToggle} className={cn(HUD_BUTTON, 'hidden sm:grid')} aria-label={sound ? t('Izslēgt skaņu', 'Mute') : t('Ieslēgt skaņu', 'Unmute')}>
+      {sound ? <Volume2 className="size-5" strokeWidth={2.4} /> : <VolumeX className="size-5" strokeWidth={2.4} />}
+    </button>
+  );
+}
+
+export function GameHUD({ total, results, active, rp, rpRef, combo, boosted, sound, onToggleSound, onQuit }: GameHUDProps) {
+  const t = useT();
+
+  return (
+    <header className="relative z-20 flex items-center gap-2 px-3 py-3 sm:gap-3 sm:px-6 sm:py-4">
+      <button type="button" onClick={onQuit} className={HUD_BUTTON} aria-label={t('Pamest sesiju', 'Leave session')}>
+        <X className="size-5" strokeWidth={2.6} />
       </button>
+
+      <ProgressSegments total={total} results={results} active={active} />
+
+      {boosted && (
+        <HudValue label={t('Pastiprinājums', 'RP boost')}>
+          <div className="tint hidden h-11 items-center gap-1.5 rounded-xl px-3 font-mono text-sm font-bold shadow-hard-sm md:flex [--c:var(--color-info)]">
+            <BoostIcon size={18} />
+            ×1.5
+          </div>
+        </HudValue>
+      )}
+
+      <ComboCounter combo={combo} />
+      <RPDisplay rp={rp} rpRef={rpRef} />
+      <SoundButton sound={sound} onToggle={onToggleSound} />
     </header>
   );
 }
 
 // ── Answer option ───────────────────────────────────────────────────────
 
-export type OptionState = 'idle' | 'correct' | 'wrong' | 'reveal' | 'dim';
-
 /** Each option slot has its own flat colour, quiz-show style. */
-const SLOT_FILL = ['bg-brand-soft', 'bg-info-soft', 'bg-gold-soft', 'bg-candy-soft'];
-
-/**
- * Answer keys: they lift on hover, sink into their hard shadow when
- * pressed, and the one you picked stays pressed in while feedback shows.
- */
-const OPTION_STYLE: Record<OptionState, string> = {
-  idle: 'hover:brightness-[1.04]',
-  correct: 'pressed !bg-good',
-  wrong: 'pressed !bg-bad',
-  reveal: '!bg-good-soft',
-  dim: '!bg-paper-2 opacity-45 [--lift:1px]',
-};
-
-const HINT = 'grid size-10 shrink-0 place-items-center rounded-lg border-2 border-ink bg-card font-mono text-sm font-bold text-ink shadow-[0_2px_0_0_var(--color-ink)]';
 
 export const AnswerButton = forwardRef<
   HTMLButtonElement,
