@@ -205,6 +205,11 @@ export function SessionResults({
             <motion.section {...appear(0.3)} className="rounded-[28px] glass p-6">
               <h2 className="flex items-center gap-2 font-display text-lg font-bold">
                 <RPIcon size={22} /> {t('Nopelnītie RP', 'RP earned')}
+                {outcome.rankMultiplier !== 1 && (
+                  <span className="rounded-md border-2 border-ink bg-card px-2 py-0.5 font-mono text-xs">
+                    ×{outcome.rankMultiplier}
+                  </span>
+                )}
               </h2>
               {deck.builtin !== true && <p className="mt-2 text-sm text-muted">{t('Kopienas kopas RP nepiešķir.', 'Community decks do not award RP.')}</p>}
               <div className="mt-3">

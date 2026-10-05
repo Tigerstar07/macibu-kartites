@@ -5,6 +5,7 @@ import { ArrowLeft, Plus, Save, Trash2 } from 'lucide-react';
 import type { CategoryId, Deck, DeckIcon, Lang } from '../types';
 import { useDeck, useGame } from '../store/useGame';
 import { CATEGORIES } from '../data/decks';
+import { rankIndexFromRP } from '../lib/rank';
 import { uid } from '../lib/random';
 import { shake } from '../lib/fx';
 import { sfx } from '../lib/sound';
@@ -171,6 +172,7 @@ export default function DeckEditorPage() {
   const navigate = useNavigate();
   const saveDeck = useGame((s) => s.saveDeck);
   const profile = useGame((s) => s.profile);
+  const totalRP = useGame((s) => s.stats.totalRP);
   const [start] = useState(() => {
     const d = toDraft(existing);
     return { d, json: JSON.stringify(d) };
@@ -256,6 +258,7 @@ export default function DeckEditorPage() {
       })),
       author: existing?.author ?? profile?.name ?? 'Es',
       builtin: false,
+      rankIndex: existing?.rankIndex ?? rankIndexFromRP(totalRP),
       createdAt: draft.createdAt,
       updatedAt: Date.now(),
     };

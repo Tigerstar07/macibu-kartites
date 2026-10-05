@@ -542,6 +542,54 @@
   38%, 100% { transform: translateX(170px) }
 }
 
+.rank-emblem-aura {
+  opacity: 0.28;
+}
+.rank-emblem-active .rank-emblem-aura {
+  animation: rank-emblem-pulse 3.6s ease-in-out infinite;
+}
+.rank-emblem-tier-2 .rank-emblem-aura {
+  opacity: 0.38;
+  animation-duration: 3s;
+}
+.rank-emblem-tier-3 .rank-emblem-aura,
+.rank-emblem-tier-4 .rank-emblem-aura {
+  opacity: 0.5;
+  animation-duration: 2.4s;
+}
+.rank-emblem-orbit {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.rank-emblem-active .rank-emblem-orbit {
+  animation: rank-emblem-orbit 12s linear infinite;
+}
+.rank-emblem-tier-4.rank-emblem-active .rank-emblem-orbit {
+  animation-duration: 7s;
+}
+.rank-emblem-spark {
+  opacity: 0.75;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.rank-emblem-active .rank-emblem-spark {
+  animation: rank-emblem-sparkle 1.8s ease-in-out infinite alternate;
+}
+.rank-emblem-tier-4.rank-emblem-active .rank-emblem-spark {
+  animation-duration: 1.15s;
+}
+@keyframes rank-emblem-pulse {
+  0%, 100% { opacity: 0.18 }
+  50% { opacity: 0.62 }
+}
+@keyframes rank-emblem-orbit {
+  to { rotate: 360deg }
+}
+@keyframes rank-emblem-sparkle {
+  from { opacity: 0.25; scale: 0.72 }
+  to { opacity: 1; scale: 1.18 }
+}
+
 .cd-ring {
   animation: cd-ring 0.65s ease-out forwards;
 }

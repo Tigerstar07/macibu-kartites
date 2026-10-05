@@ -5,7 +5,7 @@ import type { AnswerLog, CardProgress, Deck, Lang, QType, Rarity, RewardItem } f
 import { BUILTIN_DECKS } from '../data/decks';
 import { gradeAnswer, newProgress, sm2 } from '../lib/sm2';
 import { TIME_LIMIT, gradeFor, sessionRP, type Grade, type RPBreakdown } from '../lib/rp';
-import { rankIndexFromRP, roadFor } from '../lib/rank';
+import { rankIndexFromRP, rankRPFactor, roadFor } from '../lib/rank';
 import { DAY, dayKey, daysBetween, weekId } from '../lib/time';
 import { questDef, rollDailyQuests, type QuestKind, type QuestState } from '../lib/quests';
 import { ACHIEVEMENTS, achievementDef } from '../lib/achievements';
@@ -89,6 +89,7 @@ export interface SessionInput {
 
 export interface SessionOutcome {
   breakdown: RPBreakdown;
+  rankMultiplier: number;
   rpBefore: number;
   rpAfter: number;
   rankBefore: number;
@@ -387,7 +388,12 @@ export const useGame = create<GameState>()(
         const now = Date.now();
         const today = dayKey(now);
         const answered = input.answers.length;
-        const eligibleForRP = BUILTIN_DECKS.some((deck) => deck.id === input.deckId);
+        const rankedDeck = BUILTIN_DECKS.find((deck) => deck.id === input.deckId);
+        const eligibleForRP = !!rankedDeck;
+        const playerRankIndex = rankIndexFromRP(st.stats.totalRP);
+        const rankMultiplier = rankedDeck
+          ? rankRPFactor(rankedDeck.rankIndex ?? playerRankIndex, playerRankIndex)
+          : 1;
         const scored = input.answers.filter((a) => !a.relearn);
         const correct = scored.filter((a) => a.correct).length;
         const accuracy = scored.length ? correct / scored.length : 0;
@@ -413,7 +419,7 @@ export const useGame = create<GameState>()(
         }
         const liveStreak = lastActiveDay && daysBetween(lastActiveDay, today) >= 0 && daysBetween(lastActiveDay, today) <= 1 ? streak : 0;
 
-        const breakdown = sessionRP({
+        const baseBreakdown = sessionRP({
           answerRP: answerRPSum,
           accuracy,
           completed: eligibleForRP && input.completed,
@@ -421,6 +427,22 @@ export const useGame = create<GameState>()(
           streakDays: eligibleForRP ? liveStreak : 0,
           firstToday: eligibleForRP && firstToday,
         });
+        const breakdown = eligibleForRP
+          ? {
+              ...baseBreakdown,
+              answers: Math.round(baseBreakdown.answers * rankMultiplier),
+              completion: Math.round(baseBreakdown.completion * rankMultiplier),
+              accuracy: Math.round(baseBreakdown.accuracy * rankMultiplier),
+              daily: Math.round(baseBreakdown.daily * rankMultiplier),
+              streak: Math.round(baseBreakdown.streak * rankMultiplier),
+              total:
+                Math.round(baseBreakdown.answers * rankMultiplier) +
+                Math.round(baseBreakdown.completion * rankMultiplier) +
+                Math.round(baseBreakdown.accuracy * rankMultiplier) +
+                Math.round(baseBreakdown.daily * rankMultiplier) +
+                Math.round(baseBreakdown.streak * rankMultiplier),
+            }
+          : baseBreakdown;
 
         const rpBefore = prev.totalRP;
         const rpAfter = rpBefore + breakdown.total;
@@ -484,6 +506,7 @@ export const useGame = create<GameState>()(
 
         return {
           breakdown,
+          rankMultiplier,
           rpBefore,
           rpAfter,
           rankBefore,

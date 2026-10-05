@@ -23,6 +23,7 @@ export function GameHUD({
   rpRef,
   combo,
   boosted,
+  rankMultiplier,
   sound,
   onToggleSound,
   onQuit,
@@ -34,6 +35,7 @@ export function GameHUD({
   rpRef: RefObject<HTMLSpanElement>;
   combo: number;
   boosted: boolean;
+  rankMultiplier: number;
   sound: boolean;
   onToggleSound: () => void;
   onQuit: () => void;
@@ -79,6 +81,12 @@ export function GameHUD({
         <div className="tint hidden h-11 items-center gap-1.5 rounded-xl px-3 font-mono text-sm font-bold shadow-hard-sm md:flex [--c:var(--color-info)]">
           <BoostIcon size={18} />
           ×1.5
+        </div>
+      )}
+
+      {rankMultiplier !== 1 && (
+        <div className="hidden h-11 items-center rounded-xl border-2 border-ink bg-card px-2.5 font-mono text-sm font-bold shadow-hard-sm sm:flex">
+          RP ×{rankMultiplier}
         </div>
       )}
 

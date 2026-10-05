@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import { animate } from 'animejs';
 import { ArrowLeft, ArrowRight, Check, CornerDownLeft, House, Lightbulb, RotateCcw, X } from 'lucide-react';
 import type { AnswerLog, Deck, Question } from '../types';
-import { useDeck, useGame, type SessionOutcome } from '../store/useGame';
+import { useAllDecks, useDeck, useGame, type SessionOutcome } from '../store/useGame';
 import { buildQuestion, buildSession, isPlayable } from '../lib/questions';
 import { TIME_LIMIT, answerRP, comboMultiplier, speedTier, type SpeedTier } from '../lib/rp';
 import { cosmetic } from '../lib/cosmetics';
@@ -16,6 +16,8 @@ import { AnswerButton, ComboBanner, Countdown, GameHUD, type Banner, type Option
 import { SessionResults } from '../components/game/SessionResults';
 import { ConfirmDialog } from '../components/ui/Modal';
 import { Button } from '../components/ui/Button';
+import { RankedDeckPicker } from '../components/game/RankedDeckPicker';
+import { chooseRankedDeck, rankIndexFromRP, rankRPFactor } from '../lib/rank';
 
 /** Options finish animating in before the clock starts. */
 const ENTER_MS = 420;
@@ -38,8 +40,40 @@ const FEVER_BORDER: CSSProperties[] = [
 export default function PlayPage() {
   const { deckId } = useParams();
   const deck = useDeck(deckId);
+  const decks = useAllDecks();
   const [run, setRun] = useState(0);
   const t = useT();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const totalRP = useGame((s) => s.stats.totalRP);
+  const playerRankIndex = rankIndexFromRP(totalRP);
+  const matchState = location.state as { rankedMatch?: boolean; selectedDeckIds?: string[] } | null;
+  const hasMatchSelection =
+    !!deckId &&
+    matchState?.rankedMatch === true &&
+    Array.isArray(matchState.selectedDeckIds) &&
+    matchState.selectedDeckIds.length >= 5 &&
+    matchState.selectedDeckIds.includes(deckId);
+
+  if (!hasMatchSelection) {
+    return (
+      <RankedDeckPicker
+        decks={decks}
+        playerRankIndex={playerRankIndex}
+        initialDeckId={deckId}
+        onCancel={() => navigate('/decks')}
+        onStart={(selectedIds) => {
+          const candidates = decks.filter((candidate) => selectedIds.includes(candidate.id));
+          const selectedDeck = chooseRankedDeck(candidates, playerRankIndex);
+          if (!selectedDeck) return;
+          navigate(`/play/${selectedDeck.id}`, {
+            replace: true,
+            state: { rankedMatch: true, selectedDeckIds: selectedIds },
+          });
+        }}
+      />
+    );
+  }
 
   if (!deck || !isPlayable(deck)) {
     return (
@@ -59,7 +93,10 @@ export default function PlayPage() {
       </div>
     );
   }
-  return <Game key={run} deck={deck} onReplay={() => setRun((r) => r + 1)} />;
+  const rankMultiplier = deck.builtin
+    ? rankRPFactor(deck.rankIndex ?? playerRankIndex, playerRankIndex)
+    : 1;
+  return <Game key={run} deck={deck} rankMultiplier={rankMultiplier} onReplay={() => setRun((r) => r + 1)} />;
 }
 
 type Phase = 'intro' | 'question' | 'feedback' | 'results' | 'failed';
@@ -99,7 +136,7 @@ function Embers({ level }: { level: number }) {
   );
 }
 
-function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
+function Game({ deck, rankMultiplier, onReplay }: { deck: Deck; rankMultiplier: number; onReplay: () => void }) {
   const t = useT();
   const navigate = useNavigate();
   const settings = useGame((s) => s.settings);
@@ -215,7 +252,8 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
     const correct = !timeout && i === q.correctIndex;
     const nextCombo = correct ? combo + 1 : 0;
     const relearn = !!q.relearn;
-    const rp = eligibleForRP ? answerRP({ correct, ms, type: q.type, combo: nextCombo, relearn, boosted }) : 0;
+    const baseRP = eligibleForRP ? answerRP({ correct, ms, type: q.type, combo: nextCombo, relearn, boosted }) : 0;
+    const rp = eligibleForRP ? Math.round(baseRP * rankMultiplier) : 0;
     const tier = correct && eligibleForRP ? speedTier(ms) : null;
 
     setPhase('feedback');
@@ -224,7 +262,7 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
     setCombo(nextCombo);
     setResults((r) => [...r, correct]);
     setGain(correct ? { rp, tier } : null);
-    answers.current.push({ cardKey: q.cardKey, correct, ms, rp, type: q.type, relearn, timeout, combo: nextCombo });
+    answers.current.push({ cardKey: q.cardKey, correct, ms, rp: baseRP, type: q.type, relearn, timeout, combo: nextCombo });
     const btn = i >= 0 ? optionRefs.current[i] : null;
 
     if (correct) {
@@ -408,6 +446,7 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
         rpRef={rpRef}
         combo={combo}
         boosted={boosted}
+        rankMultiplier={eligibleForRP ? rankMultiplier : 1}
         sound={settings.sound}
         onToggleSound={() => updateSettings({ sound: !settings.sound })}
         onQuit={() => {

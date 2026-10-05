@@ -1,4 +1,4 @@
-import type { Lang, RewardItem } from '../types';
+import type { Deck, Lang, RewardItem } from '../types';
 
 export type LeagueId = 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
 
@@ -56,6 +56,22 @@ export function rankIndexFromRP(rp: number): number {
 }
 
 export const rankFromRP = (rp: number) => rankAt(rankIndexFromRP(rp));
+
+export function rankRPFactor(packRankIndex: number, playerRankIndex: number): number {
+  if (packRankIndex < playerRankIndex) return 0.5;
+  if (packRankIndex > playerRankIndex) return 1.5;
+  return 1;
+}
+
+export function chooseRankedDeck(decks: Deck[], playerRankIndex: number, random = Math.random): Deck | undefined {
+  const sameRank = decks.filter((deck) => (deck.rankIndex ?? playerRankIndex) === playerRankIndex);
+  const otherRanks = decks.filter((deck) => (deck.rankIndex ?? playerRankIndex) !== playerRankIndex);
+  const pick = (pool: Deck[]) => (pool.length ? pool[Math.floor(random() * pool.length)] : undefined);
+
+  if (!otherRanks.length) return pick(sameRank);
+  if (!sameRank.length) return pick(otherRanks);
+  return pick(random() < 0.7 ? sameRank : otherRanks);
+}
 
 export function rankProgress(rp: number): number {
   const r = rankFromRP(rp);

@@ -42,6 +42,8 @@ export interface Deck {
   cards: Card[];
   author: string;
   builtin?: boolean;
+  /** Intended player rank for ranked matchmaking. */
+  rankIndex?: number;
   isPublic: boolean;
   createdAt: number;
   updatedAt: number;

@@ -6,6 +6,7 @@ import type { Deck } from '../types';
 import { useDeck, useGame } from '../store/useGame';
 import { CATEGORIES } from '../data/decks';
 import { cardKey, deckCounts, isPlayable } from '../lib/questions';
+import { rankAt, rankIndexFromRP, rankName } from '../lib/rank';
 import { mastery, type Mastery } from '../lib/sm2';
 import { fmtDate, fmtRelDue } from '../lib/format';
 import { uid } from '../lib/random';
@@ -15,6 +16,7 @@ import { Button } from '../components/ui/Button';
 import { ConfirmDialog } from '../components/ui/Modal';
 import { Ring } from '../components/ui/Meters';
 import { DECK_ICONS } from '../components/ui/Icons';
+import { RankEmblem } from '../components/rank/RankEmblem';
 
 const MASTERY_META: Record<Mastery, { lv: string; en: string; cls: string }> = {
   new: { lv: 'Jauna', en: 'New', cls: 'bg-slate-500/15 text-slate-700 dark:text-slate-300 border border-slate-500/20' },
@@ -33,6 +35,7 @@ export default function DeckDetailPage() {
   const saveDeck = useGame((s) => s.saveDeck);
   const deleteDeck = useGame((s) => s.deleteDeck);
   const profile = useGame((s) => s.profile);
+  const totalRP = useGame((s) => s.stats.totalRP);
   const isAdmin = profile?.role === 'admin';
   const [confirmDel, setConfirmDel] = useState(false);
 
@@ -48,6 +51,7 @@ export default function DeckDetailPage() {
   }
 
   const counts = deckCounts(deck, progress);
+  const deckRankIndex = deck.rankIndex ?? rankIndexFromRP(totalRP);
   const playable = isPlayable(deck);
   const Icon = DECK_ICONS[deck.icon];
   const category = CATEGORIES.find((c) => c.id === deck.category);
@@ -108,6 +112,10 @@ export default function DeckDetailPage() {
               <p className="mt-2 text-lg text-muted">{deck.description}</p>
               <div className="mt-4 flex flex-wrap gap-2 text-sm">
                 {category && <span className="rounded-lg border border-ink/15 bg-paper-2 px-2.5 py-1 font-semibold">{category[lang]}</span>}
+                <span className="inline-flex items-center gap-1 rounded-lg border border-ink/15 bg-paper-2 pr-2 font-semibold">
+                  <RankEmblem rankIndex={deckRankIndex} size={22} idle={false} glow={false} />
+                  {rankName(rankAt(deckRankIndex), lang)}
+                </span>
                 <span className="rounded-lg border border-ink/15 bg-paper-2 px-2.5 py-1 font-semibold uppercase">{deck.language}</span>
                 <span className="rounded-lg border border-ink/15 bg-paper-2 px-2.5 py-1 text-muted">
                   {t('Autors', 'By')}: {deck.author}

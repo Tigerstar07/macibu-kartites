@@ -27,6 +27,7 @@ export const BUILTIN_DECKS: Deck[] = [
   {
     ...meta,
     id: 'capitals',
+    rankIndex: 1,
     title: 'Pasaules galvaspilsētas',
     description: 'Vai zini, kur atrodas valdības? Sidneja, Stambula un Toronto šeit tev nepalīdzēs.',
     category: 'geo',
@@ -63,6 +64,7 @@ export const BUILTIN_DECKS: Deck[] = [
   {
     ...meta,
     id: 'elements',
+    rankIndex: 2,
     title: 'Ķīmiskie elementi',
     description: 'Periodiskās tabulas simboli — no zelta līdz volframam. Daudzi nāk no latīņu valodas!',
     category: 'sci',
@@ -101,6 +103,7 @@ export const BUILTIN_DECKS: Deck[] = [
   {
     ...meta,
     id: 'english-b2',
+    rankIndex: 4,
     title: 'Angļu valoda: B2 vārdi',
     description: 'Biežākie B2 līmeņa vārdi un klasiskās lamatas — borrow vai lend?',
     category: 'lang',
@@ -139,6 +142,7 @@ export const BUILTIN_DECKS: Deck[] = [
   {
     ...meta,
     id: 'programming',
+    rankIndex: 3,
     title: 'Programmēšanas pamati',
     description: 'HTTP, Git, SQL, JavaScript un Python — viss, kas vajadzīgs lietotnes programmēšanā.',
     category: 'it',
@@ -175,6 +179,7 @@ export const BUILTIN_DECKS: Deck[] = [
   {
     ...meta,
     id: 'latvia',
+    rankIndex: 5,
     title: 'Latvijas vēsture un daba',
     description: 'Datumi, kas jāzina ikvienam, un simboli, ko redzi katru dienu.',
     category: 'hist',
@@ -207,6 +212,7 @@ export const BUILTIN_DECKS: Deck[] = [
   {
     ...meta,
     id: 'math',
+    rankIndex: 0,
     title: 'Ātrā matemātika',
     description: 'Reizrēķins, procenti un pakāpes — rēķini galvā, pirms taimeris beidzas.',
     category: 'math',
@@ -240,6 +246,7 @@ export const BUILTIN_DECKS: Deck[] = [
   {
     ...meta,
     id: 'space',
+    rankIndex: 6,
     title: 'Space & Astronomy',
     description: 'Planets, missions and cosmic records — an English-language deck.',
     category: 'sci',

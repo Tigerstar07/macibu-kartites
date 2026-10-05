@@ -58,6 +58,7 @@ export default function App() {
       <MotionConfig reducedMotion={reducedMotion ? 'always' : 'user'}>
         <Background />
         <Routes>
+          <Route path="/play" element={<PlayPage />} />
           <Route path="/play/:deckId" element={<PlayPage />} />
           <Route element={<AppShell />}>
             <Route index element={<HomePage />} />
