@@ -10,6 +10,7 @@ import { useLang, useNumFmt, useT } from '../lib/i18n';
 import { sfx } from '../lib/sound';
 import { LeaderboardList, Podium } from '../components/leaderboard/Leaderboard';
 import { Avatar } from '../components/ui/Avatar';
+import { NameTag } from '../components/ui/NameTag';
 import { Button } from '../components/ui/Button';
 import { Counter } from '../components/ui/Meters';
 import { Panel } from '../components/ui/Panel';
@@ -168,7 +169,9 @@ export default function LeaderboardPage() {
                       >
                         <Avatar avatar={a.player.avatar} hue={a.player.hue} frame={a.player.frame} size={32} />
                         <div className="min-w-0 flex-1 leading-tight">
-                          <div className="truncate text-sm font-semibold">{a.player.name}</div>
+                          <div className="truncate text-sm font-semibold">
+                            <NameTag name={a.player.name} tag={a.player.nametag} />
+                          </div>
                           <div className="text-xs text-dim">{t(`pirms ${mins} min.`, `${mins} min ago`)}</div>
                         </div>
                         <span className="font-display text-sm font-bold text-emerald-300">+{fmt(a.gain)}</span>

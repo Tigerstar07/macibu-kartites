@@ -27,6 +27,7 @@ export function useYouPlayer(): Player | null {
             hue: profile.hue,
             frame: equipped.frame,
             title: equipped.title,
+            nametag: equipped.nametag,
             weeklyRP: stats.weeklyRP,
             totalRP: stats.totalRP,
             streak: effectiveStreak(stats),

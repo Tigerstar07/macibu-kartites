@@ -1,4 +1,4 @@
-import { forwardRef, useId } from 'react';
+import { forwardRef, useId, type CSSProperties } from 'react';
 import type { Rarity } from '../../types';
 import { cn } from '../../lib/cn';
 
@@ -12,17 +12,25 @@ const PALETTE: Record<Rarity, { b1: string; b2: string; metal1: string; metal2: 
   legendary: { b1: '#f7c548', b2: '#9a5b00', metal1: '#fffbeb', metal2: '#c28a17', glow: 'rgba(251,191,36,0.75)', gem: '#fef3c7' },
 };
 
+const STAR = 'M0 -7 L1.8 -1.8 L7 0 L1.8 1.8 L0 7 L-1.8 1.8 L-7 0 L-1.8 -1.8Z';
+
 interface Props {
   rarity: Rarity;
   size?: number;
   glow?: boolean;
+  /** Adds living detail (pulsing gem, glints) for hero placements; leave off for small icons. */
+  fancy?: boolean;
   className?: string;
 }
 
-/** SVG treasure chest. The lid is its own group (.chest-lid) so it can be animated open. */
-export const ChestIcon = forwardRef<SVGSVGElement, Props>(function ChestIcon({ rarity, size = 96, glow = true, className }, ref) {
+/**
+ * SVG treasure chest. The lid is its own group (.chest-lid) so it can be
+ * animated open; `.chest-seam` is the light that leaks out as it charges up.
+ */
+export const ChestIcon = forwardRef<SVGSVGElement, Props>(function ChestIcon({ rarity, size = 96, glow = true, fancy = false, className }, ref) {
   const id = useId().replace(/:/g, '');
   const p = PALETTE[rarity];
+  const jewelled = rarity === 'legendary' || rarity === 'epic';
   return (
     <svg
       ref={ref}
@@ -63,6 +71,13 @@ export const ChestIcon = forwardRef<SVGSVGElement, Props>(function ChestIcon({ r
       <rect x="85" y="50" width="9" height="54" fill={`url(#${id}-metal)`} opacity="0.9" />
       <rect x="12" y="97" width="96" height="7" rx="3.5" fill={p.b2} opacity="0.7" />
       <path d="M16 62 H104" stroke="#000" strokeOpacity="0.18" strokeWidth="2" />
+      {/* rivets */}
+      {[30.5, 89.5].map((x) => (
+        <g key={x}>
+          <circle cx={x} cy="71" r="2" fill={p.metal2} stroke={INK} strokeWidth="1" />
+          <circle cx={x} cy="91" r="2" fill={p.metal2} stroke={INK} strokeWidth="1" />
+        </g>
+      ))}
 
       {/* lock */}
       <rect x="50" y="56" width="20" height="24" rx="4" fill={`url(#${id}-metal)`} stroke={INK} strokeWidth="2.5" />
@@ -82,11 +97,42 @@ export const ChestIcon = forwardRef<SVGSVGElement, Props>(function ChestIcon({ r
         <path d="M26 52 V25 C28 20 31 17 35 15.5 V52 Z" fill={`url(#${id}-metal)`} opacity="0.9" />
         <path d="M94 52 V25 C92 20 89 17 85 15.5 V52 Z" fill={`url(#${id}-metal)`} opacity="0.9" />
         <rect x="12" y="45" width="96" height="8" rx="3" fill={`url(#${id}-metal)`} stroke={INK} strokeWidth="2.5" />
-        {rarity === 'legendary' || rarity === 'epic' ? (
-          <path d="M60 18 L66 27 L60 36 L54 27 Z" fill={p.gem} stroke={INK} strokeWidth="2" strokeLinejoin="round" />
-        ) : null}
+        {jewelled && (
+          <path
+            className={fancy ? 'chest-gem' : undefined}
+            d="M60 18 L66 27 L60 36 L54 27 Z"
+            fill={p.gem}
+            stroke={INK}
+            strokeWidth="2"
+            strokeLinejoin="round"
+          />
+        )}
+        {rarity === 'legendary' && (
+          <path d="M47 12 L49 2 L55 8 L60 -1 L65 8 L71 2 L73 12 Z" fill={`url(#${id}-metal)`} stroke={INK} strokeWidth="2.2" strokeLinejoin="round" />
+        )}
         <path d="M22 30 C30 20 44 15 60 14" stroke="#fff" strokeOpacity="0.35" strokeWidth="2.5" fill="none" strokeLinecap="round" />
       </g>
+
+      {/* light leaking from the seam as the chest charges up */}
+      <rect
+        className="chest-seam"
+        x="14"
+        y="50"
+        width="92"
+        height="3.2"
+        rx="1.6"
+        fill="#fff8d6"
+        opacity="0"
+        style={{ filter: `drop-shadow(0 0 5px ${p.gem}) drop-shadow(0 0 10px ${p.gem})` }}
+      />
+
+      {fancy && jewelled && (
+        <>
+          <g transform="translate(6 18)"><path className="chest-sparkle" d={STAR} fill="#fff" style={{ '--d': '0s' } as CSSProperties} /></g>
+          <g transform="translate(112 30)"><path className="chest-sparkle" d={STAR} fill={p.gem} style={{ '--d': '0.9s' } as CSSProperties} /></g>
+          <g transform="translate(96 4)"><path className="chest-sparkle" d={STAR} fill="#fff" style={{ '--d': '1.7s' } as CSSProperties} /></g>
+        </>
+      )}
     </svg>
   );
 });

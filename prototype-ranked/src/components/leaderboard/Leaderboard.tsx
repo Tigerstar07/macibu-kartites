@@ -4,10 +4,10 @@ import { createLayout } from 'animejs';
 import { Crown, Flame } from 'lucide-react';
 import type { Board, Player } from '../../lib/bots';
 import { rankIndexFromRP } from '../../lib/rank';
-import { cosmetic } from '../../lib/cosmetics';
-import { useLang, useNumFmt, useT } from '../../lib/i18n';
+import { useNumFmt, useT } from '../../lib/i18n';
 import { cn } from '../../lib/cn';
 import { Avatar } from '../ui/Avatar';
+import { NameTag, TitleText } from '../ui/NameTag';
 import { Counter } from '../ui/Meters';
 import { RankEmblem } from '../rank/RankEmblem';
 
@@ -35,7 +35,7 @@ export function Podium({ players, board }: { players: Player[]; board: Board }) 
               <Avatar avatar={p.avatar} hue={p.hue} frame={p.frame} size={place === 1 ? 86 : 66} />
             </div>
             <div className="mt-2 max-w-full truncate text-center font-bold">
-              {p.name}
+              <NameTag name={p.name} tag={p.nametag} />
               {p.isYou && <span className="font-extrabold text-brand dark:text-violet-300"> · {t('tu', 'you')}</span>}
             </div>
             <div className="font-display text-sm font-bold tabular" style={{ color: s.c1 }}>
@@ -64,7 +64,6 @@ export function Podium({ players, board }: { players: Player[]; board: Board }) 
  */
 export function LeaderboardList({ players, board, flashYou }: { players: Player[]; board: Board; flashYou?: boolean }) {
   const t = useT();
-  const lang = useLang();
   const fmt = useNumFmt();
   const listRef = useRef<HTMLOListElement>(null);
   const layout = useRef<ReturnType<typeof createLayout> | null>(null);
@@ -98,7 +97,6 @@ export function LeaderboardList({ players, board, flashYou }: { players: Player[
     <ol ref={listRef} className="space-y-2">
       {shown.map((p, i) => {
         const place = i + 1;
-        const title = cosmetic(p.title);
         return (
           <li
             key={p.id}
@@ -126,10 +124,14 @@ export function LeaderboardList({ players, board, flashYou }: { players: Player[
             <Avatar avatar={p.avatar} hue={p.hue} frame={p.frame} size={40} />
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
-                <span className="truncate font-bold">{p.name}</span>
+                <span className="truncate font-bold">
+                  <NameTag name={p.name} tag={p.nametag} />
+                </span>
                 {p.isYou && <span className="shrink-0 rounded-md bg-brand px-1.5 text-[11px] font-extrabold text-white">{t('TU', 'YOU')}</span>}
               </div>
-              <div className="truncate text-xs text-muted">{title?.[lang]}</div>
+              <div className="truncate text-xs">
+                <TitleText id={p.title} className="text-muted" />
+              </div>
             </div>
             <span className="hidden items-center gap-1 text-sm font-semibold text-orange-300 sm:flex" title={t('Dienu sērija', 'Day streak')}>
               <Flame className="size-4" />

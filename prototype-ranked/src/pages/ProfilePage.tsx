@@ -18,10 +18,11 @@ import {
   Wrench,
   Zap,
 } from 'lucide-react';
+import type { Rarity } from '../types';
 import { effectiveStreak, useGame } from '../store/useGame';
 import { rankAt, rankFromRP, rankName, ROAD } from '../lib/rank';
 import { ACHIEVEMENTS } from '../lib/achievements';
-import { BOOST_PRICE, COSMETICS, RARITY_META, SHOP_CHEST, cosmetic, type Cosmetic, type CosmeticKind } from '../lib/cosmetics';
+import { BOOST_PRICE, COSMETICS, RARITY_META, SHOP_CHESTS, type Cosmetic, type CosmeticKind } from '../lib/cosmetics';
 import { AVATARS } from '../lib/bots';
 import { dayKey, weekStart } from '../lib/time';
 import { fmtDate, fmtPct, fmtSec, fmtShortDate } from '../lib/format';
@@ -31,12 +32,14 @@ import { sfx } from '../lib/sound';
 import { cn } from '../lib/cn';
 import { RankEmblem } from '../components/rank/RankEmblem';
 import { ChestIcon } from '../components/rewards/ChestIcon';
+import { ChestOdds } from '../components/rewards/ChestOdds';
 import { Avatar } from '../components/ui/Avatar';
 import { Button } from '../components/ui/Button';
 import { ConfirmDialog, Modal } from '../components/ui/Modal';
 import { ProgressBar } from '../components/ui/Meters';
 import { Panel, Switch } from '../components/ui/Panel';
 import { CosmeticPreview } from '../components/ui/Reward';
+import { NameTag, TitleText } from '../components/ui/NameTag';
 import { ACH_ICONS, BoostIcon, CoinIcon, RPIcon } from '../components/ui/Icons';
 import { Tabs } from '../components/ui/Tabs';
 
@@ -271,6 +274,7 @@ function useSourceLabel() {
 const KINDS: { kind: CosmeticKind; lv: string; en: string }[] = [
   { kind: 'theme', lv: 'Kartīšu tēmas', en: 'Card themes' },
   { kind: 'frame', lv: 'Avatara rāmji', en: 'Avatar frames' },
+  { kind: 'nametag', lv: 'Vārdu stili', en: 'Name tags' },
   { kind: 'title', lv: 'Tituli', en: 'Titles' },
 ];
 
@@ -354,6 +358,7 @@ interface Purchase {
   id?: string;
   price: number;
   name: string;
+  rarity?: Rarity;
 }
 
 function ShopTab() {
@@ -372,7 +377,12 @@ function ShopTab() {
 
   const confirm = () => {
     if (!pending) return;
-    const ok = pending.kind === 'cosmetic' ? buyCosmetic(pending.id!) : pending.kind === 'boost' ? buyBoost() : buyChest();
+    const ok =
+      pending.kind === 'cosmetic'
+        ? buyCosmetic(pending.id!)
+        : pending.kind === 'boost'
+          ? buyBoost()
+          : buyChest(pending.rarity);
     if (ok) {
       sfx.coin();
       confettiBurst(['#fbbf24', '#fde68a', '#ffffff'], { x: 0.5, y: 0.55 }, 60);
@@ -403,16 +413,25 @@ function ShopTab() {
           </div>
           <PriceButton p={{ kind: 'boost', price: BOOST_PRICE, name: t('RP pastiprinājums', 'RP boost') }} />
         </div>
-        <div className="flex items-center gap-4 rounded-2xl border-2 border-brand/50 bg-card shadow-hard-sm p-4">
-          <ChestIcon rarity={SHOP_CHEST.rarity} size={52} glow={false} />
-          <div className="min-w-0 flex-1">
-            <div className="font-bold">{t('Reta lāde', 'Rare chest')}</div>
-            <div className="text-xs text-muted">
-              {t(`Monētas, pastiprinājums un kosmētika · tev ir ${chests.length}`, `Coins, a boost and cosmetics · you have ${chests.length}`)}
+        {SHOP_CHESTS.map((offer) => {
+          const chestName = offer.rarity === 'epic' ? t('Episka lāde', 'Epic chest') : t('Reta lāde', 'Rare chest');
+          const count = chests.filter((c) => c.rarity === offer.rarity).length;
+          return (
+            <div key={offer.rarity} className="flex flex-col justify-between gap-3 rounded-2xl border-2 border-brand/50 bg-card shadow-hard-sm p-4">
+              <div className="flex items-center gap-4">
+                <ChestIcon rarity={offer.rarity} size={52} glow={false} />
+                <div className="min-w-0 flex-1">
+                  <div className="font-bold">{chestName}</div>
+                  <div className="text-xs text-muted">
+                    {t(`Tev ir ${count}`, `You have ${count}`)}
+                  </div>
+                </div>
+                <PriceButton p={{ kind: 'chest', rarity: offer.rarity, price: offer.price, name: chestName }} />
+              </div>
+              <ChestOdds rarity={offer.rarity} className="border-t border-ink/10 pt-2 text-xs text-muted" />
             </div>
-          </div>
-          <PriceButton p={{ kind: 'chest', price: SHOP_CHEST.price, name: t('Reta lāde', 'Rare chest') }} />
-        </div>
+          );
+        })}
         {items.map((c) => (
           <div key={c.id} className="flex items-center gap-4 rounded-2xl border-2 border-ink bg-card shadow-hard-sm p-4">
             <CosmeticPreview item={c} size={48} />
@@ -513,12 +532,20 @@ function SettingsTab() {
           <Button variant="secondary" icon={<RPIcon size={18} />} onClick={() => devAddRP(500)}>
             +500 RP
           </Button>
-          <Button variant="secondary" icon={<ChestIcon rarity="epic" size={22} glow={false} />} onClick={() => devAddChest('epic')}>
-            {t('+ Episka lāde', '+ Epic chest')}
-          </Button>
-          <Button variant="secondary" icon={<ChestIcon rarity="legendary" size={22} glow={false} />} onClick={() => devAddChest('legendary')}>
-            {t('+ Leģendāra lāde', '+ Legendary chest')}
-          </Button>
+          <div className="grid grid-cols-2 gap-2">
+            <Button variant="secondary" size="sm" icon={<ChestIcon rarity="common" size={18} glow={false} />} onClick={() => devAddChest('common')}>
+              {t('+ Parasta lāde', '+ Common chest')}
+            </Button>
+            <Button variant="secondary" size="sm" icon={<ChestIcon rarity="rare" size={18} glow={false} />} onClick={() => devAddChest('rare')}>
+              {t('+ Reta lāde', '+ Rare chest')}
+            </Button>
+            <Button variant="secondary" size="sm" icon={<ChestIcon rarity="epic" size={18} glow={false} />} onClick={() => devAddChest('epic')}>
+              {t('+ Episka lāde', '+ Epic chest')}
+            </Button>
+            <Button variant="secondary" size="sm" icon={<ChestIcon rarity="legendary" size={18} glow={false} />} onClick={() => devAddChest('legendary')}>
+              {t('+ Leģendāra lāde', '+ Legendary chest')}
+            </Button>
+          </div>
           <Button variant="danger" onClick={() => setConfirmReset(true)}>
             {t('Atiestatīt visu progresu', 'Reset all progress')}
           </Button>
@@ -652,7 +679,6 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false);
   if (!profile) return null;
   const rank = rankFromRP(stats.totalRP);
-  const title = cosmetic(equipped.title);
 
   return (
     <div>
@@ -662,7 +688,9 @@ export default function ProfilePage() {
           <Avatar avatar={profile.avatar} hue={profile.hue} frame={equipped.frame} size={104} />
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-3">
-              <h1 className="truncate font-display text-3xl font-extrabold">{profile.name}</h1>
+              <h1 className="truncate font-display text-3xl font-extrabold">
+                <NameTag name={profile.name} tag={equipped.nametag} />
+              </h1>
               <button
                 type="button"
                 onClick={() => setEditing(true)}
@@ -672,11 +700,9 @@ export default function ProfilePage() {
                 <Pencil className="size-4" />
               </button>
             </div>
-            {title && (
-              <div className="mt-1 font-semibold" style={{ color: RARITY_META[title.rarity].color }}>
-                {title[lang]}
-              </div>
-            )}
+            <div className="mt-1">
+              <TitleText id={equipped.title} />
+            </div>
             <div className="mt-1 text-sm text-muted">
               {t('Spēlē kopš', 'Playing since')} {fmtDate(profile.createdAt, lang)}
             </div>

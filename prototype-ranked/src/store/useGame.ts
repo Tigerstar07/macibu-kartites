@@ -9,7 +9,7 @@ import { rankIndexFromRP, roadFor } from '../lib/rank';
 import { DAY, dayKey, daysBetween, weekId } from '../lib/time';
 import { questDef, rollDailyQuests, type QuestKind, type QuestState } from '../lib/quests';
 import { ACHIEVEMENTS, achievementDef } from '../lib/achievements';
-import { BOOST_PRICE, DEFAULT_EQUIPPED, DEFAULT_OWNED, SHOP_CHEST, cosmetic, rollChest } from '../lib/cosmetics';
+import { BOOST_PRICE, DEFAULT_EQUIPPED, DEFAULT_OWNED, DUPE_COINS, SHOP_CHESTS, cosmetic, migrateCosmetics, rollChest } from '../lib/cosmetics';
 import { finalWeeklyPlace, placeFor, weeklyRewards } from '../lib/bots';
 import { uid } from '../lib/random';
 import { setSoundEnabled } from '../lib/sound';
@@ -138,7 +138,9 @@ export interface GameState extends Wallet {
   userDecks: Deck[];
   progress: Record<string, CardProgress>;
   stats: Stats;
-  equipped: { theme: string; frame: string; title: string };
+  equipped: { theme: string; frame: string; title: string; nametag: string };
+  /** Chests opened in a row without a cosmetic: feeds the pity guarantee. */
+  chestPity: number;
   achievements: Record<string, number>;
   quests: QuestBook;
   // transient UI state (not persisted)
@@ -160,7 +162,7 @@ export interface GameState extends Wallet {
   setCeremony: (c: Ceremony | null) => void;
   buyCosmetic: (id: string) => boolean;
   buyBoost: () => boolean;
-  buyChest: () => boolean;
+  buyChest: (rarity?: Rarity) => boolean;
   equip: (id: string) => void;
   dismissEvent: (id: string) => void;
   tick: () => void;
@@ -205,6 +207,7 @@ const freshGame = () => {
     owned: [...DEFAULT_OWNED],
     equipped: { ...DEFAULT_EQUIPPED },
     chests: [] as Chest[],
+    chestPity: 0,
     achievements: {} as Record<string, number>,
     quests: { day: today, items: rollDailyQuests(today), bonusClaimed: false },
   };
@@ -229,8 +232,9 @@ function grantItems(w: Wallet, items: RewardItem[], source: ChestSource): { wall
       chests.push({ id: uid('c'), rarity: it.rarity, source });
       applied.push(it);
     } else if (owned.includes(it.id)) {
-      coins += 75;
-      applied.push({ kind: 'coins', amount: 75 });
+      const amount = DUPE_COINS[cosmetic(it.id)?.rarity ?? 'common'];
+      coins += amount;
+      applied.push({ kind: 'coins', amount, dupeOf: it.id });
     } else {
       owned.push(it.id);
       applied.push(it);
@@ -571,9 +575,9 @@ export const useGame = create<GameState>()(
         const st = get();
         const chest = st.chests.find((c) => c.id === id);
         if (!chest) return [];
-        const items = rollChest(chest.rarity, st.owned);
-        const r = grantItems({ ...walletOf(st), chests: st.chests.filter((c) => c.id !== id) }, items, 'chest');
-        set(r.wallet);
+        const roll = rollChest(chest.rarity, st.owned, st.chestPity);
+        const r = grantItems({ ...walletOf(st), chests: st.chests.filter((c) => c.id !== id) }, roll.items, 'chest');
+        set({ ...r.wallet, chestPity: roll.gotCosmetic ? 0 : st.chestPity + 1 });
         return r.applied;
       },
 
@@ -595,12 +599,13 @@ export const useGame = create<GameState>()(
         return true;
       },
 
-      buyChest: () => {
+      buyChest: (rarity = 'rare') => {
         const st = get();
-        if (st.coins < SHOP_CHEST.price) return false;
+        const offer = SHOP_CHESTS.find((o) => o.rarity === rarity);
+        if (!offer || st.coins < offer.price) return false;
         set({
-          coins: st.coins - SHOP_CHEST.price,
-          chests: [...st.chests, { id: uid('c'), rarity: SHOP_CHEST.rarity, source: 'shop' }],
+          coins: st.coins - offer.price,
+          chests: [...st.chests, { id: uid('c'), rarity: offer.rarity, source: 'shop' }],
         });
         return true;
       },
@@ -695,12 +700,15 @@ export const useGame = create<GameState>()(
         const p = (persistedState ?? {}) as Partial<GameState>;
         const pStats = p.stats ?? ({} as Partial<Stats>);
         const fresh = freshGame();
+        const migrated = migrateCosmetics(p.owned, p.equipped);
         return {
           ...currentState,
           ...p,
           profile: p.profile ? { ...p.profile, role: p.profile.role ?? 'user' } : null,
           settings: { ...currentState.settings, ...(p.settings ?? {}) },
-          equipped: { ...currentState.equipped, ...(p.equipped ?? {}) },
+          equipped: migrated.equipped,
+          owned: migrated.owned,
+          chestPity: typeof p.chestPity === 'number' ? p.chestPity : 0,
           quests: { ...currentState.quests, ...(p.quests ?? {}) },
           stats: {
             ...currentState.stats,
@@ -723,6 +731,7 @@ export const useGame = create<GameState>()(
         owned: s.owned,
         equipped: s.equipped,
         chests: s.chests,
+        chestPity: s.chestPity,
         achievements: s.achievements,
         quests: s.quests,
       }),

@@ -75,7 +75,7 @@ export interface Question {
 }
 
 export type RewardItem =
-  | { kind: 'coins'; amount: number }
+  | { kind: 'coins'; amount: number; /** Set when this payout replaced a duplicate cosmetic. */ dupeOf?: string }
   | { kind: 'chest'; rarity: Rarity }
   | { kind: 'cosmetic'; id: string }
   | { kind: 'boost'; amount: number };

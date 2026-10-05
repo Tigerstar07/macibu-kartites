@@ -4,12 +4,12 @@ import { AnimatePresence, motion } from 'motion/react';
 import { Crown, Flame, Gift, House, Layers, Moon, Sun, Trophy, User, Volume2, VolumeX, type LucideIcon } from 'lucide-react';
 import { effectiveStreak, useGame } from '../../store/useGame';
 import { rankFromRP, rankName, rankProgress } from '../../lib/rank';
-import { cosmetic } from '../../lib/cosmetics';
 import { useLang, useNumFmt, useT } from '../../lib/i18n';
 import { cn } from '../../lib/cn';
 import { sfx } from '../../lib/sound';
 import { RankEmblem } from '../rank/RankEmblem';
 import { Avatar } from '../ui/Avatar';
+import { NameTag, TitleText } from '../ui/NameTag';
 import { Counter, ProgressBar } from '../ui/Meters';
 import { BoostIcon, CoinIcon } from '../ui/Icons';
 
@@ -98,7 +98,6 @@ function MiniProfile() {
   const fmt = useNumFmt();
   if (!profile) return null;
   const rank = rankFromRP(stats.totalRP);
-  const title = cosmetic(equipped.title);
   return (
     <Link
       to="/profile"
@@ -107,8 +106,12 @@ function MiniProfile() {
       <div className="flex items-center gap-3">
         <Avatar avatar={profile.avatar} hue={profile.hue} frame={equipped.frame} size={42} />
         <div className="min-w-0 flex-1">
-          <div className="truncate font-extrabold leading-tight">{profile.name}</div>
-          <div className="truncate text-xs font-medium text-muted">{title?.[lang]}</div>
+          <div className="truncate font-extrabold leading-tight">
+            <NameTag name={profile.name} tag={equipped.nametag} />
+          </div>
+          <div className="truncate text-xs font-medium text-muted">
+            <TitleText id={equipped.title} />
+          </div>
         </div>
         <RankEmblem rankIndex={rank.index} size={38} idle={false} />
       </div>

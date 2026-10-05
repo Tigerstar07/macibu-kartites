@@ -81,7 +81,7 @@ export const ROAD: RoadStep[] = [
   { rankIndex: 5, items: [{ kind: 'cosmetic', id: 'theme-sunset' }, { kind: 'boost', amount: 1 }] },
   { rankIndex: 6, items: [{ kind: 'cosmetic', id: 'frame-gold' }, { kind: 'cosmetic', id: 'title-goldmind' }, { kind: 'coins', amount: 250 }] },
   { rankIndex: 7, items: [{ kind: 'chest', rarity: 'rare' }, { kind: 'coins', amount: 150 }] },
-  { rankIndex: 8, items: [{ kind: 'cosmetic', id: 'theme-gold' }] },
+  { rankIndex: 8, items: [{ kind: 'cosmetic', id: 'theme-gold' }, { kind: 'cosmetic', id: 'tag-gilded' }] },
   { rankIndex: 9, items: [{ kind: 'cosmetic', id: 'frame-platinum' }, { kind: 'cosmetic', id: 'title-strategist' }, { kind: 'coins', amount: 350 }] },
   { rankIndex: 10, items: [{ kind: 'chest', rarity: 'epic' }] },
   { rankIndex: 11, items: [{ kind: 'cosmetic', id: 'theme-aurora' }, { kind: 'boost', amount: 2 }] },

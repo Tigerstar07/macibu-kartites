@@ -167,8 +167,33 @@ export const sfx = {
     noise({ dur: 1.2, vol: 0.05, when: 0.4, from: 3000, to: 9000, q: 0.5 });
   },
   chestShake: (i = 0) => tone(80 + i * 14, { type: 'sine', dur: 0.1, vol: 0.35 }),
+  /** Rising tension under the chest's shaking; `power` 0–3 follows the chest's rarity. */
+  chestCharge: (power = 0) => {
+    const dur = 1.55;
+    tone(98, { type: 'sawtooth', dur, vol: 0.07 + power * 0.015, attack: 0.5, slideTo: 392 + power * 70, filter: 1400 });
+    tone(147, { type: 'sine', dur, vol: 0.12, attack: 0.6, slideTo: 588 + power * 90 });
+    noise({ dur, vol: 0.05 + power * 0.015, from: 400, to: 5200, q: 0.9 });
+  },
+  /** One loot card turning over. `tier` 0 = coins/boost, 1 = rare, 2 = epic, 3 = legendary. */
+  reveal: (tier = 0) => {
+    if (tier <= 0) {
+      tone(880, { type: 'triangle', dur: 0.1, vol: 0.14 });
+      tone(1318.51, { type: 'triangle', dur: 0.16, vol: 0.12, when: 0.06 });
+      return;
+    }
+    const roots = [0, 659.25, 587.33, 523.25];
+    const chord = tier === 1 ? [0, 7] : tier === 2 ? [0, 4, 7, 12] : [0, 4, 7, 12, 16, 19];
+    chord.forEach((st, k) => tone(semis(roots[tier], st), { type: 'triangle', dur: 0.26 + tier * 0.1, vol: 0.15, when: k * 0.05 }));
+    if (tier >= 2) {
+      chord.forEach((st) => tone(semis(roots[tier], st), { type: 'sine', dur: 0.9 + tier * 0.3, vol: 0.08, when: 0.18, attack: 0.04 }));
+      noise({ dur: 0.7 + tier * 0.25, vol: 0.06 + tier * 0.02, from: 2500, to: 9000, q: 0.5 });
+    }
+    if (tier >= 3) tone(65.41, { type: 'sine', dur: 0.8, vol: 0.4, slideTo: 40 });
+  },
   chestOpen: () => {
     noise({ dur: 0.5, vol: 0.18, from: 300, to: 6000 });
     [659.25, 830.61, 987.77, 1318.51].forEach((f, k) => tone(f, { type: 'triangle', dur: 0.5, vol: 0.14, when: 0.05 + k * 0.06 }));
+    tone(82.41, { type: 'sine', dur: 0.5, vol: 0.45, slideTo: 41 });
   },
+
 };

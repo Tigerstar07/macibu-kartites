@@ -17,6 +17,7 @@ export interface Player {
   hue: number;
   frame: string;
   title: string;
+  nametag?: string;
   weeklyRP: number;
   totalRP: number;
   streak: number;
@@ -31,6 +32,7 @@ interface Bot {
   activity: number;
   base0: number;
   title: string;
+  nametag: string;
   streak: number;
 }
 
@@ -43,7 +45,9 @@ const NAMES = [
 
 export const AVATARS = ['🦊', '🐼', '🐸', '🦉', '🐯', '🐙', '🦄', '🐺', '🐧', '🦁', '🐨', '🐝', '🦋', '🐲', '🐳', '🦖', '🐱', '🐶', '🐰', '🐻', '🦝', '🐵', '🦜', '🐢', '🦈', '🐬', '🦩', '🐞'];
 
-const BOT_TITLES = ['title-rookie', 'title-curious', 'title-bookworm', 'title-scholar', 'title-owl', 'title-flash', 'title-combo', 'title-quizwiz', 'title-goldmind'];
+const BOT_TITLES = ['title-rookie', 'title-curious', 'title-deepfocus', 'title-scholar', 'title-owl', 'title-flash', 'title-combo', 'title-clutch', 'title-goldmind'];
+/** Most rivals wear a plain name; a few show off, so the board looks lived-in. */
+const BOT_TAGS = ['tag-plain', 'tag-plain', 'tag-plain', 'tag-plain', 'tag-plain', 'tag-chrome', 'tag-frost', 'tag-neon', 'tag-glitch', 'tag-ember', 'tag-gilded', 'tag-aurora'];
 const LEAGUE_FRAMES = ['frame-bronze', 'frame-silver', 'frame-gold', 'frame-platinum', 'frame-diamond'];
 
 /** Bots' all-time RP grows week by week from this Monday onwards. */
@@ -59,6 +63,7 @@ export const BOTS: Bot[] = (() => {
     activity: 0.25 + 1.65 * Math.pow(r(), 1.6),
     base0: Math.round(9000 * Math.pow(r(), 1.7)),
     title: BOT_TITLES[Math.floor(r() * BOT_TITLES.length)],
+    nametag: BOT_TAGS[Math.floor(r() * BOT_TAGS.length)],
     streak: 1 + Math.floor(Math.pow(r(), 2) * 120),
   }));
 })();
@@ -102,6 +107,7 @@ function toPlayer(b: Bot, weeklyRP: number, t: number): Player {
     hue: b.hue,
     frame: LEAGUE_FRAMES[rankFromRP(totalRP).leagueIndex],
     title: b.title,
+    nametag: b.nametag,
     weeklyRP,
     totalRP,
     streak: b.streak,
@@ -159,7 +165,7 @@ export function recentActivity(t: number, windowMin = 120, limit = 6): Activity[
 /** What a final weekly placement pays out. */
 export function weeklyRewards(place: number): RewardItem[] {
   if (place === 1)
-    return [{ kind: 'coins', amount: 500 }, { kind: 'chest', rarity: 'epic' }, { kind: 'cosmetic', id: 'title-champion' }];
+    return [{ kind: 'coins', amount: 500 }, { kind: 'chest', rarity: 'epic' }, { kind: 'cosmetic', id: 'title-champion' }, { kind: 'cosmetic', id: 'tag-royal' }];
   if (place === 2) return [{ kind: 'coins', amount: 300 }, { kind: 'chest', rarity: 'rare' }];
   if (place === 3) return [{ kind: 'coins', amount: 200 }, { kind: 'chest', rarity: 'rare' }];
   if (place <= 10) return [{ kind: 'coins', amount: 100 }];
