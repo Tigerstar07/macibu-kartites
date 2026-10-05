@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { animate, stagger } from 'animejs';
+import { AnimatePresence, motion } from 'motion/react';
 import { CalendarCheck, Check, CircleX, Flame, Lock, Play, Repeat, Sparkles, Target, Zap } from 'lucide-react';
 import { useGame } from '../store/useGame';
 import { DIVISIONS, LEAGUES, ROAD, THRESHOLDS, rankAt, rankFromRP, rankName, rankProgress } from '../lib/rank';
@@ -25,6 +26,7 @@ export default function RankPage() {
   const fmt = useNumFmt();
   const navigate = useNavigate();
   const stats = useGame((s) => s.stats);
+  const [showRPHelp, setShowRPHelp] = useState(false);
   const rank = rankFromRP(stats.totalRP);
   const L = rank.league;
   const ladderRef = useRef<HTMLDivElement>(null);
@@ -64,6 +66,15 @@ export default function RankPage() {
     { icon: <BoostIcon size={20} />, c: '#22d3ee', title: t('RP pastiprinājums', 'RP boost'), text: t('Viena sesija ar ×1,5 RP. Iegūsti lādēs vai veikalā.', 'One session at ×1.5 RP. From chests or the shop.') },
     { icon: <CircleX className="size-5" />, c: '#fb7185', title: t('Bez sodiem', 'No penalties'), text: t('RP netiek atņemti — nedēļas tabula sākas no nulles katru pirmdienu.', 'RP is never taken away — the weekly board resets every Monday.') },
   ];
+  const renderRule = (r: (typeof rules)[number]) => (
+    <div key={r.title} className="rounded-2xl glass-soft p-4">
+      <div className="grid size-10 place-items-center rounded-xl" style={{ background: `${r.c}22`, color: r.c }}>
+        {r.icon}
+      </div>
+      <div className="mt-3 font-semibold">{r.title}</div>
+      <p className="mt-1 text-sm text-muted">{r.text}</p>
+    </div>
+  );
 
   return (
     <div>
@@ -203,18 +214,36 @@ export default function RankPage() {
         </div>
       </section>
 
-      <Panel className="mt-8" title={t('Kā pelnīt RP', 'How RP works')} icon={<RPIcon size={22} />}>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {rules.map((r) => (
-            <div key={r.title} className="rounded-2xl glass-soft p-4">
-              <div className="grid size-10 place-items-center rounded-xl" style={{ background: `${r.c}22`, color: r.c }}>
-                {r.icon}
+      <Panel
+        className="mt-8"
+        title={
+          <button
+            type="button"
+            className="text-left transition-colors hover:text-brand"
+            aria-expanded={showRPHelp}
+            onClick={() => setShowRPHelp((open) => !open)}
+          >
+            {t('Kā pelnīt RP', 'How RP works')}
+          </button>
+        }
+        icon={<RPIcon size={22} />}
+      >
+        <AnimatePresence initial={false}>
+          {showRPHelp && (
+            <motion.div
+              key="rp-help"
+              initial={{ height: '0px', opacity: 0, y: -10 }}
+              animate={{ height: 'auto', opacity: 1, y: 0 }}
+              exit={{ height: 0, opacity: 0, y: -10 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+              className="overflow-hidden"
+            >
+              <div className="grid gap-3 pt-1 sm:grid-cols-2 lg:grid-cols-4">
+                {rules.map(renderRule)}
               </div>
-              <div className="mt-3 font-semibold">{r.title}</div>
-              <p className="mt-1 text-sm text-muted">{r.text}</p>
-            </div>
-          ))}
-        </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </Panel>
     </div>
   );
