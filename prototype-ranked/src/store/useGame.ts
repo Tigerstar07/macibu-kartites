@@ -21,6 +21,7 @@ export interface Profile {
   avatar: string;
   hue: number;
   createdAt: number;
+  role: 'user' | 'admin';
 }
 
 export interface Settings {
@@ -145,7 +146,8 @@ export interface GameState extends Wallet {
   openChestId: string | null;
   ceremony: Ceremony | null;
 
-  setProfile: (p: Omit<Profile, 'createdAt'>) => void;
+  setProfile: (p: Omit<Profile, 'createdAt' | 'role'>) => void;
+  setRole: (role: Profile['role']) => void;
   updateSettings: (s: Partial<Settings>) => void;
   saveDeck: (deck: Deck) => void;
   deleteDeck: (id: string) => void;
@@ -287,10 +289,12 @@ export const useGame = create<GameState>()(
 
       setProfile: (p) =>
         set((st) => ({
-          profile: { ...p, createdAt: st.profile?.createdAt ?? Date.now() },
+          profile: { ...p, role: st.profile?.role ?? 'user', createdAt: st.profile?.createdAt ?? Date.now() },
           // First sign-up gets a welcome chest waiting on the home screen.
           chests: st.profile ? st.chests : [...st.chests, { id: uid('c'), rarity: 'rare', source: 'welcome' }],
         })),
+
+      setRole: (role) => set((st) => (st.profile ? { profile: { ...st.profile, role } } : {})),
 
       updateSettings: (s) => {
         if (s.sound !== undefined) setSoundEnabled(s.sound);
@@ -379,10 +383,11 @@ export const useGame = create<GameState>()(
         const now = Date.now();
         const today = dayKey(now);
         const answered = input.answers.length;
+        const eligibleForRP = BUILTIN_DECKS.some((deck) => deck.id === input.deckId);
         const scored = input.answers.filter((a) => !a.relearn);
         const correct = scored.filter((a) => a.correct).length;
         const accuracy = scored.length ? correct / scored.length : 0;
-        const answerRPSum = input.answers.reduce((s, a) => s + a.rp, 0);
+        const answerRPSum = eligibleForRP ? input.answers.reduce((s, a) => s + a.rp, 0) : 0;
         const avgMs = scored.length ? scored.reduce((s, a) => s + Math.min(a.ms, TIME_LIMIT[a.type]), 0) / scored.length : 0;
         const correctMs = input.answers.filter((a) => a.correct).map((a) => a.ms);
         const fastestMs = correctMs.length ? Math.min(...correctMs) : null;
@@ -407,10 +412,10 @@ export const useGame = create<GameState>()(
         const breakdown = sessionRP({
           answerRP: answerRPSum,
           accuracy,
-          completed: input.completed,
-          answered,
-          streakDays: liveStreak,
-          firstToday,
+          completed: eligibleForRP && input.completed,
+          answered: eligibleForRP ? answered : 0,
+          streakDays: eligibleForRP ? liveStreak : 0,
+          firstToday: eligibleForRP && firstToday,
         });
 
         const rpBefore = prev.totalRP;
@@ -423,7 +428,7 @@ export const useGame = create<GameState>()(
         const rankAfter = rankIndexFromRP(rpAfter);
 
         const promo = applyPromotions(
-          { ...walletOf(st), boosts: input.boosted && (input.completed || answered >= 3) ? Math.max(0, st.boosts - 1) : st.boosts },
+          { ...walletOf(st), boosts: eligibleForRP && input.boosted && (input.completed || answered >= 3) ? Math.max(0, st.boosts - 1) : st.boosts },
           rankBefore,
           rankAfter,
           prev.roadClaimed,
@@ -693,6 +698,7 @@ export const useGame = create<GameState>()(
         return {
           ...currentState,
           ...p,
+          profile: p.profile ? { ...p.profile, role: p.profile.role ?? 'user' } : null,
           settings: { ...currentState.settings, ...(p.settings ?? {}) },
           equipped: { ...currentState.equipped, ...(p.equipped ?? {}) },
           quests: { ...currentState.quests, ...(p.quests ?? {}) },

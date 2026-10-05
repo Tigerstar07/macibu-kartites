@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import { animate } from 'animejs';
-import { ArrowLeft, ArrowRight, Check, CornerDownLeft, Lightbulb, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, CornerDownLeft, House, Lightbulb, RotateCcw, X } from 'lucide-react';
 import type { AnswerLog, Deck, Question } from '../types';
 import { useDeck, useGame, type SessionOutcome } from '../store/useGame';
 import { buildQuestion, buildSession, isPlayable } from '../lib/questions';
@@ -62,7 +62,7 @@ export default function PlayPage() {
   return <Game key={run} deck={deck} onReplay={() => setRun((r) => r + 1)} />;
 }
 
-type Phase = 'intro' | 'question' | 'feedback' | 'results';
+type Phase = 'intro' | 'question' | 'feedback' | 'results' | 'failed';
 
 function Embers({ level }: { level: number }) {
   const embers = useMemo(
@@ -108,9 +108,10 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
   const finishSession = useGame((s) => s.finishSession);
   const themeId = useGame((s) => s.equipped.theme);
   const theme = cosmetic(themeId) ?? cosmetic('theme-cosmos')!;
+  const eligibleForRP = deck.builtin === true;
 
   const [queue, setQueue] = useState<Question[]>(() => buildSession(deck, useGame.getState().progress, settings.sessionLength));
-  const [boosted] = useState(() => useGame.getState().boosts > 0);
+  const [boosted] = useState(() => eligibleForRP && useGame.getState().boosts > 0);
   const [questsBefore] = useState(() => useGame.getState().quests.items);
   const [index, setIndex] = useState(0);
   const [phase, setPhase] = useState<Phase>('intro');
@@ -151,11 +152,27 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
   const finish = (completed: boolean) => {
     window.clearTimeout(advanceTimer.current);
     if (outcome || live.current.phase === 'results') return;
+    if (!completed) {
+      live.current.phase = 'failed';
+      setPhase('failed');
+      return;
+    }
     if (answers.current.length === 0) {
       navigate('/');
       return;
     }
     live.current.phase = 'results';
+    answers.current.forEach((a) =>
+      recordAnswer({
+        cardKey: a.cardKey,
+        correct: a.correct,
+        ms: a.ms,
+        type: a.type,
+        relearn: a.relearn,
+        timeout: a.timeout,
+        combo: a.combo,
+      }),
+    );
     const out = finishSession({
       deckId: deck.id,
       answers: answers.current,
@@ -198,8 +215,8 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
     const correct = !timeout && i === q.correctIndex;
     const nextCombo = correct ? combo + 1 : 0;
     const relearn = !!q.relearn;
-    const rp = answerRP({ correct, ms, type: q.type, combo: nextCombo, relearn, boosted });
-    const tier = correct ? speedTier(ms) : null;
+    const rp = eligibleForRP ? answerRP({ correct, ms, type: q.type, combo: nextCombo, relearn, boosted }) : 0;
+    const tier = correct && eligibleForRP ? speedTier(ms) : null;
 
     setPhase('feedback');
     setPicked(timeout ? null : i);
@@ -208,8 +225,6 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
     setResults((r) => [...r, correct]);
     setGain(correct ? { rp, tier } : null);
     answers.current.push({ cardKey: q.cardKey, correct, ms, rp, type: q.type, relearn, timeout, combo: nextCombo });
-    recordAnswer({ cardKey: q.cardKey, correct, ms, type: q.type, relearn, timeout, combo: nextCombo });
-
     const btn = i >= 0 ? optionRefs.current[i] : null;
 
     if (correct) {
@@ -222,18 +237,20 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
           colors: nextCombo >= 5 ? ['#fde047', '#fb923c', '#f472b6', '#ffffff'] : undefined,
         });
         ring(c.x, c.y, '#34d399', 200);
-        floatText(`+${rp}`, c.x, c.y - 8, {
-          to: rpRef.current,
-          onArrive: () => {
-            setHudRP((v) => v + rp);
-            pop(rpRef.current, 1.3);
-          },
-        });
-        if (tier === 'lightning') floatText(t('⚡ Zibens!', '⚡ Lightning!'), c.x, c.y - 58, { color: '#67e8f9', size: 18, delay: 90, rise: 40 });
-      } else setHudRP((v) => v + rp);
+        if (eligibleForRP) {
+          floatText(`+${rp}`, c.x, c.y, {
+            to: rpRef.current,
+            onArrive: () => {
+              setHudRP((v) => v + rp);
+              pop(rpRef.current, 1.3);
+            },
+          });
+          if (tier === 'lightning') floatText(t('⚡ Zibens!', '⚡ Lightning!'), c.x, c.y - 58, { color: '#67e8f9', size: 18, delay: 90, rise: 40 });
+        }
+      } else if (eligibleForRP) setHudRP((v) => v + rp);
 
       let hold = 1050;
-      if (MILESTONES.includes(nextCombo)) {
+      if (eligibleForRP && MILESTONES.includes(nextCombo)) {
         setBanner({ id: Date.now(), text: `COMBO ×${nextCombo}`, sub: `RP ×${comboMultiplier(nextCombo)}`, tone: nextCombo >= 12 ? 'max' : 'combo' });
         sfx.combo(Math.floor(nextCombo / 3));
         shake(stageRef.current, 5, 300);
@@ -508,21 +525,25 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
                         {wasCorrect ? <Check className="size-6" strokeWidth={3} /> : <X className="size-6" strokeWidth={3} />}
                       </span>
                       <div className="min-w-0 flex-1">
-                        {wasCorrect && gain ? (
+                        {wasCorrect ? (
                           <div className="flex flex-wrap items-center gap-2 font-display text-xl font-bold tracking-[-0.02em] text-emerald-300">
                             {t('Pareizi!', 'Correct!')}
-                            <span className="rounded-full bg-amber-400/15 px-2.5 py-0.5 text-base text-amber-200 shadow-[inset_0_0_0_1px_rgba(251,191,36,0.3)]">
-                              +{gain.rp} RP
-                            </span>
-                            {gain.tier === 'lightning' && (
-                              <span className="rounded-full bg-cyan-400/15 px-2.5 py-0.5 text-sm text-cyan-200 shadow-[inset_0_0_0_1px_rgba(34,211,238,0.3)]">
-                                {t('⚡ Zibens +5', '⚡ Lightning +5')}
-                              </span>
-                            )}
-                            {gain.tier === 'fast' && (
-                              <span className="rounded-full bg-sky-400/15 px-2.5 py-0.5 text-sm text-sky-200 shadow-[inset_0_0_0_1px_rgba(56,189,248,0.3)]">
-                                {t('Ātri +3', 'Fast +3')}
-                              </span>
+                            {eligibleForRP && gain && (
+                              <>
+                                <span className="rounded-full bg-amber-400/15 px-2.5 py-0.5 text-base text-amber-200 shadow-[inset_0_0_0_1px_rgba(251,191,36,0.3)]">
+                                  +{gain.rp} RP
+                                </span>
+                                {gain.tier === 'lightning' && (
+                                  <span className="rounded-full bg-cyan-400/15 px-2.5 py-0.5 text-sm text-cyan-200 shadow-[inset_0_0_0_1px_rgba(34,211,238,0.3)]">
+                                    {t('⚡ Zibens +5', '⚡ Lightning +5')}
+                                  </span>
+                                )}
+                                {gain.tier === 'fast' && (
+                                  <span className="rounded-full bg-sky-400/15 px-2.5 py-0.5 text-sm text-sky-200 shadow-[inset_0_0_0_1px_rgba(56,189,248,0.3)]">
+                                    {t('Ātri +3', 'Fast +3')}
+                                  </span>
+                                )}
+                              </>
                             )}
                           </div>
                         ) : (
@@ -585,14 +606,37 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
         {phase === 'results' && outcome && <SessionResults key="results" outcome={outcome} deck={deck} questsBefore={questsBefore} onReplay={onReplay} />}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {phase === 'failed' && (
+          <motion.div
+            className="fixed inset-0 z-50 grid place-items-center bg-ink-950 p-5"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.section
+              className="w-full max-w-md rounded-[28px] glass p-8 text-center"
+              initial={{ opacity: 0, y: 18, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+            >
+              <h1 className="font-display text-3xl font-extrabold">{t('Spēle neizdevās', 'Game failed')}</h1>
+              <div className="mt-7 flex flex-wrap justify-center gap-3">
+                <Button variant="primary" icon={<RotateCcw className="size-4" />} onClick={onReplay}>
+                  {t('Spēlēt vēlreiz', 'Play again')}
+                </Button>
+                <Button variant="secondary" icon={<House className="size-4" />} onClick={() => navigate('/')}>
+                  {t('Uz sākumu', 'Home')}
+                </Button>
+              </div>
+            </motion.section>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <ConfirmDialog
         open={confirmQuit}
         title={t('Pamest sesiju?', 'Leave the session?')}
-        message={
-          answers.current.length
-            ? t('Nopelnītie RP tiks saglabāti, bet bonusus par sesijas pabeigšanu tu nesaņemsi.', "The RP you've earned is kept, but you'll miss the completion bonuses.")
-            : t('Tu vēl neesi atbildējis ne uz vienu jautājumu.', "You haven't answered any questions yet.")
-        }
+        message={t('Spēle tiks atzīmēta kā neizdevusies, un progress vai balvas netiks saglabātas.', 'The game will be marked as failed, and no progress or rewards will be saved.')}
         confirmLabel={t('Pamest', 'Leave')}
         cancelLabel={t('Turpināt spēli', 'Keep playing')}
         danger

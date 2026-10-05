@@ -206,6 +206,7 @@ export function SessionResults({
               <h2 className="flex items-center gap-2 font-display text-lg font-bold">
                 <RPIcon size={22} /> {t('Nopelnītie RP', 'RP earned')}
               </h2>
+              {deck.builtin !== true && <p className="mt-2 text-sm text-muted">{t('Kopienas kopas RP nepiešķir.', 'Community decks do not award RP.')}</p>}
               <div className="mt-3">
                 {rows.map((r, i) => (
                   <motion.div
