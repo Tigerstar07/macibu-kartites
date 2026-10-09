@@ -87,7 +87,7 @@ export function Onboarding() {
                 key={l}
                 type="button"
                 onClick={() => updateSettings({ lang: l })}
-                className={cn('rounded-lg px-3 py-1.5 transition', lang === l ? 'bg-white/15 text-white' : 'text-white/65 hover:text-white')}
+                className={cn('rounded-lg px-3 py-1.5 transition', lang === l ? 'bg-ink-900 text-white' : 'text-ink hover:bg-white/60 hover:text-ink')}
               >
                 {l.toUpperCase()}
               </button>
