@@ -353,11 +353,11 @@ export function AppShell() {
           <AnimatePresence mode="popLayout" initial={false}>
             <motion.div
               key={location.pathname}
-              initial={{ opacity: 0, y: 12, scale: 0.99 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -8, scale: 0.99 }}
-              transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-              className="@container mx-auto w-full max-w-6xl"
+              initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, y: -5, filter: 'blur(2px)' }}
+              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+              className="@container mx-auto w-full max-w-6xl will-change-[filter,opacity,transform]"
             >
               <FrozenOutlet />
             </motion.div>
