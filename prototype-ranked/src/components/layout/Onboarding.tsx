@@ -77,7 +77,7 @@ export function Onboarding() {
   };
 
   return (
-    <motion.div className="fixed inset-0 z-[340] overflow-y-auto bg-ink-950/92 backdrop-blur-xl" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+    <motion.div className="fixed inset-0 z-[340] overflow-y-auto bg-ink-950/92 text-white backdrop-blur-xl" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <div className="mx-auto flex min-h-full max-w-3xl flex-col px-5 py-8">
         <div className="flex items-center justify-between">
           <Logo />
@@ -87,7 +87,7 @@ export function Onboarding() {
                 key={l}
                 type="button"
                 onClick={() => updateSettings({ lang: l })}
-                className={cn('rounded-lg px-3 py-1.5 transition', lang === l ? 'bg-white/15 text-white' : 'text-muted hover:text-white')}
+                className={cn('rounded-lg px-3 py-1.5 transition', lang === l ? 'bg-white/15 text-white' : 'text-white/65 hover:text-white')}
               >
                 {l.toUpperCase()}
               </button>
@@ -113,9 +113,9 @@ export function Onboarding() {
               </div>
               <SplitTitle
                 text={t('Mācies. Uzvari. Kāp augstāk.', 'Learn. Win. Climb.')}
-                className="mt-10 font-display text-4xl font-extrabold leading-tight sm:text-5xl"
+                className="mt-10 font-display text-4xl font-extrabold leading-tight text-white sm:text-5xl"
               />
-              <p className="mx-auto mt-5 max-w-xl text-lg text-muted">
+              <p className="mx-auto mt-5 max-w-xl text-lg text-white/70">
                 {t(
                   'Kartītes ar atbilžu variantiem, atkārtošanas algoritms SM-2 un ranked līgas no Bronzas līdz Dimantam.',
                   'Multiple-choice flashcards, the SM-2 spaced-repetition algorithm and ranked leagues from Bronze to Diamond.',
@@ -132,7 +132,7 @@ export function Onboarding() {
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.9 + i * 0.12 }}
-                    className="rounded-2xl glass-soft p-4"
+                    className="rounded-2xl glass-soft p-4 text-ink"
                   >
                     <div className="grid size-10 place-items-center rounded-xl" style={{ background: `${f.c}22`, color: f.c }}>
                       {f.icon}
@@ -188,7 +188,7 @@ export function Onboarding() {
                     aria-invalid={touched && !!error}
                     aria-describedby="name-error"
                     className={cn(
-                      'mt-2 h-13 w-full rounded-2xl border bg-white/5 px-4 text-lg font-semibold outline-none transition placeholder:text-dim focus:bg-white/8',
+                      'mt-2 h-13 w-full rounded-2xl border bg-white/5 px-4 text-lg font-semibold text-white outline-none transition placeholder:text-white/45 focus:bg-white/8',
                       touched && error ? 'border-rose-400/70' : 'border-white/10 focus:border-violet-400/70',
                     )}
                   />
@@ -220,7 +220,7 @@ export function Onboarding() {
               </div>
 
               <div className="mt-8 flex justify-center gap-3">
-                <Button variant="ghost" size="lg" onClick={() => setStep(0)}>
+                <Button variant="ghost" size="lg" className="text-white/70 hover:border-white/15 hover:bg-white/10 hover:text-white" onClick={() => setStep(0)}>
                   {t('Atpakaļ', 'Back')}
                 </Button>
                 <Button variant="primary" size="lg" shine onClick={submit} iconRight={<ArrowRight className="size-5" />}>
