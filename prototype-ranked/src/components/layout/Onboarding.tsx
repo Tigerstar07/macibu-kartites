@@ -188,7 +188,7 @@ export function Onboarding() {
                     aria-invalid={touched && !!error}
                     aria-describedby="name-error"
                     className={cn(
-                      'mt-2 h-13 w-full rounded-2xl border bg-white/5 px-4 text-lg font-semibold text-white outline-none transition placeholder:text-white/45 focus:bg-white/8',
+                      'mt-2 h-13 w-full rounded-2xl border bg-white/5 px-4 text-lg font-semibold text-ink outline-none transition placeholder:text-dim focus:bg-white/8',
                       touched && error ? 'border-rose-400/70' : 'border-white/10 focus:border-violet-400/70',
                     )}
                   />
