@@ -34,15 +34,29 @@ const ICON_BUTTON = 'tactile grid size-11 place-items-center rounded-xl bg-card 
 export function Logo({ compact }: { compact?: boolean }) {
   return (
     <Link to="/" className="group flex items-center gap-3" aria-label="Mācību kartītes">
-      <div className="grid size-11 shrink-0 place-items-center rounded-xl border-2 border-ink bg-brand shadow-hard-sm transition-transform duration-500 ease-spring group-hover:-rotate-8 group-hover:scale-105">
-        <svg viewBox="0 0 24 24" className="size-6" aria-hidden="true">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.86, rotate: -5 }}
+        animate={{ opacity: 1, scale: [1, 1.035, 1], y: [0, -1, 0] }}
+        whileHover={{ scale: 1.08, rotate: -6, y: -2 }}
+        whileTap={{ scale: 0.94, rotate: 5, y: 1 }}
+        transition={{ duration: 0.7, ease: 'easeOut', scale: { duration: 5, repeat: Infinity, repeatDelay: 6, ease: 'easeInOut' }, y: { duration: 5, repeat: Infinity, repeatDelay: 6, ease: 'easeInOut' } }}
+        className="grid size-11 shrink-0 place-items-center rounded-xl border-2 border-ink bg-brand shadow-hard-sm"
+      >
+        <motion.svg viewBox="0 0 24 24" className="size-6" aria-hidden="true" whileHover={{ rotate: 12, scale: 1.12 }} transition={{ type: 'spring', stiffness: 500, damping: 16 }}>
           <path d="M14 2 6 14h5l-2 8 9-13h-5.5Z" fill="var(--color-acid)" stroke="var(--color-ink)" strokeWidth="1.6" strokeLinejoin="round" />
-        </svg>
-      </div>
+        </motion.svg>
+      </motion.div>
       {!compact && (
         <div className="leading-none">
           <div className="font-display text-[17px] font-extrabold tracking-[-0.035em]">Mācību kartītes</div>
-          <div className="eyebrow mt-1.5 inline-block -rotate-2 rounded-md border-2 border-ink bg-acid px-1.5 py-0.5 text-[9.5px] text-ink">Ranked</div>
+          <motion.div
+            whileHover={{ rotate: 2, scale: 1.05 }}
+            animate={{ rotate: [-2, -4, -2] }}
+            transition={{ duration: 1.8, repeat: Infinity, repeatDelay: 8, ease: 'easeInOut' }}
+            className="eyebrow mt-1.5 inline-block rounded-md border-2 border-ink bg-acid px-1.5 py-0.5 text-[9.5px] text-ink"
+          >
+            Ranked
+          </motion.div>
         </div>
       )}
     </Link>
