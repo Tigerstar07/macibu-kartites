@@ -205,6 +205,16 @@
   border: 2px solid var(--color-ink);
 }
 
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .glass-soft {
+    transition: translate 180ms var(--ease-out-quint), box-shadow 180ms var(--ease-out-quint);
+  }
+  .glass-soft:hover {
+    translate: 0 -2px;
+    box-shadow: 3px 4px 0 0 var(--shadow-color, var(--color-ink));
+  }
+}
+
 /* Floating chrome (bars, dialogs, toasts). */
 @utility chrome {
   background-color: var(--color-card);
@@ -356,6 +366,20 @@
   pointer-events: none;
   overflow: hidden;
   background-color: var(--color-paper);
+}
+.paper::after {
+  content: '';
+  position: absolute;
+  inset: -35% -20%;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 38%, color-mix(in oklch, var(--color-brand) 10%, transparent) 50%, transparent 62%);
+  background-size: 220% 100%;
+  opacity: 0.32;
+  animation: paper-sheen 18s ease-in-out infinite;
+}
+@keyframes paper-sheen {
+  0%, 100% { background-position: 120% 50%; }
+  50% { background-position: -20% 50%; }
 }
 .paper-grid {
   position: absolute;
