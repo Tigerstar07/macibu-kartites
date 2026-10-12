@@ -164,7 +164,7 @@ export const AnswerButton = forwardRef<
       <span className={HINT} aria-hidden="true">
         {marked ? <Check className="size-5" strokeWidth={3.2} /> : state === 'wrong' ? <X className="size-5" strokeWidth={3.2} /> : hint}
       </span>
-      <span className={cn('leading-snug', tf ? 'font-display text-2xl font-extrabold tracking-[-0.03em] sm:text-3xl' : 'flex-1 text-lg font-bold sm:text-xl')}>
+      <span className={cn('min-w-0 leading-snug [overflow-wrap:anywhere]', tf ? 'font-display text-2xl font-extrabold tracking-[-0.03em] sm:text-3xl' : 'flex-1 text-lg font-bold sm:text-xl')}>
         {label}
       </span>
     </button>
