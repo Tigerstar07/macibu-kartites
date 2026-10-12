@@ -65,6 +65,7 @@ function Heatmap() {
       return { key, t: d.getTime(), n: activity[key] ?? 0, future: d.getTime() > today.getTime() };
     });
   }, [activity]);
+  const hasActivity = cells.some((c) => !c.future && c.n > 0);
 
   const color = (n: number) =>
     n === 0 ? 'var(--color-line-strong)' : n < 5 ? 'rgba(139,92,246,0.45)' : n < 15 ? 'rgba(167,139,250,0.75)' : n < 30 ? 'rgba(34,211,238,0.85)' : '#38bdf8';
@@ -101,6 +102,7 @@ function Heatmap() {
         ))}
         {t('Vairāk', 'More')}
       </div>
+      {!hasActivity && <p className="mt-3 text-sm text-muted">{t('Vēl nav aktivitātes — pirmā sesija parādīsies šeit.', 'No activity yet — your first session will appear here.')}</p>}
     </Panel>
   );
 }
@@ -129,18 +131,24 @@ function RPChart() {
       icon={<ChartColumn className="size-5 text-cyan-300" />}
       extra={<span className="text-sm font-semibold tabular text-muted">{fmt(total)} RP</span>}
     >
-      <div className="flex h-40 items-end gap-1.5">
-        {days.map((d, i) => (
-          <div key={d.key} className="group relative flex h-full flex-1 flex-col justify-end" title={`${fmtShortDate(d.t, lang)}: ${fmt(d.rp)} RP`}>
-            <motion.div
-              initial={{ height: 0 }}
-              animate={{ height: `${Math.max(d.rp ? 6 : 2, (d.rp / max) * 100)}%` }}
-              transition={{ delay: 0.1 + i * 0.03, type: 'spring', stiffness: 140, damping: 18 }}
-              className={cn('w-full rounded-t-lg', i === 13 ? 'bg-gradient-to-t from-violet-500 to-cyan-300' : d.rp ? 'bg-gradient-to-t from-violet-600/70 to-violet-400/80' : 'bg-paper-3')}
-            />
-          </div>
-        ))}
-      </div>
+      {total > 0 ? (
+        <div className="flex h-40 items-end gap-1.5">
+          {days.map((d, i) => (
+            <div key={d.key} className="group relative flex h-full flex-1 flex-col justify-end" title={`${fmtShortDate(d.t, lang)}: ${fmt(d.rp)} RP`}>
+              <motion.div
+                initial={{ height: 0 }}
+                animate={{ height: `${Math.max(d.rp ? 6 : 2, (d.rp / max) * 100)}%` }}
+                transition={{ delay: 0.1 + i * 0.03, type: 'spring', stiffness: 140, damping: 18 }}
+                className={cn('w-full rounded-t-lg', i === 13 ? 'bg-gradient-to-t from-violet-500 to-cyan-300' : d.rp ? 'bg-gradient-to-t from-violet-600/70 to-violet-400/80' : 'bg-paper-3')}
+              />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid h-40 place-items-center rounded-xl border border-dashed border-ink/15 bg-paper-2/50 px-6 text-center">
+          <p className="max-w-xs text-sm text-muted">{t('Vēl nav RP datu — spēlē, lai aizpildītu šo grafiku.', 'No RP data yet — play a session to fill this chart.')}</p>
+        </div>
+      )}
       <div className="mt-2 flex gap-1.5 text-[10px] text-dim">
         {days.map((d, i) => (
           <span key={d.key} className="flex-1 text-center">
@@ -177,7 +185,7 @@ function StatsTab() {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.04 }}
-            className="rounded-2xl glass-soft p-4"
+            className="rounded-2xl glass-soft p-4 transition-[translate,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-hard-sm"
           >
             <div className="grid size-9 place-items-center rounded-xl" style={{ background: `${tile.c}22`, color: tile.c }}>
               {tile.icon}
