@@ -127,7 +127,7 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
 
   const answers = useRef<AnswerLog[]>([]);
   const sessionStart = useRef(performance.now());
-  const clock = useRef({ qid: '', startedAt: 0, deadline: 0, pausedAt: 0 });
+  const clock = useRef({ qid: '', startedAt: 0, deadline: 0 });
   const advanceTimer = useRef<number | undefined>(undefined);
   const rpRef = useRef<HTMLSpanElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -245,7 +245,7 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
               pop(rpRef.current, 1.3);
             },
           });
-          if (tier === 'lightning') floatText(t('⚡ Zibens!', '⚡ Lightning!'), c.x, c.y - 58, { color: '#67e8f9', size: 18, delay: 90, rise: 40 });
+          if (tier === 'lightning') floatText(t('Zibens!', 'Lightning!'), c.x, c.y - 58, { color: '#67e8f9', size: 18, delay: 90, rise: 40 });
         }
       } else if (eligibleForRP) setHudRP((v) => v + rp);
 
@@ -284,7 +284,7 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
   const nextRef = useRef(next);
   nextRef.current = next;
 
-  // Question clock (pauses while the quit dialog is open).
+  // Question clock keeps running while the quit dialog is open.
   useEffect(() => {
     if (phase !== 'question' || !q) return;
     const c = clock.current;
@@ -293,17 +293,6 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
       c.qid = q.id;
       c.startedAt = now + ENTER_MS;
       c.deadline = now + ENTER_MS + limit;
-      c.pausedAt = 0;
-    }
-    if (confirmQuit) {
-      if (!c.pausedAt) c.pausedAt = now;
-      return;
-    }
-    if (c.pausedAt) {
-      const d = now - c.pausedAt;
-      c.startedAt += d;
-      c.deadline += d;
-      c.pausedAt = 0;
     }
     const left = c.deadline - now;
     let tickIv: number | undefined;
@@ -318,7 +307,7 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
       if (tickIv) window.clearInterval(tickIv);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, q?.id, confirmQuit]);
+  }, [phase, q?.id]);
 
   // Keyboard: 1–4 answer, ←/→ for true/false, Enter/Space continue, Esc quit.
   useEffect(() => {
@@ -471,7 +460,7 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
                   <div className="relative mt-8 h-3 overflow-hidden rounded-full well">
                     <div
                       key={q.id}
-                      className={cn('timer-fill h-full rounded-full', (phase !== 'question' || confirmQuit) && 'paused')}
+                      className={cn('timer-fill h-full rounded-full', phase !== 'question' && 'paused')}
                       style={{ '--dur': `${limit}ms`, '--delay': `${ENTER_MS}ms` } as CSSProperties}
                     />
                   </div>
@@ -509,8 +498,9 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
                       transition={{ type: 'spring', stiffness: 320, damping: 28 }}
                       className={cn(
                         'tint-surface mt-6 flex flex-col gap-4 rounded-card p-5 sm:flex-row sm:items-center',
-                        wasCorrect ? '[--c:var(--color-good)]' : '[--c:var(--color-bad)]',
+                        wasCorrect ? 'correct-feedback [--c:var(--color-good)]' : '[--c:var(--color-bad)]',
                       )}
+                      style={wasCorrect ? { '--combo': Math.min(combo, 12) } as React.CSSProperties : undefined}
                       role="status"
                     >
                       <span
@@ -526,7 +516,7 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
                       </span>
                       <div className="min-w-0 flex-1">
                         {wasCorrect ? (
-                          <div className="flex flex-wrap items-center gap-2 font-display text-xl font-bold tracking-[-0.02em] text-emerald-800 dark:text-emerald-300">
+                          <div className="correct-stamp flex flex-wrap items-center gap-2 font-display text-xl font-bold tracking-[-0.02em] text-emerald-800 dark:text-emerald-300">
                             {t('Pareizi!', 'Correct!')}
                             {eligibleForRP && gain && (
                               <>
@@ -535,7 +525,7 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
                                 </span>
                                 {gain.tier === 'lightning' && (
                                   <span className="rounded-full bg-cyan-400/15 px-2.5 py-0.5 text-sm text-cyan-200 shadow-[inset_0_0_0_1px_rgba(34,211,238,0.3)]">
-                                    {t('⚡ Zibens +5', '⚡ Lightning +5')}
+                                    {t('Zibens +5', 'Lightning +5')}
                                   </span>
                                 )}
                                 {gain.tier === 'fast' && (
@@ -609,7 +599,7 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
       <AnimatePresence>
         {phase === 'failed' && (
           <motion.div
-            className="fixed inset-0 z-50 grid place-items-center bg-ink-950 p-5"
+            className="fixed inset-0 z-50 grid place-items-center bg-ink-950/45 p-5 backdrop-blur-xl"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

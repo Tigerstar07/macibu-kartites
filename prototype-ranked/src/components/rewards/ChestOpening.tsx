@@ -228,18 +228,11 @@ function ChestView({ chest, onDone }: { chest: Chest; onDone: () => void }) {
         style={{ '--ray': meta.glow, opacity: 0 } as React.CSSProperties}
       />
       <div
-        className={`chest-portal pointer-events-none fixed left-1/2 top-[40%] -translate-x-1/2 -translate-y-1/2 ${phase !== 'idle' ? 'is-charging' : ''} ${phase === 'reveal' ? 'is-revealed' : ''}`}
-        style={{ '--portal-color': meta.color, opacity: phase === 'idle' ? 0.42 : phase === 'reveal' ? 0.2 : 0.92 } as React.CSSProperties}
+        className={`chest-energy pointer-events-none fixed left-1/2 top-[40%] -translate-x-1/2 -translate-y-1/2 ${phase !== 'idle' ? 'is-charging' : ''} ${phase === 'reveal' ? 'is-revealed' : ''}`}
+        style={{ '--energy-color': meta.color, opacity: phase === 'idle' ? 0.35 : phase === 'reveal' ? 0.14 : 0.9 } as React.CSSProperties}
       >
-        <div className="chest-portal-core" />
-        <div className="chest-portal-ring chest-portal-ring-a" />
-        <div className="chest-portal-ring chest-portal-ring-b" />
-        <div className="chest-orbit chest-orbit-a">
-          {Array.from({ length: 8 }, (_, i) => <span key={i} style={{ '--i': i } as React.CSSProperties} />)}
-        </div>
-        <div className="chest-orbit chest-orbit-b">
-          {Array.from({ length: 5 }, (_, i) => <span key={i} style={{ '--i': i } as React.CSSProperties} />)}
-        </div>
+        <div className="chest-energy-core" />
+        {Array.from({ length: 9 }, (_, i) => <span key={i} style={{ '--i': i } as React.CSSProperties} />)}
       </div>
       {flashKey > 0 && (
         <motion.div
