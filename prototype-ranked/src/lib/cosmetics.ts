@@ -31,8 +31,8 @@ export const COSMETICS: Cosmetic[] = [
   { id: 'theme-neon', kind: 'theme', lv: 'Neons', en: 'Neon', rarity: 'epic', source: 'shop', price: 600, bg: 'linear-gradient(150deg,#3b0764 0%,#1e0a3c 50%,#0c1a4a 100%)', accent: '#f0abfc' },
   { id: 'theme-sakura', kind: 'theme', lv: 'Sakura', en: 'Sakura', rarity: 'epic', source: 'chest', bg: 'linear-gradient(150deg,#5b2140 0%,#3a1530 55%,#2a1838 100%)', accent: '#f9a8d4' },
   { id: 'theme-gold', kind: 'theme', lv: 'Zelta', en: 'Golden', rarity: 'epic', source: 'road', bg: 'linear-gradient(150deg,#5a4108 0%,#3a2905 55%,#4a3306 100%)', accent: '#fcd34d' },
-  { id: 'theme-aurora', kind: 'theme', lv: 'Aurora', en: 'Aurora', rarity: 'legendary', source: 'road', bg: 'linear-gradient(130deg,#0f3b4a,#2a1b5e,#123d33,#3b1a52,#0f3b4a)', accent: '#5eead4', animated: true },
-  { id: 'theme-diamond', kind: 'theme', lv: 'Dimanta', en: 'Diamond', rarity: 'legendary', source: 'road', bg: 'linear-gradient(130deg,#1e2a6b,#3a2a8a,#1a4a7a,#2a1f6b,#1e2a6b)', accent: '#c7d2fe', animated: true },
+  { id: 'theme-aurora', kind: 'theme', lv: 'Aurora', en: 'Aurora', rarity: 'legendary', source: 'chest', bg: 'linear-gradient(130deg,#0f3b4a,#2a1b5e,#123d33,#3b1a52,#0f3b4a)', accent: '#5eead4', animated: true },
+  { id: 'theme-diamond', kind: 'theme', lv: 'Dimanta', en: 'Diamond', rarity: 'legendary', source: 'chest', bg: 'linear-gradient(130deg,#1e2a6b,#3a2a8a,#1a4a7a,#2a1f6b,#1e2a6b)', accent: '#c7d2fe', animated: true },
 
   // ── Avatar frames ───────────────────────────────────────────
   // League tiers: honest metal with a slow glint of light, nothing loud.
