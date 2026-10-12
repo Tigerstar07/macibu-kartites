@@ -526,7 +526,7 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
                       </span>
                       <div className="min-w-0 flex-1">
                         {wasCorrect ? (
-                          <div className="flex flex-wrap items-center gap-2 font-display text-xl font-bold tracking-[-0.02em] text-emerald-300">
+                          <div className="flex flex-wrap items-center gap-2 font-display text-xl font-bold tracking-[-0.02em] text-emerald-800 dark:text-emerald-300">
                             {t('Pareizi!', 'Correct!')}
                             {eligibleForRP && gain && (
                               <>
@@ -552,7 +552,7 @@ function Game({ deck, onReplay }: { deck: Deck; onReplay: () => void }) {
                               {timedOut ? t('Laiks beidzās!', "Time's up!") : t('Nepareizi', 'Not quite')}
                             </div>
                             <p className="mt-1 text-[17px]">
-                              {t('Pareizā atbilde:', 'Correct answer:')} <strong className="text-emerald-300">{correctText}</strong>
+                              {t('Pareizā atbilde:', 'Correct answer:')} <strong className="text-emerald-800 dark:text-emerald-300">{correctText}</strong>
                             </p>
                           </>
                         )}

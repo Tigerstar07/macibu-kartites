@@ -227,6 +227,20 @@ function ChestView({ chest, onDone }: { chest: Chest; onDone: () => void }) {
         className="sunburst pointer-events-none fixed left-1/2 top-[40%] size-[1100px] -translate-x-1/2 -translate-y-1/2 animate-spin-slower"
         style={{ '--ray': meta.glow, opacity: 0 } as React.CSSProperties}
       />
+      <div
+        className={`chest-portal pointer-events-none fixed left-1/2 top-[40%] -translate-x-1/2 -translate-y-1/2 ${phase !== 'idle' ? 'is-charging' : ''} ${phase === 'reveal' ? 'is-revealed' : ''}`}
+        style={{ '--portal-color': meta.color, opacity: phase === 'idle' ? 0.42 : phase === 'reveal' ? 0.2 : 0.92 } as React.CSSProperties}
+      >
+        <div className="chest-portal-core" />
+        <div className="chest-portal-ring chest-portal-ring-a" />
+        <div className="chest-portal-ring chest-portal-ring-b" />
+        <div className="chest-orbit chest-orbit-a">
+          {Array.from({ length: 8 }, (_, i) => <span key={i} style={{ '--i': i } as React.CSSProperties} />)}
+        </div>
+        <div className="chest-orbit chest-orbit-b">
+          {Array.from({ length: 5 }, (_, i) => <span key={i} style={{ '--i': i } as React.CSSProperties} />)}
+        </div>
+      </div>
       {flashKey > 0 && (
         <motion.div
           key={flashKey}
@@ -285,7 +299,8 @@ function ChestView({ chest, onDone }: { chest: Chest; onDone: () => void }) {
             </motion.div>
           )}
           {phase === 'reveal' && (
-            <motion.div key="loot" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center">
+            <motion.div key="loot" initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }} className="reward-reveal flex flex-col items-center">
+              <div className="loot-kicker">{t('Lādes saturs', 'Chest contents')}</div>
               <h2 className="font-display text-2xl font-bold">{t('Tu saņēmi', 'You got')}</h2>
               <div className="mt-6 flex max-w-3xl flex-wrap justify-center gap-4">
                 {items.map((it, i) => (

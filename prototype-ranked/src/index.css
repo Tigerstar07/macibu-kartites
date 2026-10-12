@@ -1009,6 +1009,82 @@
 }
 .chest-seam { transform-box: fill-box; transform-origin: center; }
 
+.chest-portal {
+  width: min(72vw, 38rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  isolation: isolate;
+  transition: opacity 700ms ease, transform 900ms cubic-bezier(.16, 1, .3, 1);
+  filter: drop-shadow(0 0 32px color-mix(in oklch, var(--portal-color) 45%, transparent));
+}
+.chest-portal::before,
+.chest-portal::after {
+  content: '';
+  position: absolute;
+  inset: 8%;
+  border-radius: 50%;
+  border: 1px solid color-mix(in oklch, var(--portal-color) 60%, white);
+  mask-image: linear-gradient(transparent, black 18%, black 82%, transparent);
+  animation: portal-spin 12s linear infinite;
+}
+.chest-portal::after {
+  inset: 18%;
+  border-style: dashed;
+  border-color: color-mix(in oklch, var(--portal-color) 75%, white);
+  animation-direction: reverse;
+  animation-duration: 8s;
+}
+.chest-portal.is-charging { transform: translate(-50%, -50%) scale(1.08); }
+.chest-portal.is-charging .chest-portal-core { animation-duration: 1.1s; }
+.chest-portal.is-revealed { transform: translate(-50%, -50%) scale(1.25); }
+.chest-portal-core {
+  position: absolute;
+  inset: 27%;
+  border-radius: 50%;
+  background: radial-gradient(circle, white 0, color-mix(in oklch, var(--portal-color) 78%, white) 12%, color-mix(in oklch, var(--portal-color) 38%, transparent) 42%, transparent 72%);
+  opacity: .8;
+  animation: portal-breathe 2.8s ease-in-out infinite;
+}
+.chest-portal-ring {
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  border: 2px solid color-mix(in oklch, var(--portal-color) 72%, white);
+  box-shadow: 0 0 20px var(--portal-color), inset 0 0 20px var(--portal-color);
+  opacity: .65;
+}
+.chest-portal-ring-a { animation: portal-pulse 2.2s ease-in-out infinite; }
+.chest-portal-ring-b { inset: 34%; opacity: .4; animation: portal-pulse 1.7s ease-in-out .35s infinite reverse; }
+.chest-orbit { position: absolute; inset: 4%; border-radius: 50%; animation: portal-spin 10s linear infinite; }
+.chest-orbit-b { inset: 22%; animation-duration: 7s; animation-direction: reverse; }
+.chest-orbit span {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 5px;
+  height: 11px;
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--portal-color) 55%, white);
+  box-shadow: 0 0 12px var(--portal-color);
+  transform: rotate(calc(var(--i) * 45deg)) translateY(-50%);
+}
+.chest-orbit-b span { width: 3px; height: 7px; opacity: .75; transform: rotate(calc(var(--i) * 72deg)) translateY(-50%); }
+.loot-kicker {
+  margin-bottom: .35rem;
+  color: color-mix(in oklch, var(--color-gold) 78%, white);
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+}
+@keyframes portal-spin { to { transform: rotate(360deg); } }
+@keyframes portal-breathe { 0%, 100% { transform: scale(.82); opacity: .48; } 50% { transform: scale(1.1); opacity: .95; } }
+@keyframes portal-pulse { 0%, 100% { transform: scale(.84); opacity: .28; } 50% { transform: scale(1.08); opacity: .85; } }
+@media (prefers-reduced-motion: reduce) {
+  .chest-portal::before, .chest-portal::after, .chest-portal-core, .chest-portal-ring, .chest-orbit { animation: none; }
+}
+
 /* Scroll-driven entrance for below-the-fold sections (progressive
    enhancement: static where unsupported or when motion is reduced). */
 @keyframes reveal-up {
