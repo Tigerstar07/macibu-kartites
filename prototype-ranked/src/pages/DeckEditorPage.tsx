@@ -69,7 +69,7 @@ function toDraft(deck: Deck | undefined): Draft {
       ask: '',
       reverseAsk: '',
       isPublic: true,
-      cards: [emptyCard(), emptyCard(), emptyCard(), emptyCard()],
+      cards: [emptyCard(), emptyCard(), emptyCard(), emptyCard(), emptyCard()],
       createdAt: Date.now(),
     };
   }
@@ -134,10 +134,10 @@ function validate(d: Draft, t: (lv: string, en: string) => string): Errors {
     else if (new Set(wr.map((w) => w.toLowerCase())).size !== wr.length) ce.wrong = t('Varianti atkārtojas.', 'Options repeat.');
     if (Object.keys(ce).length) e.card[c.id] = ce;
   }
-  if (!e.cards && (d.cards.length < 3 || (d.cards.length < 4 && !d.cards.every((c) => c.wrong.filter((w) => w.trim()).length >= 2)))) {
+  if (!e.cards && d.cards.length < 5) {
     e.cards = t(
-      'Kopā jābūt vismaz 4 kartītēm vai vismaz 3 kartītēm ar 2+ nepareiziem variantiem katrai.',
-      'You need at least 4 cards, or at least 3 cards with 2+ wrong options each.',
+      'Kopā jābūt vismaz 5 kartītēm.',
+      'You need at least 5 cards.',
     );
   }
   return e;
