@@ -31,6 +31,7 @@ export default function RankPage() {
   const L = rank.league;
   const ladderRef = useRef<HTMLDivElement>(null);
   const roadRef = useRef<HTMLDivElement>(null);
+  const roadDrag = useRef<{ pointerId: number; startX: number; startScrollLeft: number } | null>(null);
   const mask = 'radial-gradient(circle, #000 12%, transparent 62%)';
 
   useEffect(() => {
@@ -166,7 +167,37 @@ export default function RankPage() {
           <h2 className="font-display text-2xl font-bold">{t('Rangu balvu ceļš', 'Rank reward road')}</h2>
           <p className="text-sm text-muted">{t('Katrs jauns ranga līmenis atnes balvu.', 'Every new division pays out.')}</p>
         </div>
-        <div ref={roadRef} className="no-scrollbar mt-4 overflow-x-auto pb-4">
+        <div
+          ref={roadRef}
+          tabIndex={0}
+          role="region"
+          aria-label={t('Rangu balvu ceļš', 'Rank reward road')}
+          onPointerDown={(event) => {
+            if (event.pointerType !== 'mouse' || event.button !== 0) return;
+            roadDrag.current = {
+              pointerId: event.pointerId,
+              startX: event.clientX,
+              startScrollLeft: event.currentTarget.scrollLeft,
+            };
+            event.currentTarget.setPointerCapture(event.pointerId);
+          }}
+          onPointerMove={(event) => {
+            const drag = roadDrag.current;
+            if (drag?.pointerId === event.pointerId) {
+              event.currentTarget.scrollLeft = drag.startScrollLeft - (event.clientX - drag.startX);
+            }
+          }}
+          onPointerUp={(event) => {
+            if (roadDrag.current?.pointerId === event.pointerId) roadDrag.current = null;
+          }}
+          onPointerCancel={() => {
+            roadDrag.current = null;
+          }}
+          onLostPointerCapture={() => {
+            roadDrag.current = null;
+          }}
+          className="no-scrollbar mt-4 cursor-grab select-none overflow-x-auto pb-4 active:cursor-grabbing"
+        >
           <div className="relative flex min-w-max gap-4 px-1 pt-6">
             <div className="absolute top-[62px] h-1.5 rounded-full bg-ink/15" style={{ left: NODE / 2, right: NODE / 2 }} />
             <div
