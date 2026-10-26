@@ -1,4 +1,4 @@
-import type { Deck, Lang, RewardItem } from '../types';
+import type { Deck, Lang, RankedRange, RewardItem } from '../types';
 
 export type LeagueId = 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
 
@@ -27,6 +27,10 @@ export type Division = (typeof DIVISIONS)[number];
 /** RP needed for each of the 15 ranks (Bronze III … Diamond I). */
 export const THRESHOLDS = [0, 150, 350, 600, 850, 1150, 1500, 1950, 2450, 3000, 3600, 4300, 5000, 6000, 7200];
 export const MAX_RANK = THRESHOLDS.length - 1;
+
+export function rankIsInRange(rankIndex: number, range: RankedRange | undefined): boolean {
+  return !range || (rankIndex >= range[0] && rankIndex <= range[1]);
+}
 
 export interface Rank {
   index: number;
@@ -64,13 +68,8 @@ export function rankRPFactor(packRankIndex: number, playerRankIndex: number): nu
 }
 
 export function chooseRankedDeck(decks: Deck[], playerRankIndex: number, random = Math.random): Deck | undefined {
-  const sameRank = decks.filter((deck) => (deck.rankIndex ?? playerRankIndex) === playerRankIndex);
-  const otherRanks = decks.filter((deck) => (deck.rankIndex ?? playerRankIndex) !== playerRankIndex);
-  const pick = (pool: Deck[]) => (pool.length ? pool[Math.floor(random() * pool.length)] : undefined);
-
-  if (!otherRanks.length) return pick(sameRank);
-  if (!sameRank.length) return pick(otherRanks);
-  return pick(random() < 0.7 ? sameRank : otherRanks);
+  const eligible = decks.filter((deck) => rankIsInRange(playerRankIndex, deck.rankRange));
+  return eligible.length ? eligible[Math.floor(random() * eligible.length)] : undefined;
 }
 
 export function rankProgress(rp: number): number {
@@ -80,6 +79,13 @@ export function rankProgress(rp: number): number {
 }
 
 export const rankName = (r: Rank, lang: Lang) => `${r.league[lang]} ${r.division}`;
+
+export function rankRangeName(range: RankedRange, lang: Lang): string {
+  const min = rankAt(range[0]);
+  const max = rankAt(range[1]);
+  if (min.leagueIndex === max.leagueIndex) return `${min.league[lang]} ${min.division}–${max.division}`;
+  return `${rankName(min, lang)}–${rankName(max, lang)}`;
+}
 
 export const ALL_RANKS = THRESHOLDS.map((_, i) => rankAt(i));
 

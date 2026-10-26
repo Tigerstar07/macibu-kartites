@@ -8,6 +8,7 @@ import { CATEGORIES } from '../data/decks';
 import { cardKey, deckCounts, isPlayable } from '../lib/questions';
 import { rankAt, rankIndexFromRP, rankName } from '../lib/rank';
 import { mastery, type Mastery } from '../lib/sm2';
+import { rankRangeName } from '../lib/rank';
 import { fmtDate, fmtRelDue } from '../lib/format';
 import { uid } from '../lib/random';
 import { useLang, useT } from '../lib/i18n';
@@ -117,6 +118,11 @@ export default function DeckDetailPage() {
                   {rankName(rankAt(deckRankIndex), lang)}
                 </span>
                 <span className="rounded-lg border border-ink/15 bg-paper-2 px-2.5 py-1 font-semibold uppercase">{deck.language}</span>
+                {deck.builtin && deck.rankRange && (
+                  <span className="rounded-lg border border-brand/30 bg-brand/10 px-2.5 py-1 font-semibold text-brand">
+                    Ranked: {rankRangeName(deck.rankRange, lang)}
+                  </span>
+                )}
                 <span className="rounded-lg border border-ink/15 bg-paper-2 px-2.5 py-1 text-muted">
                   {t('Autors', 'By')}: {deck.author}
                 </span>

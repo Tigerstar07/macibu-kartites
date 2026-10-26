@@ -6,6 +6,7 @@ import type { Deck } from '../../types';
 import type { deckCounts } from '../../lib/questions';
 import { isPlayable } from '../../lib/questions';
 import { rankAt, rankIndexFromRP, rankName } from '../../lib/rank';
+import { rankRangeName } from '../../lib/rank';
 import { useGame } from '../../store/useGame';
 import { useLang, useT } from '../../lib/i18n';
 import { plural } from '../../lib/format';
@@ -104,6 +105,11 @@ export const DeckCard = forwardRef<HTMLDivElement, { deck: Deck; counts: Counts;
                 #{tag}
               </span>
             ))}
+            {deck.builtin && deck.rankRange && (
+              <span className="rounded-md border border-brand/30 bg-brand/10 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-brand">
+                Ranked {rankRangeName(deck.rankRange, lang)}
+              </span>
+            )}
           </div>
           <div className="mt-auto flex items-center gap-3 border-t-2 border-dashed border-ink/15 pt-4">
             <Ring value={counts.mastery} size={44} stroke={6} color={`hsl(${deck.hue} 85% 58%)`}>

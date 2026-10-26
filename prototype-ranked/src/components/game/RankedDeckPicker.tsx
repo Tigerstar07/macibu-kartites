@@ -3,7 +3,7 @@ import { Check, Play, X } from 'lucide-react';
 import type { Deck } from '../../types';
 import { CATEGORIES } from '../../data/decks';
 import { isPlayable } from '../../lib/questions';
-import { rankAt, rankName, rankRPFactor } from '../../lib/rank';
+import { rankAt, rankIsInRange, rankName, rankRangeName } from '../../lib/rank';
 import { useLang, useT } from '../../lib/i18n';
 import { cn } from '../../lib/cn';
 import { RankEmblem } from '../rank/RankEmblem';
@@ -17,16 +17,16 @@ interface Props {
   onCancel: () => void;
 }
 
-const MIN_TOPICS = 5;
+const MIN_TOPICS = 1;
 
 export function RankedDeckPicker({ decks, playerRankIndex, initialDeckId, onStart, onCancel }: Props) {
   const t = useT();
   const lang = useLang();
   const [selectedIds, setSelectedIds] = useState<string[]>(() =>
-    initialDeckId && decks.some((deck) => deck.id === initialDeckId && isPlayable(deck)) ? [initialDeckId] : [],
+    initialDeckId && decks.some((deck) => deck.id === initialDeckId && deck.builtin && isPlayable(deck) && rankIsInRange(playerRankIndex, deck.rankRange)) ? [initialDeckId] : [],
   );
   const currentRank = rankAt(playerRankIndex);
-  const playableDecks = decks.filter(isPlayable);
+  const playableDecks = decks.filter((deck) => deck.builtin && isPlayable(deck) && rankIsInRange(playerRankIndex, deck.rankRange));
 
   const toggle = (deckId: string) => {
     setSelectedIds((selected) =>
@@ -39,9 +39,9 @@ export function RankedDeckPicker({ decks, playerRankIndex, initialDeckId, onStar
       <header className="mb-7 flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="text-xs font-black uppercase tracking-[0.18em] text-brand">{t('Rangu spēle', 'Ranked match')}</div>
-          <h1 className="mt-2 font-display text-3xl font-extrabold sm:text-4xl">{t('Izvēlies vismaz 5 tēmas', 'Choose at least 5 topics')}</h1>
+          <h1 className="mt-2 font-display text-3xl font-extrabold sm:text-4xl">{t('Izvēlies Ranked kopu', 'Choose a Ranked pack')}</h1>
           <p className="mt-2 max-w-2xl text-muted">
-            {t('Izvēlētās kopas veidos spēles tēmu izlasi. Tavs pašreizējais rangs tiek meklēts biežāk.', 'Your selected packs form the match pool. Packs for your current rank are picked more often.')}
+            {t('Vari izvēlēties vairākas sava ranga kopas; spēlei nejauši izvēlēsies vienu.', 'Choose one or more packs for your rank; one will be picked at random.')}
           </p>
         </div>
         <div className="flex items-center gap-3 rounded-card border-2 border-ink bg-card px-4 py-2 shadow-hard-sm">
@@ -57,10 +57,7 @@ export function RankedDeckPicker({ decks, playerRankIndex, initialDeckId, onStar
         {playableDecks.map((deck) => {
           const selected = selectedIds.includes(deck.id);
           const packRankIndex = deck.rankIndex ?? playerRankIndex;
-          const packRank = rankAt(packRankIndex);
           const category = CATEGORIES.find((item) => item.id === deck.category);
-          const factor = deck.builtin ? rankRPFactor(packRankIndex, playerRankIndex) : null;
-
           return (
             <button
               key={deck.id}
@@ -80,14 +77,8 @@ export function RankedDeckPicker({ decks, playerRankIndex, initialDeckId, onStar
                     <Check className="size-4" strokeWidth={3} />
                   </span>
                 </span>
-                <span className="mt-1 block text-sm text-muted">{category?.[lang] ?? deck.category} · {rankName(packRank, lang)}</span>
-                <span className="mt-1 block text-xs font-bold text-muted">
-                  {factor === null
-                    ? t('Kopiena · bez RP', 'Community · no RP')
-                    : factor === 1
-                      ? t('Tava ranga kopa · RP ×1', 'Your rank · RP ×1')
-                      : t(`RP ×${factor}`, `RP ×${factor}`)}
-                </span>
+                <span className="mt-1 block text-sm text-muted">{category?.[lang] ?? deck.category} · {rankRangeName(deck.rankRange ?? [0, 14], lang)}</span>
+                <span className="mt-1 block text-xs font-bold text-muted">{t('Atbloķēta tavam rangam', 'Unlocked for your rank')}</span>
               </span>
             </button>
           );
@@ -96,8 +87,8 @@ export function RankedDeckPicker({ decks, playerRankIndex, initialDeckId, onStar
 
       <footer className="sticky bottom-3 z-20 mt-7 flex flex-wrap items-center justify-between gap-3 rounded-card border-2 border-ink bg-card/95 p-3 shadow-hard backdrop-blur sm:p-4">
         <div>
-          <div className="font-display text-lg font-extrabold tabular">{selectedIds.length} / {MIN_TOPICS}</div>
-          <div className="text-sm text-muted">{t('Izvēlētas tēmas', 'Topics selected')}</div>
+          <div className="font-display text-lg font-extrabold tabular">{selectedIds.length}</div>
+          <div className="text-sm text-muted">{t('Izvēlētas kopas', 'Packs selected')}</div>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="ghost" icon={<X className="size-4" />} onClick={onCancel}>

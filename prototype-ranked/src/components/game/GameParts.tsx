@@ -3,7 +3,6 @@ import { motion } from 'motion/react';
 import { animate, createTimeline } from 'animejs';
 import { Check, Flame, Volume2, VolumeX, X } from 'lucide-react';
 import type { Deck } from '../../types';
-import { comboMultiplier } from '../../lib/rp';
 import { prefersReducedMotion } from '../../lib/fx';
 import { sfx } from '../../lib/sound';
 import { useNumFmt, useT } from '../../lib/i18n';
@@ -23,7 +22,6 @@ export function GameHUD({
   rpRef,
   combo,
   boosted,
-  rankMultiplier,
   sound,
   onToggleSound,
   onQuit,
@@ -35,14 +33,12 @@ export function GameHUD({
   rpRef: RefObject<HTMLSpanElement>;
   combo: number;
   boosted: boolean;
-  rankMultiplier: number;
   sound: boolean;
   onToggleSound: () => void;
   onQuit: () => void;
 }) {
   const t = useT();
   const fmt = useNumFmt();
-  const mult = comboMultiplier(combo);
   const hot = combo >= 3;
 
   return (
@@ -84,12 +80,6 @@ export function GameHUD({
         </div>
       )}
 
-      {rankMultiplier !== 1 && (
-        <div className="hidden h-11 items-center rounded-xl border-2 border-ink bg-card px-2.5 font-mono text-sm font-bold shadow-hard-sm sm:flex">
-          RP ×{rankMultiplier}
-        </div>
-      )}
-
       <div
         className={cn(
           'flex h-11 items-center gap-1.5 rounded-xl border-2 border-ink px-2.5 font-mono font-bold shadow-hard-sm transition-colors duration-300 sm:px-3',
@@ -107,7 +97,6 @@ export function GameHUD({
         >
           ×{combo}
         </motion.span>
-        {mult > 1 && <span className="hidden rounded-md border-2 border-ink bg-card px-1.5 text-[11px] sm:inline">RP ×{mult}</span>}
       </div>
 
       <div className="flex h-11 items-center gap-2 rounded-xl border-2 border-ink bg-card pl-2.5 pr-3.5 shadow-hard-sm">

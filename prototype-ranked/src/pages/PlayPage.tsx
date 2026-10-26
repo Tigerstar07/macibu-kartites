@@ -1,23 +1,23 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import { animate } from 'animejs';
 import { ArrowLeft, ArrowRight, Check, CornerDownLeft, House, Lightbulb, RotateCcw, X } from 'lucide-react';
 import type { AnswerLog, Deck, Question } from '../types';
 import { useAllDecks, useDeck, useGame, type SessionOutcome } from '../store/useGame';
 import { buildQuestion, buildSession, isPlayable } from '../lib/questions';
-import { TIME_LIMIT, answerRP, comboMultiplier, speedTier, type SpeedTier } from '../lib/rp';
+import { ABANDON_RP_PENALTY, TIME_LIMIT, WRONG_ANSWER_RP_PENALTY, answerRP } from '../lib/rp';
+import { chooseRankedDeck, rankIndexFromRP, rankIsInRange, rankRangeName } from '../lib/rank';
 import { cosmetic } from '../lib/cosmetics';
 import { burst, centerOf, flash, floatText, pop, ring, shake, sleep } from '../lib/fx';
 import { sfx } from '../lib/sound';
-import { useT } from '../lib/i18n';
+import { useLang, useT } from '../lib/i18n';
 import { cn } from '../lib/cn';
 import { AnswerButton, ComboBanner, Countdown, GameHUD, type Banner, type OptionState } from '../components/game/GameParts';
 import { SessionResults } from '../components/game/SessionResults';
 import { ConfirmDialog } from '../components/ui/Modal';
 import { Button } from '../components/ui/Button';
 import { RankedDeckPicker } from '../components/game/RankedDeckPicker';
-import { chooseRankedDeck, rankIndexFromRP, rankRPFactor } from '../lib/rank';
 
 /** Options finish animating in before the clock starts. */
 const ENTER_MS = 420;
@@ -45,8 +45,10 @@ export default function PlayPage() {
   const t = useT();
   const navigate = useNavigate();
   const location = useLocation();
-  const totalRP = useGame((s) => s.stats.totalRP);
-  const playerRankIndex = rankIndexFromRP(totalRP);
+  const [searchParams] = useSearchParams();
+  const rankedRequested = searchParams.get('mode') === 'ranked';
+  const [playerRankIndex] = useState(() => rankIndexFromRP(useGame.getState().stats.totalRP));
+  const lang = useLang();
   const matchState = location.state as { rankedMatch?: boolean; selectedDeckIds?: string[] } | null;
   const hasMatchSelection =
     !!deckId &&
@@ -55,13 +57,13 @@ export default function PlayPage() {
     matchState.selectedDeckIds.length >= 5 &&
     matchState.selectedDeckIds.includes(deckId);
 
-  if (!hasMatchSelection) {
+  if (rankedRequested && !hasMatchSelection) {
     return (
       <RankedDeckPicker
         decks={decks}
         playerRankIndex={playerRankIndex}
         initialDeckId={deckId}
-        onCancel={() => navigate('/decks')}
+        onCancel={() => navigate('/')}
         onStart={(selectedIds) => {
           const candidates = decks.filter((candidate) => selectedIds.includes(candidate.id));
           const selectedDeck = chooseRankedDeck(candidates, playerRankIndex);
@@ -93,10 +95,26 @@ export default function PlayPage() {
       </div>
     );
   }
-  const rankMultiplier = deck.builtin
-    ? rankRPFactor(deck.rankIndex ?? playerRankIndex, playerRankIndex)
-    : 1;
-  return <Game key={run} deck={deck} rankMultiplier={rankMultiplier} onReplay={() => setRun((r) => r + 1)} />;
+  const ranked = rankedRequested || matchState?.rankedMatch === true;
+  if (ranked && !rankIsInRange(playerRankIndex, deck.rankRange)) {
+    return (
+      <div className="relative z-10 grid min-h-dvh place-items-center p-6 text-center">
+        <div className="max-w-md rounded-card glass p-8">
+          <h1 className="font-display text-2xl font-bold">{t('Kopa nav atbloķēta tavam rangam', 'This pack is locked for your rank')}</h1>
+          <p className="mt-3 text-muted">
+            {deck.rankRange
+              ? t(
+                  `Šī kopa pieejama rangiem ${rankRangeName(deck.rankRange, lang)}. Atgriezies sākumā, lai saņemtu sava ranga kopu.`,
+                  `This pack is available at ${rankRangeName(deck.rankRange, lang)}. Return home to get a pack for your rank.`,
+                )
+              : t('Atgriezies sākumā, lai saņemtu sava ranga Ranked kopu.', 'Return home to get a Ranked pack for your current rank.')}
+          </p>
+          <Link to="/" className="mt-6 inline-flex items-center gap-2 font-semibold text-brand">{t('Uz sākumu', 'Back home')}</Link>
+        </div>
+      </div>
+    );
+  }
+  return <Game key={run} deck={deck} ranked={ranked} onReplay={() => setRun((r) => r + 1)} />;
 }
 
 type Phase = 'intro' | 'question' | 'feedback' | 'results' | 'failed';
@@ -136,19 +154,23 @@ function Embers({ level }: { level: number }) {
   );
 }
 
-function Game({ deck, rankMultiplier, onReplay }: { deck: Deck; rankMultiplier: number; onReplay: () => void }) {
+function Game({ deck, ranked, onReplay }: { deck: Deck; ranked: boolean; onReplay: () => void }) {
   const t = useT();
   const navigate = useNavigate();
   const settings = useGame((s) => s.settings);
   const updateSettings = useGame((s) => s.updateSettings);
   const recordAnswer = useGame((s) => s.recordAnswer);
   const finishSession = useGame((s) => s.finishSession);
+  const deductRankedRP = useGame((s) => s.deductRankedRP);
   const themeId = useGame((s) => s.equipped.theme);
   const theme = cosmetic(themeId) ?? cosmetic('theme-cosmos')!;
-  const eligibleForRP = deck.builtin === true;
+  const [rankAtStart] = useState(() => rankIndexFromRP(useGame.getState().stats.totalRP));
+  const eligibleForRP = ranked && deck.builtin === true && rankIsInRange(rankAtStart, deck.rankRange);
 
   const [queue, setQueue] = useState<Question[]>(() => buildSession(deck, useGame.getState().progress, settings.sessionLength));
-  const [boosted] = useState(() => eligibleForRP && useGame.getState().boosts > 0);
+  const packQuestionCount = useRef(queue.length).current;
+  const abandonPenalty = ABANDON_RP_PENALTY * packQuestionCount;
+  const boosted = false;
   const [questsBefore] = useState(() => useGame.getState().quests.items);
   const [index, setIndex] = useState(0);
   const [phase, setPhase] = useState<Phase>('intro');
@@ -156,13 +178,16 @@ function Game({ deck, rankMultiplier, onReplay }: { deck: Deck; rankMultiplier: 
   const [timedOut, setTimedOut] = useState(false);
   const [combo, setCombo] = useState(0);
   const [hudRP, setHudRP] = useState(0);
+  const [quitRP, setQuitRP] = useState(0);
   const [results, setResults] = useState<boolean[]>([]);
   const [banner, setBanner] = useState<Banner | null>(null);
-  const [gain, setGain] = useState<{ rp: number; tier: SpeedTier } | null>(null);
+  const [gain, setGain] = useState<{ rp: number } | null>(null);
+  const [answerPenalty, setAnswerPenalty] = useState(0);
   const [outcome, setOutcome] = useState<SessionOutcome | null>(null);
   const [confirmQuit, setConfirmQuit] = useState(false);
 
   const answers = useRef<AnswerLog[]>([]);
+  const penaltyApplied = useRef({ total: 0, weekly: 0 });
   const sessionStart = useRef(performance.now());
   const clock = useRef({ qid: '', startedAt: 0, deadline: 0, pausedAt: 0 });
   const advanceTimer = useRef<number | undefined>(undefined);
@@ -174,6 +199,10 @@ function Game({ deck, rankMultiplier, onReplay }: { deck: Deck; rankMultiplier: 
   live.current = { phase, index, queue, combo };
 
   const q = queue[index];
+  const retryPenalty = q?.relearn
+    ? answers.current.find((a) => a.cardKey === q.cardKey && !a.relearn && !a.correct)?.rp
+    : undefined;
+  const retryReward = retryPenalty === undefined ? 0 : Math.max(0, Math.min(10, -retryPenalty - 10));
   const limit = q ? TIME_LIMIT[q.type] : 20_000;
   const fever = combo >= 12 ? 3 : combo >= 8 ? 2 : combo >= 5 ? 1 : 0;
 
@@ -212,6 +241,8 @@ function Game({ deck, rankMultiplier, onReplay }: { deck: Deck; rankMultiplier: 
     );
     const out = finishSession({
       deckId: deck.id,
+      ranked: eligibleForRP,
+      penaltyApplied: penaltyApplied.current,
       answers: answers.current,
       completed,
       bestCombo: Math.max(0, ...answers.current.map((a) => a.combo)),
@@ -252,17 +283,26 @@ function Game({ deck, rankMultiplier, onReplay }: { deck: Deck; rankMultiplier: 
     const correct = !timeout && i === q.correctIndex;
     const nextCombo = correct ? combo + 1 : 0;
     const relearn = !!q.relearn;
-    const baseRP = eligibleForRP ? answerRP({ correct, ms, type: q.type, combo: nextCombo, relearn, boosted }) : 0;
-    const rp = eligibleForRP ? Math.round(baseRP * rankMultiplier) : 0;
-    const tier = correct && eligibleForRP ? speedTier(ms) : null;
-
+    const priorWrong = relearn ? answers.current.find((a) => a.cardKey === q.cardKey && !a.relearn && !a.correct) : undefined;
+    const appliedPenalty = !correct && eligibleForRP ? deductRankedRP(deck.id, WRONG_ANSWER_RP_PENALTY) : null;
+    const rp = correct
+      ? eligibleForRP
+        ? answerRP({ correct, relearn, priorPenalty: priorWrong ? -priorWrong.rp : 0 })
+        : 0
+      : -(appliedPenalty?.total ?? 0);
+    if (rp < 0) {
+      penaltyApplied.current.total += -rp;
+      penaltyApplied.current.weekly += appliedPenalty?.weekly ?? 0;
+      setHudRP((v) => v + rp);
+    }
+    setAnswerPenalty(rp < 0 ? rp : 0);
     setPhase('feedback');
     setPicked(timeout ? null : i);
     setTimedOut(timeout);
     setCombo(nextCombo);
     setResults((r) => [...r, correct]);
-    setGain(correct ? { rp, tier } : null);
-    answers.current.push({ cardKey: q.cardKey, correct, ms, rp: baseRP, type: q.type, relearn, timeout, combo: nextCombo });
+    setGain(correct ? { rp } : null);
+    answers.current.push({ cardKey: q.cardKey, correct, ms, rp, type: q.type, relearn, timeout, combo: nextCombo });
     const btn = i >= 0 ? optionRefs.current[i] : null;
 
     if (correct) {
@@ -283,13 +323,12 @@ function Game({ deck, rankMultiplier, onReplay }: { deck: Deck; rankMultiplier: 
               pop(rpRef.current, 1.3);
             },
           });
-          if (tier === 'lightning') floatText(t('⚡ Zibens!', '⚡ Lightning!'), c.x, c.y - 58, { color: '#67e8f9', size: 18, delay: 90, rise: 40 });
         }
       } else if (eligibleForRP) setHudRP((v) => v + rp);
 
       let hold = 1050;
       if (eligibleForRP && MILESTONES.includes(nextCombo)) {
-        setBanner({ id: Date.now(), text: `COMBO ×${nextCombo}`, sub: `RP ×${comboMultiplier(nextCombo)}`, tone: nextCombo >= 12 ? 'max' : 'combo' });
+        setBanner({ id: Date.now(), text: `COMBO ×${nextCombo}`, tone: nextCombo >= 12 ? 'max' : 'combo' });
         sfx.combo(Math.floor(nextCombo / 3));
         shake(stageRef.current, 5, 300);
         hold = 1500;
@@ -446,7 +485,6 @@ function Game({ deck, rankMultiplier, onReplay }: { deck: Deck; rankMultiplier: 
         rpRef={rpRef}
         combo={combo}
         boosted={boosted}
-        rankMultiplier={eligibleForRP ? rankMultiplier : 1}
         sound={settings.sound}
         onToggleSound={() => updateSettings({ sound: !settings.sound })}
         onQuit={() => {
@@ -490,9 +528,7 @@ function Game({ deck, rankMultiplier, onReplay }: { deck: Deck; rankMultiplier: 
                       <span className="size-1.5 rounded-full" style={{ background: theme.accent, boxShadow: `0 0 8px ${theme.accent}` }} />
                       {typeLabel}
                     </span>
-                    {q.relearn && (
-                      <span className="tint rounded-full px-3 py-1 font-bold [--c:#fbbf24]">{t('Atkārtojums · ½ RP', 'Retry · ½ RP')}</span>
-                    )}
+                    {q.relearn && <span className="tint rounded-full px-3 py-1 font-bold [--c:#fbbf24]">{t(`Atkārtojums · +${retryReward} RP`, `Retry · +${retryReward} RP`)}</span>}
                     <span className="ml-auto rounded-full bg-black/25 px-3 py-1 font-bold tabular text-white/75 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">
                       {index + 1} / {queue.length}
                     </span>
@@ -567,21 +603,11 @@ function Game({ deck, rankMultiplier, onReplay }: { deck: Deck; rankMultiplier: 
                         {wasCorrect ? (
                           <div className="flex flex-wrap items-center gap-2 font-display text-xl font-bold tracking-[-0.02em] text-emerald-300">
                             {t('Pareizi!', 'Correct!')}
-                            {eligibleForRP && gain && (
+                            {eligibleForRP && gain && gain.rp > 0 && (
                               <>
                                 <span className="rounded-full bg-amber-400/15 px-2.5 py-0.5 text-base text-amber-200 shadow-[inset_0_0_0_1px_rgba(251,191,36,0.3)]">
                                   +{gain.rp} RP
                                 </span>
-                                {gain.tier === 'lightning' && (
-                                  <span className="rounded-full bg-cyan-400/15 px-2.5 py-0.5 text-sm text-cyan-200 shadow-[inset_0_0_0_1px_rgba(34,211,238,0.3)]">
-                                    {t('⚡ Zibens +5', '⚡ Lightning +5')}
-                                  </span>
-                                )}
-                                {gain.tier === 'fast' && (
-                                  <span className="rounded-full bg-sky-400/15 px-2.5 py-0.5 text-sm text-sky-200 shadow-[inset_0_0_0_1px_rgba(56,189,248,0.3)]">
-                                    {t('Ātri +3', 'Fast +3')}
-                                  </span>
-                                )}
                               </>
                             )}
                           </div>
@@ -589,6 +615,7 @@ function Game({ deck, rankMultiplier, onReplay }: { deck: Deck; rankMultiplier: 
                           <>
                             <div className="font-display text-xl font-bold tracking-[-0.02em] text-rose-300">
                               {timedOut ? t('Laiks beidzās!', "Time's up!") : t('Nepareizi', 'Not quite')}
+                              {eligibleForRP && answerPenalty < 0 && <span className="ml-2 text-base text-rose-200">{answerPenalty} RP</span>}
                             </div>
                             <p className="mt-1 text-[17px]">
                               {t('Pareizā atbilde:', 'Correct answer:')} <strong className="text-emerald-300">{correctText}</strong>
@@ -659,6 +686,7 @@ function Game({ deck, rankMultiplier, onReplay }: { deck: Deck; rankMultiplier: 
               animate={{ opacity: 1, y: 0, scale: 1 }}
             >
               <h1 className="font-display text-3xl font-extrabold">{t('Spēle neizdevās', 'Game failed')}</h1>
+              {eligibleForRP && quitRP > 0 && <p className="mt-3 font-semibold text-rose-300">{t(`Pamešanas sods: −${quitRP} RP`, `Abandon penalty: −${quitRP} RP`)}</p>}
               <div className="mt-7 flex flex-wrap justify-center gap-3">
                 <Button variant="primary" icon={<RotateCcw className="size-4" />} onClick={onReplay}>
                   {t('Spēlēt vēlreiz', 'Play again')}
@@ -675,13 +703,16 @@ function Game({ deck, rankMultiplier, onReplay }: { deck: Deck; rankMultiplier: 
       <ConfirmDialog
         open={confirmQuit}
         title={t('Pamest sesiju?', 'Leave the session?')}
-        message={t('Spēle tiks atzīmēta kā neizdevusies, un progress vai balvas netiks saglabātas.', 'The game will be marked as failed, and no progress or rewards will be saved.')}
+        message={eligibleForRP
+          ? t(`Pametot Ranked spēli, zaudēsi līdz ${abandonPenalty} RP (${packQuestionCount} jautājumi) papildus nepareizo atbilžu sodiem.`, `Leaving this Ranked match costs up to ${abandonPenalty} RP (${packQuestionCount} questions), in addition to incorrect-answer penalties.`)
+          : t('Spēle tiks atzīmēta kā neizdevusies, un progress vai balvas netiks saglabātas.', 'The game will be marked as failed, and no progress or rewards will be saved.')}
         confirmLabel={t('Pamest', 'Leave')}
         cancelLabel={t('Turpināt spēli', 'Keep playing')}
         danger
         onCancel={() => setConfirmQuit(false)}
         onConfirm={() => {
           setConfirmQuit(false);
+          if (eligibleForRP) setQuitRP(deductRankedRP(deck.id, abandonPenalty).total);
           finish(false);
         }}
       />
