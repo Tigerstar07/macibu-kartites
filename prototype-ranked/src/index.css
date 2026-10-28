@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+.auth-input {
+  @apply mt-2 h-12 w-full rounded-xl border-2 border-white/10 bg-white/5 px-4 font-medium text-white outline-none transition placeholder:text-white/35 focus:border-acid;
+}
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ═══════════════════════════════════════════════════════════════════════

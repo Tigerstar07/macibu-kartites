@@ -75,15 +75,19 @@ python -m venv .venv
 # macOS / Linux:
 source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn app.main:app --reload
+python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
 ### Frontend
 ```bash
-cd frontend
+cd prototype-ranked
 npm install
 npm run dev
 ```
+
+Frontend izmanto `VITE_API_URL` (pēc noklusējuma `http://localhost:8000`).
+Backend autentifikācijas konfigurācijas piemērs atrodas
+`backend/.env.example`, bet frontend konfigurācija — `prototype-ranked/.env.example`.
 
 ## Komanda RRV un lomas
 

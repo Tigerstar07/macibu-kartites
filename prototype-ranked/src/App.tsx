@@ -1,10 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { MotionConfig } from 'motion/react';
 import { useGame } from './store/useGame';
 import { Background } from './components/layout/Background';
 import { AppShell } from './components/layout/AppShell';
 import { Onboarding } from './components/layout/Onboarding';
+import { AuthScreen } from './components/layout/AuthScreen';
 import { Toasts } from './components/ui/Toasts';
 import { PromotionCeremony } from './components/rank/PromotionCeremony';
 import { ChestOpening } from './components/rewards/ChestOpening';
@@ -18,13 +19,29 @@ import LeaderboardPage from './pages/LeaderboardPage';
 import ProfilePage from './pages/ProfilePage';
 import PlayPage from './pages/PlayPage';
 import NotFound from './pages/NotFound';
+import { currentUser, type AuthUser } from './lib/auth';
 
 export default function App() {
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
+  const [authReady, setAuthReady] = useState(false);
+  const setProfile = useGame((s) => s.setProfile);
+  const setRole = useGame((s) => s.setRole);
   const reducedMotion = useGame((s) => s.settings.reducedMotion);
   const lang = useGame((s) => s.settings.lang);
   const darkMode = useGame((s) => s.settings.darkMode);
   const hasProfile = useGame((s) => !!s.profile);
   const tick = useGame((s) => s.tick);
+
+  useEffect(() => {
+    currentUser().then((user) => {
+      setAuthUser(user);
+      setAuthReady(true);
+      if (user) {
+        setProfile({ name: user.display_name, avatar: '🦊', hue: 265 });
+        setRole(user.role === 'admin' ? 'admin' : 'user');
+      }
+    });
+  }, [setProfile, setRole]);
 
   // Daily quests and the weekly leaderboard roll over on their own.
   useEffect(() => {
@@ -57,6 +74,11 @@ export default function App() {
     <BrowserRouter>
       <MotionConfig reducedMotion={reducedMotion ? 'always' : 'user'}>
         <Background />
+        {!authReady ? null : !authUser ? <AuthScreen onAuthenticated={(user) => {
+          setAuthUser(user);
+          setProfile({ name: user.display_name, avatar: '🦊', hue: 265 });
+          setRole(user.role === 'admin' ? 'admin' : 'user');
+        }} /> : null}
         <Routes>
           <Route path="/play/:deckId" element={<PlayPage />} />
           <Route element={<AppShell />}>
