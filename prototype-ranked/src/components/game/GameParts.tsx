@@ -3,7 +3,6 @@ import { motion } from 'motion/react';
 import { animate, createTimeline } from 'animejs';
 import { Check, Flame, Volume2, VolumeX, X } from 'lucide-react';
 import type { Deck } from '../../types';
-import { comboMultiplier } from '../../lib/rp';
 import { prefersReducedMotion } from '../../lib/fx';
 import { sfx } from '../../lib/sound';
 import { useNumFmt, useT } from '../../lib/i18n';
@@ -71,7 +70,6 @@ function ProgressSegments({ total, results, active }: Pick<GameHUDProps, 'total'
 }
 
 function ComboCounter({ combo }: { combo: number }) {
-  const mult = comboMultiplier(combo);
   const hot = combo >= 3;
   const t = useT();
 
@@ -95,7 +93,6 @@ function ComboCounter({ combo }: { combo: number }) {
         >
           ×{combo}
         </motion.span>
-        {mult > 1 && <span className="hidden rounded-md border-2 border-ink bg-card px-1.5 text-[11px] sm:inline">RP ×{mult}</span>}
       </div>
     </HudValue>
   );

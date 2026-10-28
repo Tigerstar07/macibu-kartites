@@ -5,7 +5,7 @@ import type { AnswerLog, CardProgress, Deck, Lang, QType, Rarity, RewardItem } f
 import { BUILTIN_DECKS } from '../data/decks';
 import { gradeAnswer, newProgress, sm2 } from '../lib/sm2';
 import { TIME_LIMIT, gradeFor, sessionRP, type Grade, type RPBreakdown } from '../lib/rp';
-import { rankIndexFromRP, roadFor } from '../lib/rank';
+import { rankIndexFromRP, rankIsInRange, roadFor } from '../lib/rank';
 import { DAY, dayKey, daysBetween, weekId } from '../lib/time';
 import { questDef, rollDailyQuests, type QuestKind, type QuestState } from '../lib/quests';
 import { ACHIEVEMENTS, achievementDef } from '../lib/achievements';
@@ -80,6 +80,8 @@ export interface Ceremony {
 
 export interface SessionInput {
   deckId: string;
+  ranked: boolean;
+  penaltyApplied: { total: number; weekly: number };
   answers: AnswerLog[];
   completed: boolean;
   bestCombo: number;
@@ -166,6 +168,7 @@ export interface GameState extends Wallet {
   equip: (id: string) => void;
   dismissEvent: (id: string) => void;
   tick: () => void;
+  deductRankedRP: (deckId: string, amount: number) => { total: number; weekly: number };
   devAddRP: (n: number) => void;
   devAddChest: (rarity: Rarity) => void;
   resetAll: () => void;
@@ -387,11 +390,14 @@ export const useGame = create<GameState>()(
         const now = Date.now();
         const today = dayKey(now);
         const answered = input.answers.length;
-        const eligibleForRP = BUILTIN_DECKS.some((deck) => deck.id === input.deckId);
+        const rankedDeck = BUILTIN_DECKS.find((deck) => deck.id === input.deckId);
+        const matchRank = rankIndexFromRP(st.stats.totalRP + input.penaltyApplied.total);
+        const eligibleForRP = input.ranked && !!rankedDeck && rankIsInRange(matchRank, rankedDeck.rankRange);
         const scored = input.answers.filter((a) => !a.relearn);
         const correct = scored.filter((a) => a.correct).length;
         const accuracy = scored.length ? correct / scored.length : 0;
-        const answerRPSum = eligibleForRP ? input.answers.reduce((s, a) => s + a.rp, 0) : 0;
+        const answerRPSum = eligibleForRP ? input.answers.reduce((s, a) => s + Math.max(0, a.rp), 0) : 0;
+        const penaltyRP = eligibleForRP ? input.answers.reduce((s, a) => s + Math.max(0, -a.rp), 0) : 0;
         const avgMs = scored.length ? scored.reduce((s, a) => s + Math.min(a.ms, TIME_LIMIT[a.type]), 0) / scored.length : 0;
         const correctMs = input.answers.filter((a) => a.correct).map((a) => a.ms);
         const fastestMs = correctMs.length ? Math.min(...correctMs) : null;
@@ -413,19 +419,22 @@ export const useGame = create<GameState>()(
         }
         const liveStreak = lastActiveDay && daysBetween(lastActiveDay, today) >= 0 && daysBetween(lastActiveDay, today) <= 1 ? streak : 0;
 
-        const breakdown = sessionRP({
+        const baseBreakdown = sessionRP({
           answerRP: answerRPSum,
+          penaltyRP,
           accuracy,
           completed: eligibleForRP && input.completed,
           answered: eligibleForRP ? answered : 0,
           streakDays: eligibleForRP ? liveStreak : 0,
           firstToday: eligibleForRP && firstToday,
         });
+        const breakdown = baseBreakdown;
+        const payout = breakdown.total + penaltyRP;
 
-        const rpBefore = prev.totalRP;
-        const rpAfter = rpBefore + breakdown.total;
-        const weeklyBefore = prev.weeklyRP;
-        const weeklyAfter = weeklyBefore + breakdown.total;
+        const rpBefore = prev.totalRP + input.penaltyApplied.total;
+        const rpAfter = Math.max(0, prev.totalRP + payout);
+        const weeklyBefore = prev.weeklyRP + input.penaltyApplied.weekly;
+        const weeklyAfter = Math.max(0, prev.weeklyRP + payout);
         const placeBefore = placeFor(weeklyBefore, 'weekly', now);
         const placeAfter = placeFor(weeklyAfter, 'weekly', now);
         const rankBefore = rankIndexFromRP(rpBefore);
@@ -448,7 +457,7 @@ export const useGame = create<GameState>()(
           streak,
           bestStreak,
           lastActiveDay,
-          rpByDay: { ...prev.rpByDay, [today]: (prev.rpByDay[today] ?? 0) + breakdown.total },
+          rpByDay: { ...prev.rpByDay, [today]: (prev.rpByDay[today] ?? 0) + payout },
           decksStudied:
             studied && !prev.decksStudied.includes(input.deckId) ? [...prev.decksStudied, input.deckId] : prev.decksStudied,
           todayDecks: {
@@ -470,7 +479,7 @@ export const useGame = create<GameState>()(
           for (const id of r.completed) events.push({ id: uid('e'), type: 'quest', questId: id });
         };
         if (input.completed) bump('sessions', 1, 'add');
-        if (breakdown.total > 0) bump('rp', breakdown.total, 'add');
+        if (payout > 0) bump('rp', payout, 'add');
         if (perfect) bump('perfect', 1, 'add');
         bump('decks', stats.todayDecks.ids.length, 'max');
 
@@ -646,6 +655,26 @@ export const useGame = create<GameState>()(
         }
         if (st.quests.day !== today) patch.quests = { day: today, items: rollDailyQuests(today), bonusClaimed: false };
         if (Object.keys(patch).length) set(patch);
+      },
+
+      deductRankedRP: (deckId, amount) => {
+        if (!BUILTIN_DECKS.some((deck) => deck.id === deckId)) return { total: 0, weekly: 0 };
+        get().tick();
+        const st = get();
+        const requested = Math.max(0, Math.floor(amount));
+        const total = Math.min(st.stats.totalRP, requested);
+        const weekly = Math.min(st.stats.weeklyRP, requested);
+        if (total === 0 && weekly === 0) return { total, weekly };
+        const today = dayKey();
+        set({
+          stats: {
+            ...st.stats,
+            totalRP: st.stats.totalRP - total,
+            weeklyRP: st.stats.weeklyRP - weekly,
+            rpByDay: { ...st.stats.rpByDay, [today]: (st.stats.rpByDay[today] ?? 0) - total },
+          },
+        });
+        return { total, weekly };
       },
 
       devAddRP: (n) => {

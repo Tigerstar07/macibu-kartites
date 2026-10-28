@@ -55,6 +55,7 @@ export function SessionResults({
 
   const rows = [
     { key: 'answers', label: t('Pareizās atbildes', 'Correct answers'), value: b.answers },
+    { key: 'penalty', label: t('Nepareizo atbilžu sodi', 'Incorrect-answer penalties'), value: -b.penalty },
     { key: 'completion', label: t('Sesija pabeigta', 'Session complete'), value: b.completion },
     { key: 'accuracy', label: t(`Precizitātes bonuss (+${Math.round(b.accuracyPct * 100)}%)`, `Accuracy bonus (+${Math.round(b.accuracyPct * 100)}%)`), value: b.accuracy },
     { key: 'daily', label: t('Dienas pirmā sesija', 'First session today'), value: b.daily },
@@ -63,7 +64,7 @@ export function SessionResults({
       label: t(`Sērijas bonuss (${outcome.streak} d., +${Math.round(b.streakPct * 100)}%)`, `Streak bonus (${outcome.streak}d, +${Math.round(b.streakPct * 100)}%)`),
       value: b.streak,
     },
-  ].filter((r) => r.key === 'answers' || r.value > 0);
+  ].filter((r) => r.key === 'answers' || r.value !== 0);
 
   const ROWS_AT = 0.9;
   const TOTAL_AT = ROWS_AT + rows.length * 0.18 + 0.15;
@@ -204,7 +205,7 @@ export function SessionResults({
             {/* RP breakdown */}
             <motion.section {...appear(0.3)} className="rounded-[28px] glass p-6">
               <h2 className="flex items-center gap-2 font-display text-lg font-bold">
-                <RPIcon size={22} /> {t('Nopelnītie RP', 'RP earned')}
+                <RPIcon size={22} /> {t('RP izmaiņas', 'RP changes')}
               </h2>
               {deck.builtin !== true && <p className="mt-2 text-sm text-muted">{t('Kopienas kopas RP nepiešķir.', 'Community decks do not award RP.')}</p>}
               <div className="mt-3">
@@ -217,8 +218,8 @@ export function SessionResults({
                     className="flex items-center justify-between gap-4 border-b border-white/6 py-2.5 text-[15px]"
                   >
                     <span className="text-muted">{r.label}</span>
-                    <span className="font-display font-bold text-amber-200">
-                      +<Counter value={r.value} from={0} delay={(ROWS_AT + i * 0.18) * 1000} duration={500} format={fmt} />
+                    <span className={cn('font-display font-bold', r.value < 0 ? 'text-rose-300' : 'text-amber-200')}>
+                      {r.value > 0 ? '+' : ''}<Counter value={r.value} from={0} delay={(ROWS_AT + i * 0.18) * 1000} duration={500} format={fmt} />
                     </span>
                   </motion.div>
                 ))}
@@ -240,7 +241,7 @@ export function SessionResults({
                 </div>
                 <span className="flex items-center gap-2">
                   <span className="font-display text-5xl font-extrabold text-gradient">
-                    +<Counter value={b.total} from={0} delay={TOTAL_AT * 1000} duration={1000} format={fmt} onTick={sfx.count} />
+                    {b.total > 0 ? '+' : ''}<Counter value={b.total} from={0} delay={TOTAL_AT * 1000} duration={1000} format={fmt} onTick={sfx.count} />
                   </span>
                   <span className="pb-1.5 font-bold text-muted">RP</span>
                 </span>

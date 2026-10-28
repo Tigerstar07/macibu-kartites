@@ -16,6 +16,8 @@ export type DeckIcon =
   | 'palette'
   | 'leaf';
 
+export type RankedRange = readonly [minRank: number, maxRank: number];
+
 export interface Card {
   id: string;
   question: string;
@@ -36,12 +38,16 @@ export interface Deck {
   hue: number;
   /** Allow "reverse" questions (answer shown, pick the question). */
   reversible: boolean;
+  /** Inclusive rank-index range for Ranked matchmaking. */
+  rankRange?: RankedRange;
   /** Label shown above short prompts, in the deck's own language. */
   ask?: string;
   reverseAsk?: string;
   cards: Card[];
   author: string;
   builtin?: boolean;
+  /** Intended player rank for ranked matchmaking. */
+  rankIndex?: number;
   isPublic: boolean;
   createdAt: number;
   updatedAt: number;

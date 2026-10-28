@@ -5,11 +5,15 @@ import { Play } from 'lucide-react';
 import type { Deck } from '../../types';
 import type { deckCounts } from '../../lib/questions';
 import { isPlayable } from '../../lib/questions';
+import { rankAt, rankIndexFromRP, rankName } from '../../lib/rank';
+import { rankRangeName } from '../../lib/rank';
+import { useGame } from '../../store/useGame';
 import { useLang, useT } from '../../lib/i18n';
 import { plural } from '../../lib/format';
 import { sfx } from '../../lib/sound';
 import { DECK_ICONS } from '../ui/Icons';
 import { Ring } from '../ui/Meters';
+import { RankEmblem } from '../rank/RankEmblem';
 
 type Counts = ReturnType<typeof deckCounts>;
 
@@ -21,6 +25,8 @@ export const DeckCard = forwardRef<HTMLDivElement, { deck: Deck; counts: Counts;
   const t = useT();
   const lang = useLang();
   const navigate = useNavigate();
+  const totalRP = useGame((s) => s.stats.totalRP);
+  const rankIndex = deck.rankIndex ?? rankIndexFromRP(totalRP);
   const Icon = DECK_ICONS[deck.icon];
   const rx = useMotionValue(0);
   const ry = useMotionValue(0);
@@ -89,12 +95,21 @@ export const DeckCard = forwardRef<HTMLDivElement, { deck: Deck; counts: Counts;
             </Link>
           </h3>
           <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted">{deck.description}</p>
+          <div className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-ink/15 bg-paper-2 pr-2 text-xs font-bold">
+            <RankEmblem rankIndex={rankIndex} size={24} idle={false} glow={false} />
+            {rankName(rankAt(rankIndex), lang)}
+          </div>
           <div className="mt-3 flex flex-wrap gap-1.5">
             {deck.tags.slice(0, 3).map((tag) => (
               <span key={tag} className="rounded-md border border-ink/20 bg-paper px-1.5 py-0.5 font-mono text-[11px] font-medium text-muted">
                 #{tag}
               </span>
             ))}
+            {deck.builtin && deck.rankRange && (
+              <span className="rounded-md border border-brand/30 bg-brand/10 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-brand">
+                Ranked {rankRangeName(deck.rankRange, lang)}
+              </span>
+            )}
           </div>
           <div className="mt-auto flex items-center gap-3 border-t-2 border-dashed border-ink/15 pt-4">
             <Ring value={counts.mastery} size={44} stroke={6} color={`hsl(${deck.hue} 85% 58%)`}>

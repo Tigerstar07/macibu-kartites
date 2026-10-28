@@ -1,4 +1,4 @@
-import type { Card, CategoryId, Deck, DeckIcon } from '../types';
+import type { Card, CategoryId, Deck, DeckIcon, RankedRange } from '../types';
 
 type CardRow = [question: string, answer: string, wrong: string[], explanation?: string];
 
@@ -10,6 +10,8 @@ interface SubjectDeckInput {
   tags: string[];
   icon: DeckIcon;
   hue: number;
+  rankIndex: number;
+  rankRange: RankedRange;
   prefix: string;
   cards: CardRow[];
 }
@@ -34,6 +36,8 @@ function subjectDeck(input: SubjectDeckInput): Deck {
     tags: input.tags,
     icon: input.icon,
     hue: input.hue,
+    rankIndex: input.rankIndex,
+    rankRange: input.rankRange,
     reversible: false,
     ask: 'Izvēlies pareizo atbildi!',
     cards,
@@ -50,10 +54,12 @@ export const SUBJECT_DECKS: Deck[] = [
     id: 'latvian-grammar',
     title: 'Latviešu valoda: gramatika',
     description: 'Locījumi, vārdšķiras un teikuma uzbūve.',
+    rankIndex: 1,
     category: 'lang',
     tags: ['latviešu valoda', 'gramatika', 'vārdšķiras'],
     icon: 'languages',
     hue: 193,
+    rankRange: [0, 2],
     prefix: 'lg',
     cards: [
       ['Uz kādu jautājumu atbild lietvārds nominatīvā?', 'Kas?', ['Kam?', 'Ko?', 'Ar ko?']],
@@ -70,10 +76,12 @@ export const SUBJECT_DECKS: Deck[] = [
     id: 'math-advanced',
     title: 'Matemātika: padziļināti uzdevumi',
     description: 'Vienādojumi, ģeometrija, daļas un varbūtība.',
+    rankIndex: 8,
     category: 'math',
     tags: ['matemātika', 'vienādojumi', 'ģeometrija'],
     icon: 'calculator',
     hue: 35,
+    rankRange: [9, 11],
     prefix: 'ma',
     cards: [
       ['Atrisini vienādojumu 2x + 7 = 31.', 'x = 12', ['x = 10', 'x = 17', 'x = 19']],
@@ -90,10 +98,12 @@ export const SUBJECT_DECKS: Deck[] = [
     id: 'japanese-basics',
     title: 'Japāņu valodas pamati',
     description: 'Hiragana, bieži vārdi un vienkāršas gramatikas konstrukcijas.',
+    rankIndex: 2,
     category: 'lang',
     tags: ['japāņu valoda', 'hiragana', 'vārdu krājums'],
     icon: 'languages',
     hue: 345,
+    rankRange: [0, 2],
     prefix: 'jp',
     cards: [
       ['Ko japāņu valodā nozīmē “ありがとう” (arigatō)?', 'Paldies', ['Lūdzu', 'Atvainojiet', 'Uz redzēšanos']],
@@ -110,10 +120,12 @@ export const SUBJECT_DECKS: Deck[] = [
     id: 'sports-rules',
     title: 'Sports: noteikumi un disciplīnas',
     description: 'Komandu spēļu noteikumi un dažādu sporta veidu pamati.',
+    rankIndex: 3,
     category: 'other',
     tags: ['sports', 'noteikumi', 'disciplīnas'],
     icon: 'orbit',
     hue: 126,
+    rankRange: [0, 2],
     prefix: 'sp',
     cards: [
       ['Cik spēlētāju no vienas komandas laukumā sāk standarta futbola spēli?', '11', ['7', '9', '12']],
@@ -130,10 +142,12 @@ export const SUBJECT_DECKS: Deck[] = [
     id: 'programming-algorithms',
     title: 'Programmēšana: algoritmi un datu struktūras',
     description: 'Sarežģītāks turpinājums programmēšanas pamatiem: meklēšana, grafi un sarežģītība.',
+    rankIndex: 9,
     category: 'it',
     tags: ['programmēšana', 'algoritmi', 'datu struktūras'],
     icon: 'code',
     hue: 267,
+    rankRange: [9, 11],
     prefix: 'pa',
     cards: [
       ['Kāds priekšnosacījums vajadzīgs binārajai meklēšanai?', 'Dati ir sakārtoti', ['Dati ir unikāli', 'Dati ir tekstuāli', 'Datu skaits ir pāra skaitlis']],
@@ -150,10 +164,12 @@ export const SUBJECT_DECKS: Deck[] = [
     id: 'english-c1',
     title: 'Angļu valoda: C1 vārdu krājums',
     description: 'Padziļināti angļu valodas vārdi un precīzas nozīmes.',
+    rankIndex: 12,
     category: 'lang',
     tags: ['angļu valoda', 'C1', 'vārdu krājums'],
     icon: 'languages',
     hue: 326,
+    rankRange: [6, 8],
     prefix: 'ec',
     cards: [
       ['Ko nozīmē “meticulous”?', 'Ļoti rūpīgs un uzmanīgs pret detaļām', ['Steidzīgs un paviršs', 'Skaļš un uzstājīgs', 'Neskaidrs un divdomīgs']],
@@ -170,10 +186,12 @@ export const SUBJECT_DECKS: Deck[] = [
     id: 'biology-cell-genetics',
     title: 'Bioloģija: šūna un ģenētika',
     description: 'Šūnas procesi, iedzimtība un evolūcijas pamatprincipi.',
+    rankIndex: 7,
     category: 'sci',
     tags: ['bioloģija', 'šūna', 'ģenētika'],
     icon: 'leaf',
     hue: 145,
+    rankRange: [6, 8],
     prefix: 'bg',
     cards: [
       ['Kāda ir mitohondriju galvenā funkcija šūnā?', 'Ražot šūnai izmantojamu enerģiju ATP veidā', ['Glabāt ģenētisko informāciju', 'Veidot ribosomas', 'Noārdīt šūnas sienu']],
@@ -190,10 +208,12 @@ export const SUBJECT_DECKS: Deck[] = [
     id: 'chemistry-reactions',
     title: 'Ķīmija: reakcijas un saites',
     description: 'Padziļināta ķīmija pēc elementu simbolu apguves: moli, reakcijas un saites.',
+    rankIndex: 8,
     category: 'sci',
     tags: ['ķīmija', 'reakcijas', 'ķīmiskās saites'],
     icon: 'flask',
     hue: 164,
+    rankRange: [9, 11],
     prefix: 'cr',
     cards: [
       ['Cik daļiņu aptuveni ir vienā molā vielas?', '6,022 × 10²³', ['6,022 × 10²⁰', '3,14 × 10⁸', '9,81 × 10²³']],
@@ -210,10 +230,12 @@ export const SUBJECT_DECKS: Deck[] = [
     id: 'programming-advanced',
     title: 'Programmēšana: padziļināti koncepti',
     description: 'Transakcijas, tīkla drošība un konkurējoši procesi pieredzējušākiem programmētājiem.',
+    rankIndex: 14,
     category: 'it',
     tags: ['programmēšana', 'transakcijas', 'tīmekļa drošība'],
     icon: 'code',
     hue: 284,
+    rankRange: [12, 14],
     prefix: 'px',
     cards: [
       ['Kura ACID īpašība nodrošina, ka transakcija notiek pilnībā vai netiek veikta vispār?', 'Atomiskums (Atomicity)', ['Konsekvence (Consistency)', 'Izolācija (Isolation)', 'Noturība (Durability)']],
@@ -230,10 +252,12 @@ export const SUBJECT_DECKS: Deck[] = [
     id: 'natural-phenomena',
     title: 'Dabas parādības: Zeme un enerģija',
     description: 'Laikapstākļi, Zemes procesi un dabas enerģijas aprite.',
+    rankIndex: 6,
     category: 'sci',
     tags: ['dabas parādības', 'Zeme', 'enerģija'],
     icon: 'orbit',
     hue: 207,
+    rankRange: [3, 5],
     prefix: 'np',
     cards: [
       ['Kas galvenokārt izraisa gadalaiku maiņu uz Zemes?', 'Zemes ass slīpums attiecībā pret orbītas plakni', ['Mainīgs attālums starp Zemi un Sauli', 'Mēness fāzes', 'Saules rotācijas ātrums']],
@@ -250,10 +274,12 @@ export const SUBJECT_DECKS: Deck[] = [
     id: 'world-history-advanced',
     title: 'Pasaules vēsture: padziļināti',
     description: 'Impērijas, politiskas pārmaiņas un nozīmīgi pasaules vēstures pagriezieni.',
+    rankIndex: 11,
     category: 'hist',
     tags: ['vēsture', 'pasaules vēsture', 'impērijas'],
     icon: 'landmark',
     hue: 19,
+    rankRange: [9, 11],
     prefix: 'wh',
     cards: [
       ['Kurā gadā noslēdza Vestfālenes mieru, kas izbeidza Trīsdesmitgadu karu?', '1648', ['1517', '1618', '1715']],
@@ -270,10 +296,12 @@ export const SUBJECT_DECKS: Deck[] = [
     id: 'music-theory',
     title: 'Mūzika: teorija un instrumenti',
     description: 'Nošu raksts, ritms, intervāli un instrumentu grupas.',
+    rankIndex: 5,
     category: 'other',
     tags: ['mūzika', 'mūzikas teorija', 'instrumenti'],
     icon: 'music',
     hue: 304,
+    rankRange: [3, 5],
     prefix: 'mt',
     cards: [
       ['Kuras notis veido Do mažora gammu?', 'Do, Re, Mi, Fa, Sol, La, Si', ['Do, Re, Mi, Fa, Sol, La, Si bemol', 'Do, Re bemol, Mi, Fa, Sol, La, Si', 'Do, Re, Mi bemol, Fa, Sol, La, Si']],
@@ -290,10 +318,12 @@ export const SUBJECT_DECKS: Deck[] = [
     id: 'physics-motion-electricity',
     title: 'Fizika: kustība un elektrība',
     description: 'Spēki, enerģija, viļņi un elektriskās ķēdes.',
+    rankIndex: 13,
     category: 'sci',
     tags: ['fizika', 'mehānika', 'elektrība'],
     icon: 'orbit',
     hue: 218,
+    rankRange: [6, 8],
     prefix: 'ph',
     cards: [
       ['Ar ko ātrums atšķiras no ātruma vektora jeb ātruma ar virzienu?', 'Ātrums ar virzienu ietver arī kustības virzienu', ['Ātrums vienmēr ietver masu', 'Ātrumam ar virzienu nav mērvienības', 'Tie ir pilnīgi neatkarīgi lielumi']],
@@ -310,10 +340,12 @@ export const SUBJECT_DECKS: Deck[] = [
     id: 'electronics-technology',
     title: 'Elektronika un tehnoloģijas',
     description: 'Elektronisko komponentu funkcijas un digitālās loģikas pamati.',
+    rankIndex: 10,
     category: 'other',
     tags: ['elektronika', 'tehnoloģijas', 'komponentes'],
     icon: 'code',
     hue: 181,
+    rankRange: [12, 14],
     prefix: 'et',
     cards: [
       ['Kāda ir rezistora galvenā funkcija elektriskā ķēdē?', 'Ierobežot strāvu un radīt sprieguma kritumu', ['Uzkrāt lādiņu ilgstošai lietošanai', 'Pastiprināt gaismas signālu', 'Pārveidot maiņstrāvu digitālos datos']],
@@ -330,10 +362,12 @@ export const SUBJECT_DECKS: Deck[] = [
     id: 'general-knowledge',
     title: 'Vispārējās zināšanas',
     description: 'Ģeogrāfija, kultūra, valodas un zinātnes fakti vienā kopā.',
+    rankIndex: 0,
     category: 'other',
     tags: ['vispārējās zināšanas', 'ģeogrāfija', 'kultūra'],
     icon: 'brain',
     hue: 48,
+    rankRange: [0, 2],
     prefix: 'gk',
     cards: [
       ['Kurš ir lielākais okeāns uz Zemes?', 'Klusais okeāns', ['Atlantijas okeāns', 'Indijas okeāns', 'Dienvidu okeāns']],

@@ -124,7 +124,7 @@ export function Onboarding() {
               <div className="mx-auto mt-9 grid max-w-2xl gap-3 text-left sm:grid-cols-3">
                 {[
                   { icon: <MousePointerClick className="size-5" />, c: '#67e8f9', lv: 'Izvēlies pareizo atbildi — spēle pati novērtē, cik labi zini.', en: 'Pick the right answer — the game grades how well you know it.' },
-                  { icon: <Crown className="size-5" />, c: '#fbbf24', lv: 'Pelni RP par precizitāti, ātrumu, combo un dienu sēriju.', en: 'Earn RP for accuracy, speed, combos and streaks.' },
+                  { icon: <Crown className="size-5" />, c: '#fbbf24', lv: 'Pareizi +20 RP, nepareizi −20 RP. Atkārtojumi palīdz atgūt daļu punktu.', en: 'Correct +20 RP, incorrect −20 RP. Retries let you recover some points.' },
                   { icon: <Gift className="size-5" />, c: '#f472b6', lv: 'Paaugstinājumi, lādes, tēmas, rāmji un nedēļas tabula.', en: 'Promotions, chests, themes, frames and a weekly board.' },
                 ].map((f, i) => (
                   <motion.div

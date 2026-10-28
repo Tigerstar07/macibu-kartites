@@ -3,27 +3,33 @@ import { rankAt, type LeagueId } from '../../lib/rank';
 import { useLang } from '../../lib/i18n';
 import { cn } from '../../lib/cn';
 
-const SHIELD = 'M60 14 L94 26 V58 C94 80 79 95 60 106 C41 95 26 80 26 58 V26 Z';
-const SHIELD_IN = 'M60 22 L87 31.5 V58 C87 76 75 88.5 60 97.5 C45 88.5 33 76 33 58 V31.5 Z';
-const HEX = 'M60 10 L95 30 V78 L60 108 L25 78 V30 Z';
-const HEX_IN = 'M60 18.5 L88 34.5 V74 L60 99 L32 74 V34.5 Z';
-const GEM = 'M60 110 L18 48 L35 20 H85 L102 48 Z';
-const GEM_IN = 'M60 99 L27 49 L40 27 H80 L93 49 Z';
-const WING = [
-  'M28 34 C16 34 8 28 3 19 C12 23 20 24 28 23 Z',
-  'M28 47 C15 48 6 43 0 34 C9 37 18 37 28 35 Z',
-  'M29 60 C17 62 8 58 2 50 C11 52 19 52 29 48 Z',
+const SHIELD = 'M60 11 L91 23 L89 62 C88 80 75 94 60 104 C45 94 32 80 31 62 L29 23 Z';
+const SHIELD_IN = 'M60 19 L83 28 L81 61 C80 75 70 87 60 94 C50 87 40 75 39 61 L37 28 Z';
+const HEX = 'M60 11 L92 25 L86 69 L60 104 L34 69 L28 25 Z';
+const HEX_IN = 'M60 19 L84 29 L80 67 L60 94 L40 67 L36 29 Z';
+const DIAMOND_SHIELD = 'M60 11 L92 27 L84 73 L60 105 L36 73 L28 27 Z';
+const DIAMOND_SHIELD_IN = 'M60 19 L84 31 L78 71 L60 95 L42 71 L36 31 Z';
+const STAR = 'M0 -7 L2.1 -2.3 L7 -2 L3.3 1.2 L4.4 6.5 L0 4 L-4.4 6.5 L-3.3 1.2 L-7 -2 L-2.1 -2.3 Z';
+const RIBBON = 'M34 24 L49 31 L43 80 L32 98 L32 72 L20 65 L26 56 L21 48 L34 42 Z';
+const TOP_BAR = 'M22 23 H98 L93 31 H27 Z';
+const CHEVRON = 'M45 73 L60 66 L75 73 L71 77 L60 72 L49 77 Z';
+const OPEN_BOOK = 'M60 7 C54 3 48 3 42 5 V18 C49 16 55 17 60 21 C65 17 71 16 78 18 V5 C72 3 66 3 60 7 Z';
+const SPARK = 'M0 -6 L1.6 -1.6 L6 0 L1.6 1.6 L0 6 L-1.6 1.6 L-6 0 L-1.6 -1.6 Z';
+const SPARKLE_POSITIONS = [
+  { x: 12, y: 44 },
+  { x: 108, y: 48 },
+  { x: 12, y: 76 },
+  { x: 108, y: 80 },
 ];
-const CROWN = 'M44 17 L47 4 L54 11 L60 0 L66 11 L73 4 L76 17 Z';
 /** Sticker outline colour (SVG attributes cannot read CSS variables). */
 const INK = '#1c1a27';
 
-const SHAPES: Record<LeagueId, { body: string; inner: string; wings: number; crown: boolean; ny: number; gloss: string }> = {
-  bronze: { body: SHIELD, inner: SHIELD_IN, wings: 0, crown: false, ny: 62, gloss: 'M26 26 L60 14 L94 26 V46 C74 40 46 40 26 50 Z' },
-  silver: { body: SHIELD, inner: SHIELD_IN, wings: 2, crown: false, ny: 62, gloss: 'M26 26 L60 14 L94 26 V46 C74 40 46 40 26 50 Z' },
-  gold: { body: SHIELD, inner: SHIELD_IN, wings: 3, crown: true, ny: 62, gloss: 'M26 26 L60 14 L94 26 V46 C74 40 46 40 26 50 Z' },
-  platinum: { body: HEX, inner: HEX_IN, wings: 3, crown: true, ny: 60, gloss: 'M25 30 L60 10 L95 30 V46 C74 40 46 40 25 50 Z' },
-  diamond: { body: GEM, inner: GEM_IN, wings: 3, crown: true, ny: 54, gloss: 'M35 20 H85 L102 48 C80 40 40 40 18 48 Z' },
+const SHAPES: Record<LeagueId, { body: string; inner: string; stars: number; gloss: string }> = {
+  bronze: { body: SHIELD, inner: SHIELD_IN, stars: 1, gloss: 'M29 23 L60 11 L91 23 V39 C74 34 46 34 30 43 Z' },
+  silver: { body: SHIELD, inner: SHIELD_IN, stars: 1, gloss: 'M29 23 L60 11 L91 23 V39 C74 34 46 34 30 43 Z' },
+  gold: { body: SHIELD, inner: SHIELD_IN, stars: 2, gloss: 'M29 23 L60 11 L91 23 V39 C74 34 46 34 30 43 Z' },
+  platinum: { body: HEX, inner: HEX_IN, stars: 2, gloss: 'M28 25 L60 11 L92 25 V41 C74 35 46 35 29 44 Z' },
+  diamond: { body: DIAMOND_SHIELD, inner: DIAMOND_SHIELD_IN, stars: 3, gloss: 'M28 27 L60 11 L92 27 L87 44 C72 37 48 37 32 45 Z' },
 };
 
 interface Props {
@@ -37,13 +43,15 @@ interface Props {
   className?: string;
 }
 
-/** Hand-built SVG league emblem: each league gets a grander silhouette. */
+/** Layered competitive badge with a league crest and division marks. */
 export function RankEmblem({ rankIndex, size = 96, idle = true, locked = false, glow = true, showDivision = true, className }: Props) {
   const id = useId().replace(/:/g, '');
   const rank = rankAt(rankIndex);
   const L = rank.league;
   const s = SHAPES[L.id];
-  const wingFeathers = WING.slice(0, s.wings);
+  const chevrons = ['III', 'II', 'I'].indexOf(rank.division) + 1;
+  const effectTier = Math.floor(rankIndex / 3);
+  const rankPower = rankIndex / 14;
   const lang = useLang();
 
   return (
@@ -51,12 +59,17 @@ export function RankEmblem({ rankIndex, size = 96, idle = true, locked = false, 
       viewBox="-4 -4 128 120"
       width={size}
       height={(size * 120) / 128}
-      className={cn('emblem shrink-0 overflow-visible', className)}
+      className={cn(
+        'emblem shrink-0 overflow-visible',
+        `rank-emblem-tier-${effectTier}`,
+        idle && !locked && 'rank-emblem-active',
+        className,
+      )}
       style={{
         filter: locked
           ? 'grayscale(1) contrast(0.8) brightness(1.15)'
           : glow
-            ? `drop-shadow(${Math.max(2, Math.round(size * 0.035))}px ${Math.max(2, Math.round(size * 0.035))}px 0 var(--color-ink))`
+            ? `drop-shadow(${Math.max(2, Math.round(size * 0.035))}px ${Math.max(2, Math.round(size * 0.035))}px 0 var(--color-ink)) drop-shadow(0 0 ${Math.round(2 + rankPower * 8)}px ${L.glow})`
             : undefined,
         opacity: locked ? 0.55 : 1,
       }}
@@ -70,17 +83,19 @@ export function RankEmblem({ rankIndex, size = 96, idle = true, locked = false, 
           <stop offset="1" stopColor={L.c3} />
         </linearGradient>
         <linearGradient id={`${id}-inner`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor={L.c3} stopOpacity="0.95" />
-          <stop offset="1" stopColor={L.c2} stopOpacity="0.9" />
-        </linearGradient>
-        <linearGradient id={`${id}-wing`} x1="1" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor={L.c1} />
-          <stop offset="1" stopColor={L.c3} />
+          <stop offset="0" stopColor="#303239" />
+          <stop offset="0.35" stopColor="#111318" />
+          <stop offset="1" stopColor="#050609" />
         </linearGradient>
         <linearGradient id={`${id}-text`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#ffffff" />
           <stop offset="1" stopColor={L.c1} />
         </linearGradient>
+        <radialGradient id={`${id}-aura`}>
+          <stop offset="0" stopColor={L.c1} stopOpacity="0.48" />
+          <stop offset="0.58" stopColor={L.c2} stopOpacity="0.2" />
+          <stop offset="1" stopColor={L.c3} stopOpacity="0" />
+        </radialGradient>
         <linearGradient id={`${id}-shine`} x1="0" y1="0" x2="1" y2="0">
           <stop offset="0" stopColor="#fff" stopOpacity="0" />
           <stop offset="0.5" stopColor="#fff" stopOpacity="0.75" />
@@ -91,32 +106,51 @@ export function RankEmblem({ rankIndex, size = 96, idle = true, locked = false, 
         </clipPath>
       </defs>
 
-      {wingFeathers.length > 0 && (
-        <g className="emblem-wings">
-          {wingFeathers.map((d, i) => (
-            <path key={`l${i}`} d={d} fill={`url(#${id}-wing)`} stroke={INK} strokeWidth="2" strokeLinejoin="round" />
-          ))}
-          <g transform="translate(120,0) scale(-1,1)">
-            {wingFeathers.map((d, i) => (
-              <path key={`r${i}`} d={d} fill={`url(#${id}-wing)`} stroke={INK} strokeWidth="2" strokeLinejoin="round" />
-            ))}
-          </g>
+      {effectTier > 0 && <circle className="rank-emblem-aura" cx="60" cy="57" r={47 + effectTier * 2} fill={`url(#${id}-aura)`} />}
+      {effectTier >= 3 && (
+        <g className="rank-emblem-orbit">
+          <ellipse cx="60" cy="57" rx="55" ry="31" fill="none" stroke={L.c1} strokeOpacity="0.7" strokeWidth="1.5" strokeDasharray={effectTier === 4 ? '2 3' : '5 4'} />
+          <circle cx="60" cy="26" r="2.2" fill="#fff" />
+          {effectTier === 4 && <ellipse cx="60" cy="57" rx="49" ry="38" fill="none" stroke="#fff" strokeOpacity="0.45" strokeWidth="1" />}
         </g>
       )}
+      {SPARKLE_POSITIONS.slice(0, effectTier).map((sparkle, index) => (
+        <path
+          key={`spark-${index}`}
+          className="rank-emblem-spark"
+          d={SPARK}
+          transform={`translate(${sparkle.x} ${sparkle.y}) scale(${0.75 + rankPower * 0.3})`}
+          fill="#fff"
+          stroke={L.c2}
+          strokeWidth="1"
+          style={{ animationDelay: `${index * -0.35}s` }}
+        />
+      ))}
 
-      {s.crown && <path d={CROWN} fill={`url(#${id}-wing)`} stroke={INK} strokeWidth="2.2" strokeLinejoin="round" />}
+      <g stroke={INK} strokeWidth="2" strokeLinejoin="round">
+        <path d={RIBBON} fill={`url(#${id}-body)`} />
+        <g transform="translate(120,0) scale(-1,1)">
+          <path d={RIBBON} fill={`url(#${id}-body)`} />
+        </g>
+      </g>
+      <path d={TOP_BAR} fill={`url(#${id}-body)`} stroke={INK} strokeWidth="2.5" strokeLinejoin="round" />
+      <path d="M27 25 H93" stroke="#fff" strokeOpacity="0.72" strokeWidth="1.5" />
 
-      {/* ink outline: half of the stroke shows outside the body */}
+      {/* The colored outer shell frames a dark enamel center. */}
       <path d={s.body} fill="none" stroke={INK} strokeWidth="7" strokeLinejoin="round" />
       <path d={s.body} fill={`url(#${id}-body)`} />
       <path d={s.inner} fill={`url(#${id}-inner)`} />
-      {L.id === 'diamond' && (
-        <g stroke={L.c1} strokeOpacity="0.35" strokeWidth="1" fill="none">
-          <path d="M40 27 L52 49 L60 27 L68 49 L80 27" />
-          <path d="M27 49 H93" />
-          <path d="M52 49 L60 99 L68 49" />
-        </g>
-      )}
+      <path d={s.inner} fill="none" stroke="#f4f1e8" strokeOpacity="0.78" strokeWidth="1.5" />
+      <path d="M38 31 H82" stroke={L.c1} strokeOpacity="0.9" strokeWidth="1.5" />
+      <path d={OPEN_BOOK} fill="#f5f0df" stroke={INK} strokeWidth="1.6" strokeLinejoin="round" />
+      <path d="M60 7 V19 M46 7 L55 9 M74 7 L65 9 M46 13 L55 15 M74 13 L65 15" fill="none" stroke={L.c3} strokeWidth="1.1" strokeLinecap="round" />
+      {Array.from({ length: s.stars }, (_, i) => {
+        const x = 60 + (i - (s.stars - 1) / 2) * 15;
+        return <path key={`star-${i}`} d={STAR} transform={`translate(${x} 42)`} fill="#fff" stroke="#0b0c10" strokeWidth="1.2" strokeLinejoin="round" />;
+      })}
+      {Array.from({ length: chevrons }, (_, i) => (
+        <path key={`chevron-${i}`} d={CHEVRON} transform={`translate(0 ${i * 7})`} fill={L.c1} stroke={INK} strokeWidth="1.3" strokeLinejoin="round" />
+      ))}
       <path d={s.gloss} fill="#fff" opacity="0.16" clipPath={`url(#${id}-clip)`} />
 
       {idle && !locked && (
@@ -132,15 +166,15 @@ export function RankEmblem({ rankIndex, size = 96, idle = true, locked = false, 
       {showDivision && (
         <text
           x="60"
-          y={s.ny}
+          y={57}
           textAnchor="middle"
           dominantBaseline="central"
           fontFamily="Bricolage Grotesque Variable, sans-serif"
           fontWeight="800"
-          fontSize={rank.division.length === 3 ? 26 : 30}
-          fill={`url(#${id}-text)`}
-          stroke={INK}
-          strokeWidth="2.4"
+          fontSize={rank.division.length === 3 ? 20 : 24}
+          fill="#fff"
+          stroke="#050609"
+          strokeWidth="2.2"
           paintOrder="stroke"
           letterSpacing="-0.5"
         >

@@ -2,10 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { animate, stagger } from 'animejs';
 import { AnimatePresence, motion } from 'motion/react';
-import { CalendarCheck, Check, CircleX, Flame, Lock, Play, Repeat, Sparkles, Target, Zap } from 'lucide-react';
+import { Check, CircleX, Lock, Play, Repeat, Target } from 'lucide-react';
 import { useGame } from '../store/useGame';
 import { DIVISIONS, LEAGUES, ROAD, THRESHOLDS, rankAt, rankFromRP, rankName, rankProgress } from '../lib/rank';
-import { COMBO_STEPS } from '../lib/rp';
 import { useLang, useNumFmt, useT } from '../lib/i18n';
 import { prefersReducedMotion } from '../lib/fx';
 import { cn } from '../lib/cn';
@@ -14,7 +13,7 @@ import { Button } from '../components/ui/Button';
 import { ProgressBar } from '../components/ui/Meters';
 import { Panel } from '../components/ui/Panel';
 import { RewardChip } from '../components/ui/Reward';
-import { BoostIcon, RPIcon } from '../components/ui/Icons';
+import { RPIcon } from '../components/ui/Icons';
 import { SplitTitle } from '../components/ui/SplitTitle';
 
 const NODE = 176; // reward-road node width
@@ -53,19 +52,9 @@ export default function RankPage() {
   const lineWidth = rank.index === 0 ? rankProgress(stats.totalRP) * 0 : (reached + partial) * (NODE + GAP);
 
   const rules = [
-    { icon: <Target className="size-5" />, c: '#34d399', title: t('Pareiza atbilde', 'Correct answer'), text: t('10 RP (patiess/aplams: 6 RP). Nepareiza — 0 RP.', '10 RP (true/false: 6 RP). Wrong — 0 RP.') },
-    { icon: <Zap className="size-5" />, c: '#67e8f9', title: t('Ātruma bonuss', 'Speed bonus'), text: t('< 3 s: +5 · < 6 s: +3 · < 10 s: +1', '< 3 s: +5 · < 6 s: +3 · < 10 s: +1') },
-    {
-      icon: <Flame className="size-5" />,
-      c: '#fb923c',
-      title: t('Combo reizinātājs', 'Combo multiplier'),
-      text: COMBO_STEPS.map((s) => `${s.at}× → ×${s.mult}`).join(' · '),
-    },
-    { icon: <Sparkles className="size-5" />, c: '#fde68a', title: t('Precizitāte', 'Accuracy'), text: t('Pabeigta sesija +20 RP. ≥75%: +15% · ≥90%: +30% · 100%: +50%', 'Finished session +20 RP. ≥75%: +15% · ≥90%: +30% · 100%: +50%') },
-    { icon: <CalendarCheck className="size-5" />, c: '#a78bfa', title: t('Regularitāte', 'Consistency'), text: t('Dienas pirmā sesija +25 RP. Sērija: +5% par katru dienu (līdz +50%).', 'First session of the day +25 RP. Streak: +5% per day (up to +50%).') },
-    { icon: <Repeat className="size-5" />, c: '#f472b6', title: t('Atkārtojumi', 'Retries'), text: t('Kļūdainās kartītes atgriežas sesijas beigās par ½ RP.', 'Missed cards return at the end for ½ RP.') },
-    { icon: <BoostIcon size={20} />, c: '#22d3ee', title: t('RP pastiprinājums', 'RP boost'), text: t('Viena sesija ar ×1,5 RP. Iegūsti lādēs vai veikalā.', 'One session at ×1.5 RP. From chests or the shop.') },
-    { icon: <CircleX className="size-5" />, c: '#fb7185', title: t('Bez sodiem', 'No penalties'), text: t('RP netiek atņemti — nedēļas tabula sākas no nulles katru pirmdienu.', 'RP is never taken away — the weekly board resets every Monday.') },
+    { icon: <Target className="size-5" />, c: '#34d399', title: t('Atbildes', 'Answers'), text: t('Pareiza +20 RP · nepareiza −20 RP. Ātrums un kombo punktus nemaina.', 'Correct +20 RP · incorrect −20 RP. Speed and combo do not change points.') },
+    { icon: <Repeat className="size-5" />, c: '#f472b6', title: t('Atkārtojumi', 'Retries'), text: t('Kļūdains jautājums atkārtojas vienu reizi. Pareizi atbildot: +10 RP (kopā −10 RP); kļūdaini: −20 RP.', 'A missed question repeats once. Correct retry: +10 RP (−10 RP net); wrong retry: −20 RP.') },
+    { icon: <CircleX className="size-5" />, c: '#fb7185', title: t('Pamesta spēle', 'Abandoned game'), text: t('Pametot Ranked spēli, tiek noņemti līdz 20 RP papildus atbilžu sodiem.', 'Leaving a Ranked game removes up to 20 RP in addition to answer penalties.') },
   ];
   const renderRule = (r: (typeof rules)[number]) => (
     <div key={r.title} className="rounded-2xl glass-soft p-4">

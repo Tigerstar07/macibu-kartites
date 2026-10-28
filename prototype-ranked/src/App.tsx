@@ -107,6 +107,7 @@ export default function App() {
         ) : !authReady ? <main className="fixed inset-0 grid place-items-center bg-ink-950 text-white" role="status">Pārbauda sesiju...</main>
           : !authUser ? <AuthScreen onAuthenticated={async (user) => { await selectGameAccount(user); setAuthUser(user); }} /> : <>
         <Routes>
+          <Route path="/play" element={<PlayPage />} />
           <Route path="/play/:deckId" element={<PlayPage />} />
           <Route element={<AppShell />}>
             <Route index element={<HomePage />} />

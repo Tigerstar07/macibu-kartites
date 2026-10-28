@@ -6,7 +6,7 @@ import { ArrowRight, CalendarClock, Check, Flame, GraduationCap, Layers, Play, T
 import { effectiveStreak, useAllDecks, useGame } from '../store/useGame';
 import { useNow, useYouPlayer } from '../store/hooks';
 import { deckCounts, isPlayable } from '../lib/questions';
-import { ROAD, rankAt, rankFromRP, rankName, rankProgress } from '../lib/rank';
+import { ROAD, rankAt, rankFromRP, rankIsInRange, rankName, rankProgress } from '../lib/rank';
 import { botPlayers, placeFor, sortPlayers } from '../lib/bots';
 import { plural } from '../lib/format';
 import { greetingKey, weekEnd } from '../lib/time';
@@ -25,6 +25,8 @@ import { Panel } from '../components/ui/Panel';
 import { RewardChip } from '../components/ui/Reward';
 import { SplitTitle } from '../components/ui/SplitTitle';
 import { CountdownText } from '../components/ui/CountdownText';
+import { BUILTIN_DECKS } from '../data/decks';
+import { pick } from '../lib/random';
 
 const FLOAT_ROT = [-8, 7, -4];
 
@@ -202,17 +204,13 @@ export default function HomePage() {
 
   const streak = effectiveStreak(stats);
   const rows = useMemo(() => decks.filter(isPlayable).map((d) => ({ d, c: deckCounts(d, progress) })), [decks, progress]);
-  const totalDue = rows.reduce((s, r) => s + r.c.due, 0);
   const mastered = rows.reduce((s, r) => s + r.c.mastered, 0);
   const place = useMemo(() => placeFor(stats.weeklyRP, 'weekly'), [stats.weeklyRP]);
-
-  const quick = useMemo(() => {
-    const byDue = [...rows].sort((a, b) => b.c.due - a.c.due);
-    if ((byDue[0]?.c.due ?? 0) > 0) return byDue[0].d;
-    const last = rows.find((r) => r.d.id === stats.lastDeckId);
-    if (last && last.c.fresh > 0) return last.d;
-    return (rows.find((r) => r.c.fresh > 0) ?? last ?? rows[0])?.d;
-  }, [rows, stats.lastDeckId]);
+  const currentRank = rankFromRP(stats.totalRP).index;
+  const rankedDecks = useMemo(
+    () => BUILTIN_DECKS.filter((deck) => isPlayable(deck) && rankIsInRange(currentRank, deck.rankRange)),
+    [currentRank],
+  );
 
   const continueRows = useMemo(
     () =>
@@ -295,36 +293,32 @@ export default function HomePage() {
             </span>
             <SplitTitle text={`${greet}, ${profile?.name ?? ''}!`} className="mt-5 font-display text-display-lg font-extrabold" />
             <p className="mt-4 max-w-lg text-[17px] font-medium leading-relaxed text-white/85">
-              {totalDue > 0
-                ? t(
-                    `Tevi gaida ${totalDue} ${plural(totalDue, 'lv', 'kartīte', 'kartītes', '', '')} atkārtošanai. Katra pareiza atbilde nes RP!`,
-                    `${totalDue} ${plural(totalDue, 'en', '', '', 'card is', 'cards are')} due for review. Every right answer earns RP!`,
-                  )
-                : t('Atkārtojamo kartīšu nav — laiks apgūt jaunas un kāpt rangā!', 'Nothing due — time to learn new cards and climb!')}
+              {t('Sāc Ranked spēli ar nejauši izvēlētu kopu. Spēlē šo kopu, lai nopelnītu RP.', 'Start a Ranked match with a randomly selected deck. Play that deck to earn RP.')}
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <Button
                 variant="gold"
                 size="xl"
                 shine
-                disabled={!quick}
+                disabled={rankedDecks.length === 0}
                 icon={<Play className="size-5 fill-current" />}
-                onClick={() => quick && navigate(`/play/${quick.id}`)}
+                onClick={() => {
+                  const deck = pick(rankedDecks);
+                  if (deck) navigate(`/play/${deck.id}?mode=ranked`);
+                }}
               >
-                {t('Spēlēt', 'Play')}
+                {t('Spēlēt Ranked', 'Play Ranked')}
               </Button>
               <Button variant="secondary" size="xl" icon={<Layers className="size-5" strokeWidth={2.4} />} onClick={() => navigate('/decks')}>
                 {t('Izvēlēties kopu', 'Pick a deck')}
               </Button>
             </div>
-            {quick && (
-              <p className="mt-6 inline-flex max-w-full items-center gap-2 rounded-full border-2 border-ink bg-card py-1 pl-1 pr-3.5 text-sm font-medium text-muted shadow-hard-sm">
-                <span className="grid size-6 place-items-center rounded-full border-2 border-ink bg-acid text-ink">
-                  <Play className="size-2.5 fill-current" />
-                </span>
-                {t('Ātrā spēle:', 'Quick play:')} <span className="truncate font-bold text-ink">{quick.title}</span>
-              </p>
-            )}
+            <p className="mt-6 inline-flex max-w-full items-center gap-2 rounded-full border-2 border-ink bg-card py-1 pl-1 pr-3.5 text-sm font-medium text-muted shadow-hard-sm">
+              <span className="grid size-6 place-items-center rounded-full border-2 border-ink bg-acid text-ink">
+                <Play className="size-2.5 fill-current" />
+              </span>
+              {t('Kopa tiek izvēlēta nejauši', 'A random deck is selected each match')}
+            </p>
           </div>
         </div>
 
@@ -361,7 +355,7 @@ export default function HomePage() {
           t('Uzvari', 'Win'),
           t('Kāp augstāk', 'Climb'),
           'Combo ×5',
-          '+15 RP',
+          '+20 RP',
           t('Bronza → Dimants', 'Bronze → Diamond'),
           t('Nedēļas tabula', 'Weekly board'),
           t('Zibens atbildes', 'Lightning answers'),
