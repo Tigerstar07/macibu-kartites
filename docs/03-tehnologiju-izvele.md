@@ -10,7 +10,7 @@
 | Maršruti | React Router 7 | Pārejas starp lietotnes ekrāniem |
 | Vietējie dati | Zustand 5 un localStorage | Katra konta spēles dati konkrētajā pārlūkā |
 | Serveris | Python 3.12 un FastAPI | Kontu API un ievades pārbaude |
-| Datu modelis | SQLAlchemy 2 un SQLite | Konti un turpmākās integrācijas tabulas |
+| Datu modelis | SQLAlchemy 2, SQLite lokāli un PostgreSQL Render vidē | Konti un turpmākās integrācijas tabulas |
 | Paroles un sesijas | pwdlib ar Argon2 un PyJWT | Paroļu jaukšana un HS256 marķieri |
 | Testi | pytest, Vitest un Playwright | API, klienta loģika un pārlūka plūsmas |
 
@@ -24,7 +24,7 @@ Klients un serveris izmanto dažādas programmēšanas valodas un sazinās ar HT
 
 localStorage ir piemērots demonstrācijas prototipam, taču nesinhronizē datus starp ierīcēm un neaizsargā tos pret lietotāja manuālu labošanu. JWT pārlūka glabātuvē ir pieejams šīs izcelsmes JavaScript kodam. Publiskai sistēmai jāizvērtē HttpOnly sīkdatnes, CSRF aizsardzība, HTTPS un sesiju atsaukšana.
 
-PostgreSQL draiveris un savienojuma konfigurācija ir paredzēta, bet PostgreSQL serveris šajā pārbaudē nav izmantots. Datubāzes nomaiņa prasa migrācijas un integrācijas testus. Sākotnējā iecere par PostgreSQL demonstrācijā nav apliecinājums, ka tas jau darbojas.
+Render demonstrācijā izmantots PostgreSQL 18 un psycopg 3 draiveris. Reģistrācija, pieslēgšanās un sesijas atjaunošana pārbaudīta publiskajā lietotnē. Automātiskie API testi joprojām izmanto izolētu SQLite datubāzi. Render datubāze izveidota no jauna; iepriekšējie vietējie konti nav pārnesti.
 
 ## 3.4 Alternatīvas
 

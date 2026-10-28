@@ -39,3 +39,7 @@ Nākamais izstrādes uzdevums ir servera savienojums ar kopām un progresu. To n
 Pēc visu zaru salīdzināšanas pievienoti arī Riharda trīs vēl neapvienotie komiti. Valerija PR #4 jau bija apvienots 2026. gada 19. oktobrī; tas saglabāts kopējā vēsturē. Visu attālināto zaru galotnes ir apvienotā rezultāta priekšteči. Rezultāts publicēts main zarā, lai komanda var turpināt darbu no vienas versijas.
 
 Ranked pārskatē novērsta nulles bilances sodu apiešana un nedēļas punktu nepareiza atgūšana. Atkārtota spēle pēc paaugstinājuma izvēlas jaunajam rangam atbilstošu kopu. Aktīvās spēles sākuma rangu neizmaina sodu dēļ. Pamešanas soda apraksts saskaņots ar faktisko 20 RP sodu par sākotnējās kopas jautājumu, bet fiksētajā punktu režīmā atspējota nelietojamu pastiprinātāju iegāde.
+
+## 10.7 Publiskā demonstrācija
+
+No main zara izvietots React klients un FastAPI serveris Render bezmaksas plānos. Kontiem izmantots atsevišķs bezmaksas PostgreSQL 18 resurss. Konfigurēts klienta API savienojums, CORS un React maršrutu pārrakstīšana. Pārlūkā pārbaudīta reģistrācija, pieslēgšanās, kļūdu apstrāde un sesijas atjaunošana. Precīzie iestatījumi, adreses un termiņi ir izvietošanas ceļvedī.

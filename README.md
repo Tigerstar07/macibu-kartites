@@ -2,7 +2,11 @@
 
 RRV komandas mācību projekts ar kartīšu kopām, zināšanu pārbaudes spēli un rangu sistēmu. Komandā strādā Roberts, Rihards un Valerijs. Lietotne veidota kursam “Lietotnes programmēšana”.
 
-Šajā versijā darbojas konta izveide, pieslēgšanās un sesijas pārbaude FastAPI serverī. Kartīšu spēle, personīgās kopas un progress darbojas React klientā. Konti glabājas SQLite datubāzē, bet spēles dati pagaidām glabājas katram kontam atsevišķi konkrētajā pārlūkā. Nedēļas tabulā ir simulēti pretinieki.
+Šajā versijā darbojas konta izveide, pieslēgšanās un sesijas pārbaude FastAPI serverī. Kartīšu spēle, personīgās kopas un progress darbojas React klientā. Lokāli konti glabājas SQLite, bet Render demonstrācijā PostgreSQL datubāzē. Spēles dati pagaidām glabājas katram kontam atsevišķi konkrētajā pārlūkā. Nedēļas tabulā ir simulēti pretinieki.
+
+## Publiskā demonstrācija
+
+[Atvērt mācību kartītes](https://rrv-kartites.onrender.com). Klients, API un datubāze izvietoti Render bezmaksas plānos. Pirms demonstrācijas atver [API pārbaudi](https://rrv-kartites-api.onrender.com/health), jo pēc neaktivitātes servera palaišana var aizņemt aptuveni minūti. Datubāzes bezmaksas termiņš ir 2026. gada 27. novembris. Izvietošanas iestatījumi un turpmākā atjaunošana aprakstīti [Render ceļvedī](docs/12-izvietosana-render.md).
 
 ## Ātra palaišana Windows vidē
 
@@ -70,4 +74,4 @@ Sāc ar [dokumentācijas rādītāju](docs/README.md). [Lietotāja ceļvedī](do
 
 ## Pašreizējās robežas
 
-Kopu un spēles progresa REST API, īsta vairāku spēlētāju tabula, administratora panelis, e-pasta apstiprināšana un paroles atjaunošana vēl nav ieviesti. PostgreSQL savienojuma konfigurācija ir paredzēta, taču šajā pārbaudē lietots SQLite. Publiskai izvietošanai vēl jāizveido migrācijas, pieprasījumu biežuma ierobežošana un jāpārskata sesiju glabāšana. Sīkāk skatīt [prasības](docs/04-prasibu-melnraksts.md).
+Kopu un spēles progresa REST API, īsta vairāku spēlētāju tabula, administratora panelis, e-pasta apstiprināšana un paroles atjaunošana vēl nav ieviesti. Kontu darbība pārbaudīta arī Render PostgreSQL vidē. Plašākai lietošanai vēl jāizveido migrācijas, pieprasījumu biežuma ierobežošana un jāpārskata sesiju glabāšana. Sīkāk skatīt [prasības](docs/04-prasibu-melnraksts.md).

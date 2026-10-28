@@ -21,3 +21,7 @@ Avoti apskatīti 2026. gada 28. oktobrī. Tie izmantoti dokumentācijas struktū
 ## A5 Projekta pirmkods un pārbaudes
 
 [Tigerstar07/macibu-kartites repozitorijs](https://github.com/Tigerstar07/macibu-kartites) un [pārskatītais komits 10886bd](https://github.com/Tigerstar07/macibu-kartites/commit/10886bd) ir projekta darbības un izmaiņu atskaites punkti. Testēšanas rezultāti iegūti lokāli šajā pārskatē. Avotiem nepiedēvēti testi vai funkcijas, kuras tie neapliecina.
+
+## A6 Demonstrācijas izvietošana
+
+[Render bezmaksas resursu dokumentācija](https://render.com/docs/free) izmantota, izvēloties atsevišķu PostgreSQL glabātuvi un aprakstot servera aizmigšanu, datubāzes 30 dienu termiņu un lietošanas kvotas. Faktiskās adreses un Live statusi pārbaudīti Render panelī; kontu darbība pārbaudīta publiskajā lietotnē Chrome pārlūkā.

@@ -15,5 +15,6 @@ Dokumentācija atjaunota 2026. gada 28. oktobrī pēc reģistrācijas, pieslēg�
 | [09 Testēšana](09-testesana.md) | Testu izpilde, rezultāti un manuālās pārbaudes |
 | [10 Izmaiņu pārskats](10-izmainu-parskats.md) | Pārskatītais darbs un novērstās kļūdas |
 | [11 Avoti](11-avoti.md) | Dokumentēšanas un tehniskie pirmavoti |
+| [12 Izvietošana Render](12-izvietosana-render.md) | Publiskās demonstrācijas iestatījumi un atjaunošana |
 
 Uzstādīšana ir [galvenajā README](../README.md) un [servera ceļvedī](../backend/README.md). Sadalījums palīdz lietotājam atrast darbības soļus, bet izstrādātājam atrast tehnisko informāciju un izvēļu skaidrojumu. Tas pielāgots Diátaxis pieejai. Prasību, projektēšanas un testēšanas daļas balstītas Latvijas programmēšanas mācību materiālos. Avotu sarakstā paskaidrots to izmantojums.

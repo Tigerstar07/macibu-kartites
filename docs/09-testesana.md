@@ -43,8 +43,12 @@ Klienta sākotnējās sesijas pārbaudēs 3 testi neizdevās un 2 izdevās. Pēc
 
 ## 9.4 Kas nav pārbaudīts
 
-Nav veikts PostgreSQL integrācijas tests, pilns visu spēles režīmu audits, reālas daudzlietotāju sacensības, publiskas izvietošanas slodzes tests, Safari un Firefox pārbaude vai pilns pieejamības audits. Lielā JavaScript daļa var palēnināt pirmo ielādi vājā tīklā; turpmāk jāvērtē ekrānu ielāde pēc vajadzības. Atkarību audita rezultāts attiecas uz pārbaudes datumu.
+Nav veikts automatizēts PostgreSQL integrācijas tests, pilns visu spēles režīmu audits, reālas daudzlietotāju sacensības, publiskas izvietošanas slodzes tests, Safari un Firefox pārbaude vai pilns pieejamības audits. Lielā JavaScript daļa var palēnināt pirmo ielādi vājā tīklā; turpmāk jāvērtē ekrānu ielāde pēc vajadzības. Atkarību audita rezultāts attiecas uz pārbaudes datumu.
 
 ## 9.5 Visu zaru apvienošana
 
 Pārbaudīti visi attālinātie zari. Pēdējās neapvienotās izmaiņas bija Riharda Ranked spēles pārstrāde. Apvienojot saglabāts Valerija sadalītais spēles HUD un jaunie rangu kopu noteikumi. Pieci papildu regresijas testi pārbauda kļūdu pilno uzskaiti, nulles bilanci, kopējās un nedēļas bilances atšķirības, atkārtojuma atgūtos punktus un negatīvas bilances nepieļaušanu. Pirms labojuma visi pieci neizdevās, pēc labojuma tie izpildās sekmīgi.
+
+## 9.6 Render demonstrācijas pārbaude
+
+Publiskais klients būvēts no `main` komita `867b260`. API darbojas Python 3.12 vidē un izmanto Render PostgreSQL 18. Chrome pārlūkā pārbaudīta paroļu nesakritības kļūda, konta reģistrācija, sesijas atjaunošana pēc `/profile` lapas pārlādes, izrakstīšanās, nepareizas paroles noraidīšana un atkārtota pieslēgšanās ar pareizo paroli. Reģistrācija izveidoja kontu attālinātajā datubāzē. Pēc atsvaidzināšanas profils atvērās ar to pašu kontu. Produkcijas iestatījumos testēšanas rīki nav redzami. Render izvietošanas statuss ir Live.

@@ -10,11 +10,11 @@ flowchart LR
     R -->|Kontu HTTP un JSON| A[FastAPI API]
     A --> V[Pydantic validācija]
     A --> S[SQLAlchemy]
-    S --> D[(SQLite konti un tabulas)]
+    S --> D[(SQLite vai PostgreSQL konti)]
     R --> L[(localStorage spēles dati)]
 ```
 
-Diagrammā ir divas atsevišķas glabātuves. Spēles dati šajā versijā no localStorage uz SQLite netiek sūtīti.
+Diagrammā ir divas atsevišķas glabātuves. Spēles dati šajā versijā no localStorage uz servera datubāzi netiek sūtīti. Lokāli izmanto SQLite, bet Render demonstrācijā PostgreSQL 18. PostgreSQL kontu dati saglabājas atsevišķi no API īslaicīgās failu sistēmas.
 
 ## 6.2 Servera moduļi
 
