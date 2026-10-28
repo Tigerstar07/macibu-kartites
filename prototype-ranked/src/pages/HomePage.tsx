@@ -26,7 +26,6 @@ import { RewardChip } from '../components/ui/Reward';
 import { SplitTitle } from '../components/ui/SplitTitle';
 import { CountdownText } from '../components/ui/CountdownText';
 import { BUILTIN_DECKS } from '../data/decks';
-import { pick } from '../lib/random';
 
 const FLOAT_ROT = [-8, 7, -4];
 
@@ -302,10 +301,7 @@ export default function HomePage() {
                 shine
                 disabled={rankedDecks.length === 0}
                 icon={<Play className="size-5 fill-current" />}
-                onClick={() => {
-                  const deck = pick(rankedDecks);
-                  if (deck) navigate(`/play/${deck.id}?mode=ranked`);
-                }}
+                onClick={() => navigate('/play?mode=ranked')}
               >
                 {t('Spēlēt Ranked', 'Play Ranked')}
               </Button>

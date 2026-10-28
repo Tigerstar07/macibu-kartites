@@ -16,7 +16,7 @@ Rangu nosaka kopējie RP. Nedēļas RP izmanto atsevišķajai nedēļas tabulai.
 
 ## 5.2 Ranked spēle un kopu pieejamība
 
-Riharda jaunajā versijā Ranked režīmam izvēlas vienu vai vairākas savam rangam pieejamās iebūvētās kopas. No izvēlētajām kopām spēlei nejauši atlasa vienu. `rankRange` nosaka pieejamo rangu indeksu intervālu. Treniņš un personīgās kopas nedod RP. Aktīvās spēles sākuma rangs nemainās kļūdu laikā; jaunai spēlei to pārbauda vēlreiz.
+Nospiežot “Spēlēt Ranked”, sākas animēta kopas izloze. Josla apstājas pie vienas nejauši izvēlētas, spēlējamas un pašreizējam rangam pieejamas iebūvētās kopas. Pēc īsas rezultāta parādīšanas automātiski sākas spēle par RP. `rankRange` nosaka pieejamo rangu indeksu intervālu. Samazinātas kustības režīmā josla negriežas. Treniņš un personīgās kopas nedod RP. Aktīvās spēles sākuma rangs nemainās kļūdu laikā; jaunai spēlei to pārbauda vēlreiz.
 
 ## 5.3 Punkti un sodi
 

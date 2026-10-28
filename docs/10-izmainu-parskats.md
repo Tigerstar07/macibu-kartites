@@ -43,3 +43,7 @@ Ranked pārskatē novērsta nulles bilances sodu apiešana un nedēļas punktu n
 ## 10.7 Publiskā demonstrācija
 
 No main zara izvietots React klients un FastAPI serveris Render bezmaksas plānos. Kontiem izmantots atsevišķs bezmaksas PostgreSQL 18 resurss. Konfigurēts klienta API savienojums, CORS un React maršrutu pārrakstīšana. Pārlūkā pārbaudīta reģistrācija, pieslēgšanās, kļūdu apstrāde un sesijas atjaunošana. Precīzie iestatījumi, adreses un termiņi ir izvietošanas ceļvedī.
+
+## 10.8 Ranked izloze
+
+Manuālā Ranked kopu izvēle aizstāta ar animētu izlozes joslu. Izvēlas tikai spēlējamu, atbloķētu iebūvēto kopu un pēc apstāšanās automātiski sāk Ranked spēli. Sākumlapas, rangu un līderu lapas Ranked pogas izmanto vienu ieejas ceļu. Izlozes ekrānam piešķirts atbilstošs slānis virs fona; agrāk fons aizsedza saturu, līdz peles pārbraukšana izveidoja kartītei atsevišķu slāni. Atgriešanās no izlozes atceļ automātisko sākšanu. Pievienotas septiņas izvēles, automātiskās sākšanas, atcelšanas un tukša saraksta pārbaudes.

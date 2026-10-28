@@ -21,7 +21,9 @@ Ja API nevar sasniegt, parādās savienojuma kļūda. Palaid serveri vai pārbau
 
 ## 8.4 Mācību sesija
 
-Atver “Kopas”, izvēlies tēmu un sāc spēli. Atbildi, izvēloties vienu no parādītajiem variantiem. Spēle parāda pareizo atbildi un aprēķina kartītes atkārtošanas progresu. Pēc sesijas var apskatīt rezultātu. RP un balvas attiecas uz iebūvētajām kopām. Personīgās kopas ir treniņam bez RP.
+Spēlei par punktiem sākumlapā spied “Spēlēt Ranked”. Kustīgā josla izlozē vienu tavam rangam pieejamu kopu, parāda rezultātu un automātiski sāk spēli. Atbildi, izvēloties vienu no parādītajiem variantiem. Spēle parāda pareizo atbildi un aprēķina kartītes atkārtošanas progresu. Pēc sesijas var apskatīt rezultātu. Atkārtota Ranked spēle sāk jaunu izlozi atbilstoši pašreizējam rangam.
+
+Ja gribi trenēt konkrētu tēmu, atver “Kopas”, izvēlies kopu un spied “Spēlēt”. Šis treniņš nedod RP. Personīgās kopas arī paredzētas treniņam.
 
 ## 8.5 Savas kopas
 

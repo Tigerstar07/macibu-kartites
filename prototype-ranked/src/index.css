@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+@keyframes ranked-reel-spin {
+  from { transform: translateX(-98px); }
+  to { transform: translateX(var(--draw-end)); }
+}
+.ranked-reel {
+  animation: ranked-reel-spin 3200ms cubic-bezier(0.12, 0.8, 0.16, 1) forwards;
+}
+
 .auth-input {
   @apply mt-2 h-12 w-full rounded-xl border-2 border-white/10 bg-white/5 px-4 font-medium text-white outline-none transition placeholder:text-white/35 focus:border-acid;
 }

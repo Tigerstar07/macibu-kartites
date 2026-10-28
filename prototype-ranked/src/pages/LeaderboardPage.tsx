@@ -111,7 +111,7 @@ export default function LeaderboardPage() {
                   ? t(`Līdz ${idx}. vietai trūkst ${fmt(gap)} RP — viena laba sesija!`, `${fmt(gap)} RP to reach #${idx} — one good session!`)
                   : t('Tu esi 1. vietā! Noturi to līdz svētdienai.', "You're #1! Hold it until Sunday.")}
               </p>
-              <Button className="relative mt-4 w-full" variant="primary" shine icon={<Play className="size-4 fill-current" />} onClick={() => navigate('/decks')}>
+              <Button className="relative mt-4 w-full" variant="primary" shine icon={<Play className="size-4 fill-current" />} onClick={() => navigate('/play?mode=ranked')}>
                 {t('Spēlēt un kāpt', 'Play & climb')}
               </Button>
             </div>

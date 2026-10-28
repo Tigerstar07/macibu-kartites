@@ -1,4 +1,5 @@
 import type { Deck, Lang, RankedRange, RewardItem } from '../types';
+import { isPlayable } from './questions';
 
 export type LeagueId = 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
 
@@ -68,7 +69,7 @@ export function rankRPFactor(packRankIndex: number, playerRankIndex: number): nu
 }
 
 export function chooseRankedDeck(decks: Deck[], playerRankIndex: number, random = Math.random): Deck | undefined {
-  const eligible = decks.filter((deck) => rankIsInRange(playerRankIndex, deck.rankRange));
+  const eligible = decks.filter((deck) => deck.builtin && isPlayable(deck) && rankIsInRange(playerRankIndex, deck.rankRange));
   return eligible.length ? eligible[Math.floor(random() * eligible.length)] : undefined;
 }
 

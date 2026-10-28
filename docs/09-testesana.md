@@ -7,7 +7,7 @@ Pārbaudes datums ir 2026. gada 28. oktobris. Testi izpildīti Windows vidē ar 
 | Grupa | Komanda | Rezultāts |
 |---|---|---|
 | Servera API un iestatīšana | `python -m pytest -q` virtuālajā vidē | 24 testi izpildīti sekmīgi |
-| Klienta sesija un konti | `npm test` | 14 testi izpildīti sekmīgi |
+| Klienta sesija, konti, punkti un izloze | `npm test` | 21 tests izpildīts sekmīgi |
 | TypeScript tipi | `npm run typecheck` | Bez kļūdām |
 | Produkcijas būvējums | `npm run build` | Izveidots; ir brīdinājums par lielu JavaScript daļu |
 | JavaScript atkarības | `npm audit` | Nav atrastu zināmu ievainojamību |

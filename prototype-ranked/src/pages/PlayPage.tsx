@@ -7,7 +7,7 @@ import type { AnswerLog, Deck, Question } from '../types';
 import { useAllDecks, useDeck, useGame, type SessionOutcome } from '../store/useGame';
 import { buildQuestion, buildSession, isPlayable } from '../lib/questions';
 import { ABANDON_RP_PENALTY, TIME_LIMIT, WRONG_ANSWER_RP_PENALTY, answerRP } from '../lib/rp';
-import { chooseRankedDeck, rankIndexFromRP, rankIsInRange, rankRangeName } from '../lib/rank';
+import { rankIndexFromRP, rankIsInRange, rankRangeName } from '../lib/rank';
 import { cosmetic } from '../lib/cosmetics';
 import { burst, centerOf, flash, floatText, pop, ring, shake, sleep } from '../lib/fx';
 import { sfx } from '../lib/sound';
@@ -17,7 +17,7 @@ import { AnswerButton, ComboBanner, Countdown, GameHUD, type Banner, type Option
 import { SessionResults } from '../components/game/SessionResults';
 import { ConfirmDialog } from '../components/ui/Modal';
 import { Button } from '../components/ui/Button';
-import { RankedDeckPicker } from '../components/game/RankedDeckPicker';
+import { RankedDraw } from '../components/game/RankedDraw';
 
 /** Options finish animating in before the clock starts. */
 const ENTER_MS = 420;
@@ -50,27 +50,16 @@ export default function PlayPage() {
   const [playerRankIndex, setPlayerRankIndex] = useState(() => rankIndexFromRP(useGame.getState().stats.totalRP));
   const lang = useLang();
   const matchState = location.state as { rankedMatch?: boolean; selectedDeckIds?: string[] } | null;
-  const hasMatchSelection =
-    !!deckId &&
-    matchState?.rankedMatch === true &&
-    Array.isArray(matchState.selectedDeckIds) &&
-    matchState.selectedDeckIds.length >= 5 &&
-    matchState.selectedDeckIds.includes(deckId);
-
-  if (rankedRequested && !hasMatchSelection) {
+  if (rankedRequested) {
     return (
-      <RankedDeckPicker
+      <RankedDraw
         decks={decks}
         playerRankIndex={playerRankIndex}
-        initialDeckId={deckId}
         onCancel={() => navigate('/')}
-        onStart={(selectedIds) => {
-          const candidates = decks.filter((candidate) => selectedIds.includes(candidate.id));
-          const selectedDeck = chooseRankedDeck(candidates, playerRankIndex);
-          if (!selectedDeck) return;
+        onStart={(selectedDeck) => {
           navigate(`/play/${selectedDeck.id}`, {
             replace: true,
-            state: { rankedMatch: true, selectedDeckIds: selectedIds },
+            state: { rankedMatch: true },
           });
         }}
       />

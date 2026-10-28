@@ -99,7 +99,7 @@ export default function RankPage() {
                 </span>
               </div>
             </div>
-            <Button variant="primary" size="lg" shine className="mt-6" icon={<Play className="size-5 fill-current" />} onClick={() => navigate('/decks')}>
+            <Button variant="primary" size="lg" shine className="mt-6" icon={<Play className="size-5 fill-current" />} onClick={() => navigate('/play?mode=ranked')}>
               {t('Pelnīt RP', 'Earn RP')}
             </Button>
           </div>
