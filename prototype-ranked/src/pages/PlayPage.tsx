@@ -47,7 +47,7 @@ export default function PlayPage() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const rankedRequested = searchParams.get('mode') === 'ranked';
-  const [playerRankIndex] = useState(() => rankIndexFromRP(useGame.getState().stats.totalRP));
+  const [playerRankIndex, setPlayerRankIndex] = useState(() => rankIndexFromRP(useGame.getState().stats.totalRP));
   const lang = useLang();
   const matchState = location.state as { rankedMatch?: boolean; selectedDeckIds?: string[] } | null;
   const hasMatchSelection =
@@ -114,7 +114,12 @@ export default function PlayPage() {
       </div>
     );
   }
-  return <Game key={run} deck={deck} ranked={ranked} onReplay={() => setRun((r) => r + 1)} />;
+  return <Game key={run} deck={deck} ranked={ranked} onReplay={() => {
+    if (ranked) {
+      setPlayerRankIndex(rankIndexFromRP(useGame.getState().stats.totalRP));
+      navigate('/play?mode=ranked', { replace: true, state: null });
+    } else setRun((r) => r + 1);
+  }} />;
 }
 
 type Phase = 'intro' | 'question' | 'feedback' | 'results' | 'failed';
@@ -285,13 +290,9 @@ function Game({ deck, ranked, onReplay }: { deck: Deck; ranked: boolean; onRepla
     const relearn = !!q.relearn;
     const priorWrong = relearn ? answers.current.find((a) => a.cardKey === q.cardKey && !a.relearn && !a.correct) : undefined;
     const appliedPenalty = !correct && eligibleForRP ? deductRankedRP(deck.id, WRONG_ANSWER_RP_PENALTY) : null;
-    const rp = correct
-      ? eligibleForRP
-        ? answerRP({ correct, relearn, priorPenalty: priorWrong ? -priorWrong.rp : 0 })
-        : 0
-      : -(appliedPenalty?.total ?? 0);
+    const rp = eligibleForRP ? answerRP({ correct, relearn, priorPenalty: priorWrong ? -priorWrong.rp : 0 }) : 0;
     if (rp < 0) {
-      penaltyApplied.current.total += -rp;
+      penaltyApplied.current.total += appliedPenalty?.total ?? 0;
       penaltyApplied.current.weekly += appliedPenalty?.weekly ?? 0;
       setHudRP((v) => v + rp);
     }

@@ -429,12 +429,11 @@ export const useGame = create<GameState>()(
           firstToday: eligibleForRP && firstToday,
         });
         const breakdown = baseBreakdown;
-        const payout = breakdown.total + penaltyRP;
-
         const rpBefore = prev.totalRP + input.penaltyApplied.total;
-        const rpAfter = Math.max(0, prev.totalRP + payout);
+        const rpAfter = Math.max(0, rpBefore + breakdown.total);
+        const payout = rpAfter - prev.totalRP;
         const weeklyBefore = prev.weeklyRP + input.penaltyApplied.weekly;
-        const weeklyAfter = Math.max(0, prev.weeklyRP + payout);
+        const weeklyAfter = Math.max(0, weeklyBefore + breakdown.total);
         const placeBefore = placeFor(weeklyBefore, 'weekly', now);
         const placeAfter = placeFor(weeklyAfter, 'weekly', now);
         const rankBefore = rankIndexFromRP(rpBefore);

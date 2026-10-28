@@ -400,7 +400,7 @@ function ShopTab() {
   };
 
   const PriceButton = ({ p }: { p: Purchase }) => (
-    <Button size="sm" variant="gold" disabled={coins < p.price} onClick={() => setPending(p)} icon={<CoinIcon size={16} />}>
+    <Button size="sm" variant="gold" disabled={coins < p.price || p.kind === 'boost'} onClick={() => setPending(p)} icon={<CoinIcon size={16} />}>
       {fmt(p.price)}
     </Button>
   );
@@ -418,7 +418,7 @@ function ShopTab() {
           <BoostIcon size={48} />
           <div className="min-w-0 flex-1">
             <div className="font-bold">{t('RP pastiprinājums', 'RP boost')}</div>
-            <div className="text-xs text-muted">{t(`Nākamā sesija ×1,5 RP · tev ir ${boosts}`, `Next session ×1.5 RP · you have ${boosts}`)}</div>
+            <div className="text-xs text-muted">{t(`Fiksēto RP režīmā nav pieejams. Krājumā: ${boosts}`, `Unavailable in fixed RP mode. Owned: ${boosts}`)}</div>
           </div>
           <PriceButton p={{ kind: 'boost', price: BOOST_PRICE, name: t('RP pastiprinājums', 'RP boost') }} />
         </div>

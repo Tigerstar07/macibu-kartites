@@ -13,7 +13,7 @@ export interface AnswerRPInput {
 }
 
 export function answerRP({ correct, relearn, priorPenalty = WRONG_ANSWER_RP_PENALTY }: AnswerRPInput): number {
-  if (!correct) return 0;
+  if (!correct) return -WRONG_ANSWER_RP_PENALTY;
   return relearn ? Math.max(0, Math.min(10, priorPenalty - 10)) : 20;
 }
 

@@ -54,7 +54,7 @@ export default function RankPage() {
   const rules = [
     { icon: <Target className="size-5" />, c: '#34d399', title: t('Atbildes', 'Answers'), text: t('Pareiza +20 RP · nepareiza −20 RP. Ātrums un kombo punktus nemaina.', 'Correct +20 RP · incorrect −20 RP. Speed and combo do not change points.') },
     { icon: <Repeat className="size-5" />, c: '#f472b6', title: t('Atkārtojumi', 'Retries'), text: t('Kļūdains jautājums atkārtojas vienu reizi. Pareizi atbildot: +10 RP (kopā −10 RP); kļūdaini: −20 RP.', 'A missed question repeats once. Correct retry: +10 RP (−10 RP net); wrong retry: −20 RP.') },
-    { icon: <CircleX className="size-5" />, c: '#fb7185', title: t('Pamesta spēle', 'Abandoned game'), text: t('Pametot Ranked spēli, tiek noņemti līdz 20 RP papildus atbilžu sodiem.', 'Leaving a Ranked game removes up to 20 RP in addition to answer penalties.') },
+    { icon: <CircleX className="size-5" />, c: '#fb7185', title: t('Pamesta spēle', 'Abandoned game'), text: t('Pametot Ranked spēli, sods ir līdz 20 RP par katru sākotnējās kopas jautājumu papildus atbilžu sodiem.', 'Leaving a Ranked game costs up to 20 RP per question in the original pack, in addition to answer penalties.') },
   ];
   const renderRule = (r: (typeof rules)[number]) => (
     <div key={r.title} className="rounded-2xl glass-soft p-4">

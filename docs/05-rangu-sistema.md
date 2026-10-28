@@ -14,17 +14,19 @@ Rangu nosaka kopējie RP. Nedēļas RP izmanto atsevišķajai nedēļas tabulai.
 | Platīns | 3000 | 3600 | 4300 |
 | Dimants | 5000 | 6000 | 7200 |
 
-## 5.2 Punkti par atbildi
+## 5.2 Ranked spēle un kopu pieejamība
 
-Pareiza atbilde ar izvēles variantiem dod 10 pamata RP, bet patiesības vai aplamības jautājums dod 6 RP. Nepareiza atbilde dod 0. Atbildes ātruma piemaksa ir 5 RP līdz 3 sekundēm, 3 RP no 3 līdz nepilnām 6 sekundēm un 1 RP no 6 līdz nepilnām 10 sekundēm. Vēlāk piemaksas nav.
+Riharda jaunajā versijā Ranked režīmam izvēlas vienu vai vairākas savam rangam pieejamās iebūvētās kopas. No izvēlētajām kopām spēlei nejauši atlasa vienu. `rankRange` nosaka pieejamo rangu indeksu intervālu. Treniņš un personīgās kopas nedod RP. Aktīvās spēles sākuma rangs nemainās kļūdu laikā; jaunai spēlei to pārbauda vēlreiz.
 
-Pareizo atbilžu sērijas reizinātājs sākas ar 1. Pie 3, 5, 8 un 12 pareizām atbildēm tas kļūst attiecīgi 1,2; 1,5; 2 un 2,5. Atkārtotai apguvei lieto 0,5 reizinātāju, bet RP pastiprinājumam 1,5. Atbildes punktus noapaļo līdz veselam skaitlim.
+## 5.3 Punkti un sodi
 
-## 5.3 Sesijas rezultāts
+Pareiza pirmā atbilde dod 20 RP. Nepareiza atbilde vai laika beigas dod 20 RP sodu. Kļūdainā kartīte atkārtojas vienu reizi. Pareizs atkārtojums atgūst 10 RP, bet nepareizs atkārtojums dod vēl 20 RP sodu. Atbildes ātrums un kombo nemaina punktu skaitu. Sesijas pabeigšanai, precizitātei un dienu sērijai vairs nav atsevišķas RP piemaksas.
 
-Pie vismaz trīs atbildēm pabeigta sesija dod 20 papildu RP. Precizitātes piemaksa atbilžu punktiem ir 15 procenti no 75 procentu precizitātes, 30 procenti no 90 procentiem un 50 procenti par pilnīgi pareizu sesiju. Pirmajai dienas sesijai paredzēti 25 RP. Dienu sērijas piemaksa ir 5 procenti par dienu, nepārsniedzot 50 procentus.
+Kļūdu sodi tiek fiksēti uzreiz, bet sesijas beigās norēķina pilnu atbilžu rezultātu. Jau piemērotu sodu neatņem otrreiz. Kopējā un nedēļas bilance nekļūst negatīva. Piemēram, jaunam kontam piecas pareizas un piecas nepareizas pirmās atbildes bez atkārtojuma dod 0 RP. Ja visas piecas kļūdas atkārtojumā izlabo, rezultāts ir 50 RP.
 
-Spēles plūsma var ierobežot šo aprēķinu izmantošanu. Iebūvētās kopas dod RP, bet paša veidotās kopas paredzētas treniņam bez RP. Priekšlaicīgi pārtraukta spēle nedod sesijas balvu. Atbildes atkārtošanas plānam var būt fiksētas pirms iziešanas. Tas jāņem vērā, skaidrojot atšķirību starp RP un kartītes progresu.
+Pametot Ranked spēli, zaudē līdz 20 RP par katru sākotnējās sesijas jautājumu papildus jau piemērotajiem kļūdu sodiem. Desmit jautājumu spēlei tas ir līdz 200 RP; atņem tikai pieejamos punktus. Nepabeigtas spēles pareizo atbilžu balvas un kartīšu progress netiek saglabāti. Pēc paaugstinājuma atkārtota spēle atver kopu izvēli atbilstoši jaunajam rangam.
+
+Fiksēto RP režīmā pastiprinātāji netiek izmantoti. To iegāde veikalā ir atspējota, bet agrāk saņemtie priekšmeti paliek krājumā.
 
 ## 5.4 Atkārtošana
 

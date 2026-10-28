@@ -7,7 +7,7 @@ Pārbaudes datums ir 2026. gada 28. oktobris. Testi izpildīti Windows vidē ar 
 | Grupa | Komanda | Rezultāts |
 |---|---|---|
 | Servera API un iestatīšana | `python -m pytest -q` virtuālajā vidē | 24 testi izpildīti sekmīgi |
-| Klienta sesija un konti | `npm test` | 9 testi izpildīti sekmīgi |
+| Klienta sesija un konti | `npm test` | 14 testi izpildīti sekmīgi |
 | TypeScript tipi | `npm run typecheck` | Bez kļūdām |
 | Produkcijas būvējums | `npm run build` | Izveidots; ir brīdinājums par lielu JavaScript daļu |
 | JavaScript atkarības | `npm audit` | Nav atrastu zināmu ievainojamību |
@@ -44,3 +44,7 @@ Klienta sākotnējās sesijas pārbaudēs 3 testi neizdevās un 2 izdevās. Pēc
 ## 9.4 Kas nav pārbaudīts
 
 Nav veikts PostgreSQL integrācijas tests, pilns visu spēles režīmu audits, reālas daudzlietotāju sacensības, publiskas izvietošanas slodzes tests, Safari un Firefox pārbaude vai pilns pieejamības audits. Lielā JavaScript daļa var palēnināt pirmo ielādi vājā tīklā; turpmāk jāvērtē ekrānu ielāde pēc vajadzības. Atkarību audita rezultāts attiecas uz pārbaudes datumu.
+
+## 9.5 Visu zaru apvienošana
+
+Pārbaudīti visi attālinātie zari. Pēdējās neapvienotās izmaiņas bija Riharda Ranked spēles pārstrāde. Apvienojot saglabāts Valerija sadalītais spēles HUD un jaunie rangu kopu noteikumi. Pieci papildu regresijas testi pārbauda kļūdu pilno uzskaiti, nulles bilanci, kopējās un nedēļas bilances atšķirības, atkārtojuma atgūtos punktus un negatīvas bilances nepieļaušanu. Pirms labojuma visi pieci neizdevās, pēc labojuma tie izpildās sekmīgi.

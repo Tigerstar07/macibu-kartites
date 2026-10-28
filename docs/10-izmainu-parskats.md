@@ -33,3 +33,9 @@ Neatkarīgā koda pārskatē norādīja trīs riskus: citās cilnēs paliekošu 
 Pirms apvienošanas komanda pārbauda savu esošo `backend/.env` un `backend/macibu_kartites.db`, uzstāda atjauninātās atkarības un izpilda testus. Esošu `.env` iestatīšanas skripts nemaina. Ja tajā vēl ir sākotnējā publiskā JWT atslēga, tā jāaizstāj ar nejaušu atslēgu. Parastos kontu datus nav paredzēts dzēst vai pārdēvēt.
 
 Nākamais izstrādes uzdevums ir servera savienojums ar kopām un progresu. To nevar aizstāt ar vēl vienas tukšas tabulas izveidi. Pirms publiskas demonstrācijas jāizlemj arī sesiju atsaukšana, droša izvietošana un datubāzes migrācijas.
+
+## 10.6 Izmaiņu apvienošana main zarā
+
+Pēc visu zaru salīdzināšanas pievienoti arī Riharda trīs vēl neapvienotie komiti. Valerija PR #4 jau bija apvienots 2026. gada 19. oktobrī; tas saglabāts kopējā vēsturē. Visu attālināto zaru galotnes ir apvienotā rezultāta priekšteči. Rezultāts publicēts main zarā, lai komanda var turpināt darbu no vienas versijas.
+
+Ranked pārskatē novērsta nulles bilances sodu apiešana un nedēļas punktu nepareiza atgūšana. Atkārtota spēle pēc paaugstinājuma izvēlas jaunajam rangam atbilstošu kopu. Aktīvās spēles sākuma rangu neizmaina sodu dēļ. Pamešanas soda apraksts saskaņots ar faktisko 20 RP sodu par sākotnējās kopas jautājumu, bet fiksētajā punktu režīmā atspējota nelietojamu pastiprinātāju iegāde.
