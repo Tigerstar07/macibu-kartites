@@ -1,60 +1,37 @@
-# 5. Rangu sistēma: sākotnējā koncepcija
+# 5 Rangu sistēma
 
-> Melnraksts 1. posmam. Precīzas formulas un robežas tiek apstiprinātas 2. posmā.
+Apraksts atbilst `src/lib/rank.ts`, `src/lib/rp.ts`, `src/lib/sm2.ts` un spēles stāvoklim. Aprēķini šajā versijā notiek klientā. Datubāzes `scores` tabula vēl nesaņem spēles rezultātus.
 
-Mērķis: motivēt lietotāju atkārtot kartītes **regulāri** un **godīgi**, nevis
-"zubrīt" pēdējā brīdī.
+## 5.1 Rangu sliekšņi
 
-## 5.1. Rangu punkti (RP)
+Rangu nosaka kopējie RP. Nedēļas RP izmanto atsevišķajai nedēļas tabulai. Katrā līgā ir trīs pakāpes.
 
-RP piešķir **servera pusē** pēc katras mācību sesijas:
+| Līga | III pakāpe | II pakāpe | I pakāpe |
+|---|---|---|---|
+| Bronza | 0 | 150 | 350 |
+| Sudrabs | 600 | 850 | 1150 |
+| Zelts | 1500 | 1950 | 2450 |
+| Platīns | 3000 | 3600 | 4300 |
+| Dimants | 5000 | 6000 | 7200 |
 
-| Darbība | RP |
-|---------|----|
-| Atkārtota unikāla kartīte (sesijā) | +1 |
-| Pareiza atbilde (novērtējums ≥ 3 no 5) | +2 |
-| Izpildīts dienas mērķis (piem., 20 kartītes) | +10 |
-| Dienu sērijas (*streak*) reizinātājs | ×1.0 … ×1.5 |
+## 5.2 Punkti par atbildi
 
-- Sērijas reizinātājs aug par 0.1 par katru secīgu mācību dienu, maksimums ×1.5
-  (7 dienas). Izlaista diena atiestata sēriju uz ×1.0.
-- Skaita **unikālas** kartītes dienā, vienas kartītes atkārtota "grindošana"
-  papildu RP nedod.
+Pareiza atbilde ar izvēles variantiem dod 10 pamata RP, bet patiesības vai aplamības jautājums dod 6 RP. Nepareiza atbilde dod 0. Atbildes ātruma piemaksa ir 5 RP līdz 3 sekundēm, 3 RP no 3 līdz nepilnām 6 sekundēm un 1 RP no 6 līdz nepilnām 10 sekundēm. Vēlāk piemaksas nav.
 
-## 5.2. Līgas
+Pareizo atbilžu sērijas reizinātājs sākas ar 1. Pie 3, 5, 8 un 12 pareizām atbildēm tas kļūst attiecīgi 1,2; 1,5; 2 un 2,5. Atkārtotai apguvei lieto 0,5 reizinātāju, bet RP pastiprinājumam 1,5. Atbildes punktus noapaļo līdz veselam skaitlim.
 
-Pēc **nedēļas RP** (atiestatās pirmdienās 00:00):
+## 5.3 Sesijas rezultāts
 
-| Līga | Nedēļas RP |
-|------|-----------|
-| Bronze | 0, 199 |
-| Silver | 200, 499 |
-| Gold | 500, 999 |
-| Platinum | 1000, 1999 |
-| Diamond | 2000+ |
+Pie vismaz trīs atbildēm pabeigta sesija dod 20 papildu RP. Precizitātes piemaksa atbilžu punktiem ir 15 procenti no 75 procentu precizitātes, 30 procenti no 90 procentiem un 50 procenti par pilnīgi pareizu sesiju. Pirmajai dienas sesijai paredzēti 25 RP. Dienu sērijas piemaksa ir 5 procenti par dienu, nepārsniedzot 50 procentus.
 
-## 5.3. Līderu tabula
+Spēles plūsma var ierobežot šo aprēķinu izmantošanu. Iebūvētās kopas dod RP, bet paša veidotās kopas paredzētas treniņam bez RP. Priekšlaicīgi pārtraukta spēle nedod sesijas balvu. Atbildes atkārtošanas plānam var būt fiksētas pirms iziešanas. Tas jāņem vērā, skaidrojot atšķirību starp RP un kartītes progresu.
 
-- **Nedēļas**: kārto pēc nedēļas RP, atiestatās katru pirmdienu.
-- **Visu laiku**: kārto pēc kopējā RP.
-- Rāda pozīciju, lietotājvārdu, līgu, sēriju.
+## 5.4 Atkārtošana
 
-## 5.4. Antimanipulācijas pasākumi
+SM-2 aprēķinu ievade ir atbildes kvalitātes novērtējums. Projektā to iegūst no atbildes pareizības, ātruma un jautājuma veida. Tiek glabāta nākamā atkārtošanas reize, intervāls un viegluma koeficients. Tā ir projekta pielāgota SM-2 izmantošana, nevis Anki pilna algoritmu kopija.
 
-- Visi RP aprēķini notiek serverī, nevis klientā.
-- Dienas RP griesti (piem., 300 RP dienā).
-- Skaita tikai unikālas kartītes dienā.
-- Novērtējums tiek pieņemts tikai kartītēm, kuru atbilde faktiski parādīta.
+## 5.5 Līderi un balvas
 
-## 5.5. Datu modelis (skat. arī `04-prasibu-melnraksts.md`)
+Nedēļas pretinieki tiek simulēti klientā. Tabula neuzrāda citu reāli reģistrētu kontu rezultātus. Paaugstinājumu balvas, lādes, dienas uzdevumi un kosmētiskie priekšmeti arī glabājas vietējā konta stāvoklī. Izstrādes režīma pārbaudes rīki neparādās produkcijas būvējumā.
 
-```
-Score(user_id, total_rp, week_rp, week_start, streak_days, last_study_date, league)
-```
-
-## 5.6. Atvērtie jautājumi 2. posmam
-
-- Līga pēc nedēļas RP vai pēc kopējā RP?
-- Vai rādīt RP pieauguma animāciju sesijas beigās?
-- Sezonu ilgums (nedēļa / mēnesis) un balvas par augstu vietu.
-- Vai viesim rādīt "ēnu" RP, lai motivētu reģistrēties?
+Punktus var izmainīt pārlūka glabātuvē. Godīgai vairāku lietotāju sacensībai vajadzīgs serverī pārbaudīts spēles protokols un rezultātu saglabāšana. Šajā versijā pret manipulācijām aizsargātu sacensību sistēmu vēl nav.

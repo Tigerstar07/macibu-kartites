@@ -29,6 +29,7 @@ import { fmtDate, fmtPct, fmtSec, fmtShortDate } from '../lib/format';
 import { useLang, useNumFmt, useT } from '../lib/i18n';
 import { burst, centerOf, confettiBurst } from '../lib/fx';
 import { sfx } from '../lib/sound';
+import { logout } from '../lib/auth';
 import { cn } from '../lib/cn';
 import { RankEmblem } from '../components/rank/RankEmblem';
 import { ChestIcon } from '../components/rewards/ChestIcon';
@@ -484,8 +485,6 @@ function SettingsTab() {
   const t = useT();
   const settings = useGame((s) => s.settings);
   const updateSettings = useGame((s) => s.updateSettings);
-  const profile = useGame((s) => s.profile);
-  const setRole = useGame((s) => s.setRole);
   const devAddRP = useGame((s) => s.devAddRP);
   const devAddChest = useGame((s) => s.devAddChest);
   const resetAll = useGame((s) => s.resetAll);
@@ -525,17 +524,13 @@ function SettingsTab() {
             options={['5', '10', '15', '20'].map((v) => ({ value: v, label: v }))}
           />
         </Row>
+        <Row title={t('Konts', 'Account')} desc={t('Progress saglabājas šajā pārlūkā un šajā kontā.', 'Progress is saved in this browser for this account.')}><Button onClick={logout}>{t('Izrakstīties', 'Sign out')}</Button></Row>
       </Panel>
 
-      <Panel title={t('Testēšanas rīki', 'Test tools')} icon={<Wrench className="size-5 text-amber-300" />} className="border-dashed">
+      {import.meta.env.DEV && <Panel title={t('Testēšanas rīki', 'Test tools')} icon={<Wrench className="size-5 text-amber-300" />} className="border-dashed">
         <p className="text-sm text-muted">
           {t('Prototipa rīki, lai ātri apskatītu paaugstinājumus un lādes.', 'Prototype helpers to preview promotions and chests quickly.')}
         </p>
-        <div className="mt-4">
-          <Row title={t('Administratora priekšskatījums', 'Admin preview')} desc={t('Tikai lokālam prototipa testam; nav drošības kontrole.', 'For local prototype testing only; not a security control.')}>
-            <Switch checked={profile?.role === 'admin'} onChange={(enabled) => setRole(enabled ? 'admin' : 'user')} label={t('Administratora priekšskatījums', 'Admin preview')} />
-          </Row>
-        </div>
         <div className="mt-4 grid gap-2.5">
           <Button variant="secondary" icon={<RPIcon size={18} />} onClick={() => devAddRP(500)}>
             +500 RP
@@ -558,7 +553,7 @@ function SettingsTab() {
             {t('Atiestatīt visu progresu', 'Reset all progress')}
           </Button>
         </div>
-      </Panel>
+      </Panel>}
 
       <ConfirmDialog
         open={confirmReset}

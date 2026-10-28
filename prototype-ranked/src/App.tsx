@@ -19,32 +19,53 @@ import LeaderboardPage from './pages/LeaderboardPage';
 import ProfilePage from './pages/ProfilePage';
 import PlayPage from './pages/PlayPage';
 import NotFound from './pages/NotFound';
-import { currentUser, type AuthUser } from './lib/auth';
+import { currentUser, logout, sessionCheckDelay, watchAuthChanges, type AuthUser } from './lib/auth';
+import { selectGameAccount } from './store/account';
+import { Button } from './components/ui/Button';
 
 export default function App() {
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const [authReady, setAuthReady] = useState(false);
-  const setProfile = useGame((s) => s.setProfile);
-  const setRole = useGame((s) => s.setRole);
+  const [authError, setAuthError] = useState('');
+  const [attempt, setAttempt] = useState(0);
   const reducedMotion = useGame((s) => s.settings.reducedMotion);
   const lang = useGame((s) => s.settings.lang);
   const darkMode = useGame((s) => s.settings.darkMode);
   const hasProfile = useGame((s) => !!s.profile);
   const tick = useGame((s) => s.tick);
 
+  useEffect(() => watchAuthChanges(() => window.location.reload()), []);
+
   useEffect(() => {
-    currentUser().then((user) => {
-      setAuthUser(user);
-      setAuthReady(true);
-      if (user) {
-        setProfile({ name: user.display_name, avatar: '🦊', hue: 265 });
-        setRole(user.role === 'admin' ? 'admin' : 'user');
+    if (!authUser) return;
+    const recheck = () => setAttempt((value) => value + 1);
+    const timer = window.setTimeout(recheck, sessionCheckDelay());
+    const onFocus = () => { if (sessionCheckDelay() === 0) recheck(); };
+    window.addEventListener('focus', onFocus);
+    return () => { window.clearTimeout(timer); window.removeEventListener('focus', onFocus); };
+  }, [authUser]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setAuthReady(false);
+    setAuthError('');
+    async function restoreSession() {
+      try {
+        const user = await currentUser();
+        if (cancelled) return;
+        if (user) await selectGameAccount(user);
+        if (!cancelled) { setAuthUser(user); setAuthReady(true); }
+      } catch (error) {
+        if (!cancelled) setAuthError(error instanceof Error ? error.message : 'Neizdevās pārbaudīt sesiju.');
       }
-    });
-  }, [setProfile, setRole]);
+    }
+    void restoreSession();
+    return () => { cancelled = true; };
+  }, [attempt]);
 
   // Daily quests and the weekly leaderboard roll over on their own.
   useEffect(() => {
+    if (!authUser) return;
     tick();
     const iv = setInterval(tick, 30_000);
     window.addEventListener('focus', tick);
@@ -52,7 +73,7 @@ export default function App() {
       clearInterval(iv);
       window.removeEventListener('focus', tick);
     };
-  }, [tick]);
+  }, [tick, authUser]);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', !!darkMode);
@@ -74,11 +95,17 @@ export default function App() {
     <BrowserRouter>
       <MotionConfig reducedMotion={reducedMotion ? 'always' : 'user'}>
         <Background />
-        {!authReady ? null : !authUser ? <AuthScreen onAuthenticated={(user) => {
-          setAuthUser(user);
-          setProfile({ name: user.display_name, avatar: '🦊', hue: 265 });
-          setRole(user.role === 'admin' ? 'admin' : 'user');
-        }} /> : null}
+        {authError ? (
+          <main className="fixed inset-0 z-[350] grid place-items-center bg-ink-950 px-5 text-white">
+            <div className="max-w-md space-y-5 text-center">
+              <h1 className="font-display text-2xl font-bold">Neizdevās pārbaudīt sesiju</h1>
+              <p role="alert">{authError}</p>
+              <Button variant="primary" onClick={() => setAttempt((value) => value + 1)}>Mēģināt vēlreiz</Button>
+              <button type="button" onClick={logout} className="block w-full underline">Izmantot citu kontu</button>
+            </div>
+          </main>
+        ) : !authReady ? <main className="fixed inset-0 grid place-items-center bg-ink-950 text-white" role="status">Pārbauda sesiju...</main>
+          : !authUser ? <AuthScreen onAuthenticated={async (user) => { await selectGameAccount(user); setAuthUser(user); }} /> : <>
         <Routes>
           <Route path="/play/:deckId" element={<PlayPage />} />
           <Route element={<AppShell />}>
@@ -98,6 +125,7 @@ export default function App() {
         <ChestOpening />
         <WeeklyResults />
         {!hasProfile && <Onboarding />}
+        </>}
       </MotionConfig>
     </BrowserRouter>
   );

@@ -1,4 +1,4 @@
-# 2. Lomu un pienākumu sadalījums
+# 2 Lomu un pienākumu sadalījums
 
 Komanda **RRV**: Roberts, Rihards, Valerijs.
 Metodoloģija: Agile / Kanban. Rīki: GitHub (viens kopīgs repozitorijs), Trello.

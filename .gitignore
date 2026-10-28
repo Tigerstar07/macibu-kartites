@@ -9,6 +9,10 @@ env/
 *.db
 .env
 .env.*
+!.env.example
+*.db-wal
+*.db-shm
+*.db-journal
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/

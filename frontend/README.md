@@ -1,7 +1,3 @@
-# Frontend: Mācību kartītes
+# Klienta koda atrašanās vieta
 
-React 18 + Vite + TypeScript + Tailwind CSS klienta lietotne.
-
-Kods tiek izstrādāts 3. posmā. Mapes struktūra, komponenšu sadalījums un palaišanas
-instrukcija tiks papildināta pēc 2. posma arhitektūras un saskarnes skiču
-pabeigšanas.
+Darbojošais klients atrodas mapē `prototype-ranked/`. Šī mape ir sākotnējās projekta struktūras vietturis. Palaišanas komandas ir repozitorija [README](../README.md).

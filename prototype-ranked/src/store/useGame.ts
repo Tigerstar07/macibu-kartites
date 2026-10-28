@@ -674,6 +674,7 @@ export const useGame = create<GameState>()(
     }),
     {
       name: 'rrv-ranked-v1',
+      skipHydration: true,
       version: 1,
       storage: createJSONStorage(() => ({
         getItem: (k: string) => {

@@ -1,10 +1,15 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .database import Base
+
+
+def utc_now() -> datetime:
+    # SQLite glabā UTC laiku bez laika joslas; API pievieno UTC apzīmējumu.
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 class User(Base):
@@ -15,7 +20,7 @@ class User(Base):
     password_hash: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     display_name: Mapped[str] = mapped_column(String(80))
     role: Mapped[str] = mapped_column(String(20), default="user")
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)
 
     decks: Mapped[list["Deck"]] = relationship(back_populates="owner", cascade="all, delete-orphan")
     score = relationship("Score", back_populates="user", uselist=False, cascade="all, delete-orphan")
@@ -38,7 +43,7 @@ class Deck(Base):
     category: Mapped[Optional[str]] = mapped_column(String(80), nullable=True)
     language: Mapped[str] = mapped_column(String(10), default="lv")
     is_public: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)
 
     owner: Mapped[User] = relationship(back_populates="decks")
     cards: Mapped[list["Card"]] = relationship(back_populates="deck", cascade="all, delete-orphan")
@@ -51,8 +56,8 @@ class Card(Base):
     deck_id: Mapped[int] = mapped_column(ForeignKey("decks.id"))
     front: Mapped[str] = mapped_column(Text)
     back: Mapped[str] = mapped_column(Text)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, onupdate=utc_now)
 
     deck: Mapped[Deck] = relationship(back_populates="cards")
 
@@ -63,7 +68,7 @@ class Review(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     card_id: Mapped[int] = mapped_column(ForeignKey("cards.id"))
-    reviewed_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    reviewed_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)
     rating: Mapped[int] = mapped_column(Integer)
     next_review_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     interval: Mapped[int] = mapped_column(Integer, default=0)
@@ -92,4 +97,4 @@ class Report(Base):
     reporter_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     reason: Mapped[str] = mapped_column(Text)
     status: Mapped[str] = mapped_column(String(20), default="open")
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)

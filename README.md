@@ -1,107 +1,73 @@
-# Mācību kartītes (RRV Ranked Flashcards)
+# Mācību kartītes
 
-Moderna atkārtošanas (*spaced repetition*) mācību kartīšu tīmekļa lietotne, Anki tipa
-rīks ar mūsdienīgu, tīru dizainu un **iebūvētu rangu sistēmu**, kas motivē mācīties
-regulāri.
+RRV komandas mācību projekts ar kartīšu kopām, zināšanu pārbaudes spēli un rangu sistēmu. Komandā strādā Roberts, Rihards un Valerijs. Lietotne veidota kursam “Lietotnes programmēšana”.
 
-## Īss projekta apraksts
+Šajā versijā darbojas konta izveide, pieslēgšanās un sesijas pārbaude FastAPI serverī. Kartīšu spēle, personīgās kopas un progress darbojas React klientā. Konti glabājas SQLite datubāzē, bet spēles dati pagaidām glabājas katram kontam atsevišķi konkrētajā pārlūkā. Nedēļas tabulā ir simulēti pretinieki.
 
-Lietotāji veido kartīšu kopas (*decks*) ar jautājuma/atbildes kartītēm un mācās tās
-ar atkārtošanas algoritmu (SM-2), kas katrai kartītei aprēķina nākamo atkārtošanas
-reizi. Par regulāru mācīšanos, atbilžu precizitāti un dienu sērijām (*streak*)
-lietotājs pelna rangu punktus (RP), ceļas pa līgām no Bronze līdz Diamond un sacenšas
-nedēļas līderu tabulā.
+## Ātra palaišana Windows vidē
 
-### Lietotāju lomas
+Vajadzīgs Git, Python 3.12 un Node.js 22.12 vai jaunāks. Pārbaudītā vide: Python 3.12.13 un Node.js 24.11.0. Atver divus PowerShell logus repozitorija mapē.
 
-| Loma | Iespējas |
-|------|----------|
-| **Viesis** | Pārlūkot publiskās kartīšu kopas, izmēģināt demo mācību sesiju, apskatīt līderu tabulu |
-| **Lietotājs** | Reģistrēties / pieslēgties; veidot, labot, dzēst savas kopas un kartītes (pilns CRUD); mācīties ar atkārtošanas algoritmu; pelnīt RP; skatīt statistiku, savu līgu un sēriju; meklēt un filtrēt publiskās kopas |
-| **Administrators** | Moderēt publiskās kopas (paslēpt / dzēst), pārvaldīt lietotājus un lomas, pārvaldīt kategorijas, izskatīt sūdzības |
+Pirmajā logā palaid serveri:
 
-## Galvenā funkcionalitāte (plānota)
-
-- Kartīšu kopu un kartīšu **pilns CRUD** ar datu validāciju un dzēšanas apstiprinājumu
-- Atkārtošanas (*spaced repetition*) mācību sesija, SM-2 algoritms
-- **Rangu sistēma:** RP aprēķins, līgas, nedēļas / visu laiku līderu tabula
-- Publisko kopu pārlūkošana ar **meklēšanu un filtrēšanu** (kategorija, tags, valoda)
-- Lietotāja statistika: atkārtoto kartīšu skaits, precizitāte, dienu sērija
-- Administratora panelis satura un lietotāju moderācijai
-- Responsīvs, konsekvents lietotāja interfeiss ar vienotu datuma / laika / skaitļu formātu
-
-Sīkāka prasību specifikācija, [`docs/04-prasibu-melnraksts.md`](docs/04-prasibu-melnraksts.md)
-(tiek precizēta 2. posmā).
-
-## Izmantotās tehnoloģijas
-
-| Slānis | Tehnoloģija |
-|--------|-------------|
-| Frontend | React 18 + Vite, TypeScript, Tailwind CSS, React Router |
-| Backend | Python 3.12 + FastAPI, Pydantic, SQLAlchemy |
-| Datubāze | SQLite (izstrādē) / PostgreSQL (demonstrācijā) |
-| Autentifikācija | JWT piekļuves marķieri; lomas: guest / user / admin |
-| Versiju kontrole | Git + GitHub (viens kopīgs repozitorijs) |
-| Uzdevumu pārvaldība | Trello (Kanban) |
-
-Izvēles pamatojums: [`docs/03-tehnologiju-izvele.md`](docs/03-tehnologiju-izvele.md).
-
-## Projekta struktūra
-
-```
-macibu-kartites/
-├── frontend/   # React + Vite klienta lietotne
-├── backend/    # FastAPI REST API
-├── docs/       # Izpēte, lomas, tehnoloģijas, prasību melnraksts, rangu sistēma
-└── README.md
-```
-
-## Uzstādīšana un palaišana
-
-> Programmas kods tiek izstrādāts 3. posmā. Šī sadaļa tiks papildināta ar konkrētām
-> komandām un vides mainīgajiem.
-
-### Priekšnosacījumi
-- Node.js 20+ un npm
-- Python 3.12+
-- Git
-
-### Backend
-```bash
+```powershell
 cd backend
 python -m venv .venv
-# Windows:
-.venv\Scripts\activate
-# macOS / Linux:
-source .venv/bin/activate
-pip install -r requirements.txt
-python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+.venv\Scripts\python.exe -m pip install -r requirements.txt
+.venv\Scripts\python.exe setup_env.py
+.venv\Scripts\python.exe -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-### Frontend
-```bash
+Otrajā logā palaid klientu:
+
+```powershell
 cd prototype-ranked
-npm install
-npm run dev
+npm ci
+npm run dev -- --host localhost
 ```
 
-Frontend izmanto `VITE_API_URL` (pēc noklusējuma `http://localhost:8000`).
-Backend autentifikācijas konfigurācijas piemērs atrodas
-`backend/.env.example`, bet frontend konfigurācija — `prototype-ranked/.env.example`.
+Atver `http://localhost:5173`. Servera pārbaude: `http://127.0.0.1:8000/health`. Interaktīvais API apraksts: `http://127.0.0.1:8000/docs`.
 
-## Komanda RRV un lomas
+`setup_env.py` izveido `backend/.env` ar nejaušu JWT atslēgu un nepārraksta esošu konfigurāciju. Tukšs `JWT_SECRET` nav derīga konfigurācija. `.env.example` ir lauku paraugs, nevis gatava slepenā atslēga.
 
-Izstrādes metodoloģija: **Agile / Kanban**. Visi dalībnieki piedalās frontend,
-backend un testēšanas darbos; katram ir arī primārā atbildības joma.
+## Datubāze un dati
 
-| Dalībnieks | Primārā atbildība | Papildus |
-|-----------|-------------------|----------|
-| **Roberts** | Komandas koordinācija, GitHub un Trello uzturēšana, backend (API, datubāze) | Frontend, testēšana |
-| **Rihards** | Frontend (UI komponentes, dizaina konsekvence, responsivitāte) | Backend, testēšana |
-| **Valerijs** | Backend (autentifikācija, rangu sistēmas loģika, atkārtošanas algoritms), testēšanas plāns | Frontend, testēšana |
+Noklusējuma datubāze ir `backend/macibu_kartites.db`. Faila nosaukumā ir pasvītrojums. Komandas ziņojumā minētais `macibu-kartites.db` atšķiras no sākotnējā koda iestatījuma. Esošais nosaukums ir saglabāts, lai iepriekš izveidotie konti nepazustu no lietotnes skata. Datubāzi automātiski izveido servera palaišanas laikā. Paroles glabā kā Argon2 jaucējvērtības.
 
-Detalizēts sadalījums: [`docs/02-lomu-sadalijums.md`](docs/02-lomu-sadalijums.md).
+Mainot ierīci vai pārlūku, var pieslēgties kontam, taču vietējais spēles progress netiek pārsūtīts. Vecais koplietotais `rrv-ranked-v1` profils netiek automātiski piešķirts nevienam kontam. Tā saturs netiek dzēsts.
 
----
+## Mapes
 
-Projekts izstrādāts mācību kursa *"Lietotnes programmēšana"* ietvaros.
+| Mape | Saturs |
+|---|---|
+| `prototype-ranked/` | Darbojošais React, TypeScript un Vite klients |
+| `backend/app/` | FastAPI, autentifikācija, SQLAlchemy modeļi |
+| `backend/tests/` | Izolēti API, konfigurācijas un iestatīšanas testi |
+| `docs/` | Projekta prasības, arhitektūra, ceļveži un testu pārskats |
+| `frontend/` | Sākotnējās struktūras vietturis ar norādi uz klientu |
+
+## Pārbaudes
+
+```powershell
+cd backend
+.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+.venv\Scripts\python.exe -m pytest -q
+```
+
+```powershell
+cd prototype-ranked
+npm test
+npm run typecheck
+npm run build
+npm audit
+```
+
+Backend testos izmanto pagaidu datubāzi. Tie nemaina parastos kontus. Klienta testos pārbauda sesijas kļūdas, termiņu, cilņu savstarpējo paziņošanu un kontu datu nošķiršanu.
+
+## Dokumentācija
+
+Sāc ar [dokumentācijas rādītāju](docs/README.md). [Lietotāja ceļvedī](docs/08-lietotaja-celvedis.md) aprakstīta reģistrācija un lietošana. [Testēšanas pārskatā](docs/09-testesana.md) apkopotas pārbaudes un robežas. [Izmaiņu pārskatā](docs/10-izmainu-parskats.md) aprakstīts pārskatītais komandas darbs un novērstās kļūdas.
+
+## Pašreizējās robežas
+
+Kopu un spēles progresa REST API, īsta vairāku spēlētāju tabula, administratora panelis, e-pasta apstiprināšana un paroles atjaunošana vēl nav ieviesti. PostgreSQL savienojuma konfigurācija ir paredzēta, taču šajā pārbaudē lietots SQLite. Publiskai izvietošanai vēl jāizveido migrācijas, pieprasījumu biežuma ierobežošana un jāpārskata sesiju glabāšana. Sīkāk skatīt [prasības](docs/04-prasibu-melnraksts.md).
