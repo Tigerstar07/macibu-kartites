@@ -15,6 +15,7 @@ import { Button } from '../components/ui/Button';
 import { ConfirmDialog } from '../components/ui/Modal';
 import { Panel, Switch } from '../components/ui/Panel';
 import { DECK_ICONS } from '../components/ui/Icons';
+import { saveServerDeck } from '../store/deckLibrary';
 
 interface CardDraft {
   id: string;
@@ -175,10 +176,12 @@ export default function DeckEditorPage() {
   const totalRP = useGame((s) => s.stats.totalRP);
   const [start] = useState(() => {
     const d = toDraft(existing);
-    return { d, json: JSON.stringify(d) };
+    return { d, json: JSON.stringify(d), revision: existing?.revision };
   });
   const [draft, setDraft] = useState<Draft>(start.d);
   const [submitted, setSubmitted] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
   const [confirmLeave, setConfirmLeave] = useState(false);
   const [removeId, setRemoveId] = useState<string | null>(null);
   const saveRef = useRef<HTMLButtonElement>(null);
@@ -197,10 +200,10 @@ export default function DeckEditorPage() {
       </div>
     );
   }
-  if (existing?.builtin) {
+  if (existing?.builtin || existing?.canEdit === false) {
     return (
       <div className="mx-auto mt-16 max-w-md rounded-3xl glass p-8 text-center">
-        <h1 className="font-display text-2xl font-bold">{t('Iebūvēto kopu nevar rediģēt', "Built-in decks can't be edited")}</h1>
+        <h1 className="font-display text-2xl font-bold">{t('Šo kopu var rediģēt tikai tās īpašnieks', 'Only the owner can edit this deck')}</h1>
         <p className="mt-2 text-muted">{t('Atver kopu un izvēlies "Kopēt un rediģēt".', 'Open the deck and choose "Copy & edit".')}</p>
         <Link to={`/decks/${existing.id}`} className="mt-5 inline-flex items-center gap-2 font-semibold text-brand hover:text-brand-dark dark:text-violet-300">
           <ArrowLeft className="size-4" /> {t('Atpakaļ uz kopu', 'Back to deck')}
@@ -225,7 +228,9 @@ export default function DeckEditorPage() {
   };
   const leave = () => navigate(existing ? `/decks/${existing.id}` : '/decks');
 
-  const save = () => {
+  const save = async () => {
+    if (saving) return;
+    setSaveError('');
     setSubmitted(true);
     if (hasErrors(errors)) {
       sfx.wrong();
@@ -261,10 +266,17 @@ export default function DeckEditorPage() {
       rankIndex: existing?.rankIndex ?? rankIndexFromRP(totalRP),
       createdAt: draft.createdAt,
       updatedAt: Date.now(),
+      revision: start.revision,
     };
-    saveDeck(deck);
-    sfx.achievement();
-    navigate(`/decks/${deck.id}`);
+    setSaving(true);
+    try {
+      const saved = await saveServerDeck(deck);
+      saveDeck(saved);
+      sfx.achievement();
+      navigate(`/decks/${saved.id}`);
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : t('Neizdevās saglabāt kopu.', 'Could not save the deck.'));
+    } finally { setSaving(false); }
   };
 
   const PreviewIcon = DECK_ICONS[draft.icon];
@@ -280,6 +292,8 @@ export default function DeckEditorPage() {
         <ArrowLeft className="size-4" /> {t('Atpakaļ', 'Back')}
       </button>
       <h1 className="mt-3 font-display text-3xl font-extrabold sm:text-4xl">{existing ? t('Rediģēt kopu', 'Edit deck') : t('Jauna kopa', 'New deck')}</h1>
+      {saveError && <p role="alert" className="mt-4 rounded-xl border-2 border-bad bg-card p-4 text-fg">{saveError}</p>}
+      {saving && <p role="status" className="mt-3 text-sm text-muted">{t('Saglabā serverī...', 'Saving to server...')}</p>}
 
       <div className="mt-6 grid gap-5 lg:grid-cols-[1fr_300px]">
         <Panel title={t('Informācija', 'Details')}>

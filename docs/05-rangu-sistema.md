@@ -26,7 +26,7 @@ Kļūdu sodi tiek fiksēti uzreiz, bet sesijas beigās norēķina pilnu atbilžu
 
 Pametot Ranked spēli, zaudē līdz 20 RP par katru sākotnējās sesijas jautājumu papildus jau piemērotajiem kļūdu sodiem. Desmit jautājumu spēlei tas ir līdz 200 RP; atņem tikai pieejamos punktus. Nepabeigtas spēles pareizo atbilžu balvas un kartīšu progress netiek saglabāti. Pēc paaugstinājuma atkārtota spēle atver kopu izvēli atbilstoši jaunajam rangam.
 
-Fiksēto RP režīmā pastiprinātāji netiek izmantoti. To iegāde veikalā ir atspējota, bet agrāk saņemtie priekšmeti paliek krājumā.
+Pastiprinātāji ir izņemti no veikala, galvenes un jaunajām lāžu un rangu balvām. Ranked spēlē tos nevar izmantot vai iegādāties. Vecajā glabātuvē palikušais lauks saglabāts datu saderībai un neietekmē punktus.
 
 ## 5.4 Atkārtošana
 

@@ -11,7 +11,7 @@ import { RankEmblem } from '../rank/RankEmblem';
 import { Avatar } from '../ui/Avatar';
 import { NameTag, TitleText } from '../ui/NameTag';
 import { Counter, ProgressBar } from '../ui/Meters';
-import { BoostIcon, CoinIcon } from '../ui/Icons';
+import { CoinIcon } from '../ui/Icons';
 
 interface NavDef {
   to: string;
@@ -152,7 +152,6 @@ function TopBar() {
   const lang = useLang();
   const fmt = useNumFmt();
   const coins = useGame((s) => s.coins);
-  const boosts = useGame((s) => s.boosts);
   const stats = useGame((s) => s.stats);
   const chests = useGame((s) => s.chests);
   const settings = useGame((s) => s.settings);
@@ -225,15 +224,6 @@ function TopBar() {
             </span>
             <Counter value={coins} format={fmt} delay={550} className="font-mono" />
           </motion.div>
-          {boosts > 0 && (
-            <>
-              <Divider className="hidden sm:block" />
-              <div className="hidden items-center gap-1.5 px-3 sm:flex" title={t('RP pastiprinājumi', 'RP boosts')}>
-                <BoostIcon size={19} />
-                <span className="font-mono tabular">{boosts}</span>
-              </div>
-            </>
-          )}
           <Divider className="hidden sm:block" />
           <Link
             to="/rank"

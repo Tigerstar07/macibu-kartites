@@ -18,6 +18,7 @@ import { ConfirmDialog } from '../components/ui/Modal';
 import { Ring } from '../components/ui/Meters';
 import { DECK_ICONS } from '../components/ui/Icons';
 import { RankEmblem } from '../components/rank/RankEmblem';
+import { deleteServerDeck, saveServerDeck } from '../store/deckLibrary';
 
 const MASTERY_META: Record<Mastery, { lv: string; en: string; cls: string }> = {
   new: { lv: 'Jauna', en: 'New', cls: 'bg-slate-500/15 text-slate-700 dark:text-slate-300 border border-slate-500/20' },
@@ -39,6 +40,8 @@ export default function DeckDetailPage() {
   const totalRP = useGame((s) => s.stats.totalRP);
   const isAdmin = profile?.role === 'admin';
   const [confirmDel, setConfirmDel] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [saveError, setSaveError] = useState('');
 
   if (!deck) {
     return (
@@ -58,7 +61,8 @@ export default function DeckDetailPage() {
   const category = CATEGORIES.find((c) => c.id === deck.category);
   const now = Date.now();
 
-  const duplicate = () => {
+  const duplicate = async () => {
+    if (busy) return;
     const ts = Date.now();
     const suffix = ` (${t('kopija', 'copy')})`;
     const baseTitle = deck.title.slice(0, Math.max(1, 60 - suffix.length));
@@ -67,13 +71,21 @@ export default function DeckDetailPage() {
       id: uid('d'),
       title: `${baseTitle}${suffix}`,
       builtin: false,
+      revision: undefined,
+      canEdit: true,
       author: profile?.name ?? 'Es',
       createdAt: ts,
       updatedAt: ts,
       cards: deck.cards.map((c) => ({ ...c, id: uid('k'), wrong: c.wrong ? [...c.wrong] : undefined })),
     };
-    saveDeck(copy);
-    navigate(`/decks/${copy.id}/edit`);
+    setBusy(true);
+    setSaveError('');
+    try {
+      const saved = await saveServerDeck(copy);
+      saveDeck(saved);
+      navigate(`/decks/${saved.id}/edit`);
+    } catch (error) { setSaveError(error instanceof Error ? error.message : 'Neizdevās kopēt kopu.'); }
+    finally { setBusy(false); }
   };
 
   const tiles = [
@@ -85,6 +97,7 @@ export default function DeckDetailPage() {
 
   return (
     <div>
+      {saveError && <p role="alert" className="mb-4 rounded-xl border-2 border-bad bg-card p-4 text-fg">{saveError}</p>}
       <Link to="/decks" className="inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-ink">
         <ArrowLeft className="size-4" /> {t('Visas kopas', 'All decks')}
       </Link>
@@ -172,8 +185,8 @@ export default function DeckDetailPage() {
             >
               {t('Spēlēt', 'Play')}
             </Button>
-            {deck.builtin ? (
-              <Button variant="secondary" size="xl" icon={<Copy className="size-5" />} onClick={duplicate}>
+            {deck.builtin || deck.canEdit === false ? (
+              <Button variant="secondary" size="xl" disabled={busy} icon={<Copy className="size-5" />} onClick={duplicate}>
                 {t('Kopēt un rediģēt', 'Copy & edit')}
               </Button>
             ) : (
@@ -181,10 +194,10 @@ export default function DeckDetailPage() {
                 <Button variant="secondary" size="xl" icon={<Pencil className="size-5" />} onClick={() => navigate(`/decks/${deck.id}/edit`)}>
                   {t('Rediģēt', 'Edit')}
                 </Button>
-                <Button variant="secondary" size="xl" icon={<Copy className="size-5" />} onClick={duplicate}>
+                <Button variant="secondary" size="xl" disabled={busy} icon={<Copy className="size-5" />} onClick={duplicate}>
                   {t('Kopēt', 'Copy')}
                 </Button>
-                <Button variant="ghost" size="xl" icon={<Trash2 className="size-5" />} className="hover:text-bad dark:hover:text-rose-300" onClick={() => setConfirmDel(true)}>
+                <Button variant="ghost" size="xl" disabled={busy} icon={<Trash2 className="size-5" />} className="hover:text-bad dark:hover:text-rose-300" onClick={() => setConfirmDel(true)}>
                   {t('Dzēst', 'Delete')}
                 </Button>
               </>
@@ -237,10 +250,16 @@ export default function DeckDetailPage() {
         confirmLabel={t('Dzēst', 'Delete')}
         cancelLabel={t('Atcelt', 'Cancel')}
         onCancel={() => setConfirmDel(false)}
-        onConfirm={() => {
+        onConfirm={async () => {
           setConfirmDel(false);
-          deleteDeck(deck.id);
-          navigate('/decks');
+          setBusy(true);
+          setSaveError('');
+          try {
+            await deleteServerDeck(deck);
+            deleteDeck(deck.id);
+            navigate('/decks');
+          } catch (error) { setSaveError(error instanceof Error ? error.message : 'Neizdevās dzēst kopu.'); }
+          finally { setBusy(false); }
         }}
       />
     </div>

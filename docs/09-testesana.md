@@ -6,8 +6,8 @@ Pārbaudes datums ir 2026. gada 28. oktobris. Testi izpildīti Windows vidē ar 
 
 | Grupa | Komanda | Rezultāts |
 |---|---|---|
-| Servera API un iestatīšana | `python -m pytest -q` virtuālajā vidē | 24 testi izpildīti sekmīgi |
-| Klienta sesija, konti, punkti un izloze | `npm test` | 21 tests izpildīts sekmīgi |
+| Servera API un iestatīšana | `python -m pytest -q` virtuālajā vidē | 31 tests izpildīts sekmīgi |
+| Klienta sesija, konti, kopas, punkti un izloze | `npm test` | 40 testi izpildīti sekmīgi |
 | TypeScript tipi | `npm run typecheck` | Bez kļūdām |
 | Produkcijas būvējums | `npm run build` | Izveidots; ir brīdinājums par lielu JavaScript daļu |
 | JavaScript atkarības | `npm audit` | Nav atrastu zināmu ievainojamību |
@@ -52,3 +52,9 @@ Pārbaudīti visi attālinātie zari. Pēdējās neapvienotās izmaiņas bija Ri
 ## 9.6 Render demonstrācijas pārbaude
 
 Publiskais klients būvēts no `main` komita `867b260`. API darbojas Python 3.12 vidē un izmanto Render PostgreSQL 18. Chrome pārlūkā pārbaudīta paroļu nesakritības kļūda, konta reģistrācija, sesijas atjaunošana pēc `/profile` lapas pārlādes, izrakstīšanās, nepareizas paroles noraidīšana un atkārtota pieslēgšanās ar pareizo paroli. Reģistrācija izveidoja kontu attālinātajā datubāzē. Pēc atsvaidzināšanas profils atvērās ar to pašu kontu. Produkcijas iestatījumos testēšanas rīki nav redzami. Render izvietošanas statuss ir Live.
+
+## 9.7 Kopu koplietošanas un pastiprinātāju pārbaudes
+
+Septiņi jauni servera testi pārbauda publiskas kopas pieejamību otram kontam, privātumu, īpašnieka tiesības, versiju konfliktus, satura validāciju un dzēšanas marķieri. Deviņi klienta testi pārbauda veco kopu importēšanu, dzēstu kopu neatjaunošanu, novecojušu atbilžu sacensības ar saglabāšanu un dzēšanu, konta maiņu, kļūdu saglabāšanu un atspējotu pastiprinātāju iegādi. Desmit balvu testi pārbauda, ka lādes un rangu ceļš vairs nepiešķir pastiprinātājus.
+
+Lokālajā Chrome pārbaudē ar vienu kontu izveidota publiska kopa un tā redzama cita konta sarakstā. Otram kontam nav oriģināla labošanas vai dzēšanas pogu. Pārbaudīta kopēšana un kopijas saglabāšana serverī ar redaktoru.

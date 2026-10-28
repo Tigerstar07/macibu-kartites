@@ -49,7 +49,7 @@ function validationMessage(issues: ValidationIssue[]): string {
   return 'Pārbaudi ievadītos datus un mēģini vēlreiz.';
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response;
   try {
     response = await fetch(`${API_URL}${path}`, { ...init, signal: AbortSignal.timeout(10_000), headers: { 'Content-Type': 'application/json', ...init?.headers } });

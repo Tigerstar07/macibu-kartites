@@ -217,15 +217,12 @@ export interface ChestRoll {
 
 /**
  * Roll a chest: always coins, then maybe a cosmetic (rarity weighted, with a
- * pity safety net), a rare chance of a bonus cosmetic, and RP boosts on
- * better chests. Items come back ordered so the best one is revealed last.
+ * pity safety net) and a rare chance of a bonus cosmetic. Items come back
+ * ordered so the best one is revealed last.
  */
 export function rollChest(rarity: Rarity, owned: string[], pity = 0, rnd: () => number = Math.random): ChestRoll {
   const [lo, hi] = COIN_RANGE[rarity];
   const items: RewardItem[] = [{ kind: 'coins', amount: Math.round((lo + (hi - lo) * rnd()) / 5) * 5 }];
-  if (rarity !== 'common') {
-    items.push({ kind: 'boost', amount: rarity === 'legendary' ? 3 : rarity === 'epic' ? 2 : 1 });
-  }
   const drops: string[] = [];
   if (rnd() < cosmeticChance(rarity, pity)) {
     const id = pickCosmetic(rarity, owned, drops, rnd);

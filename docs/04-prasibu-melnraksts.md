@@ -14,14 +14,15 @@
 | F06 | Izrakstīšanās aizver konta skatu arī citās tās pašas izcelsmes cilnēs | Ieviests klientā |
 | F07 | API nepieejamība parāda kļūdu un atkārtošanas pogu, saglabājot marķieri | Ieviests klientā |
 | F08 | Dažādu kontu kopas, profils un progress vienā pārlūkā nesajaucas | Ieviests vietēji |
-| F09 | Kopām darbojas izveide, skatīšana, labošana un dzēšana ar apstiprinājumu | Ieviests vietēji |
+| F09 | Kopām darbojas izveide, skatīšana, labošana un dzēšana ar īpašnieka pārbaudi | Ieviests API |
 | F10 | Kopas nosaukums ir 3 līdz 60 rakstzīmes; kopā vajag vismaz 5 kartītes | Ieviests vietēji |
 | F11 | Kopu sarakstā darbojas meklēšana un filtrēšana | Ieviests vietēji |
 | F12 | Spēle parāda atbilžu variantus, rezultātu, atkārtošanu un ranga progresu | Ieviests vietēji |
-| F13 | Kopas un mācību progress saglabājas serverī un ir pieejami citā ierīcē | Plānots |
+| F13 | Mācību progress saglabājas serverī un ir pieejams citā ierīcē | Plānots |
 | F14 | RP pārbauda serveris un īstā līderu tabulā piedalās reāli konti | Plānots |
 | F15 | Administrators pārvalda saturu, kategorijas un sūdzības | Plānots |
 | F16 | Viesis izmēģina spēli bez konta | Plānots; šajā versijā spēlei vajag kontu |
+| F17 | Publiskas kopas atrod citi konti, privātās redz tikai īpašnieks; vecās lokālās kopas importē serverī | Ieviests API un klientā |
 
 ## 4.2 Ievades noteikumi
 
@@ -49,4 +50,4 @@ Reģistrācija piešķir lomu `user`. Klients nevar ar reģistrācijas pieprasī
 
 ## 4.5 Nākamā posma secība
 
-Vispirms vajag kopu un kartīšu API ar īpašnieka pārbaudi. Pēc tam jāsaskaņo klienta kartītes modelis ar datubāzes modeli, jāievieš progresa saglabāšana, migrācijas un servera pārbaudīti punkti. Tikai tad ir pamats īstai koplietošanai, moderācijai un līderu tabulai.
+Kopu API ar īpašnieka pārbaudi ir ieviests. Nākamais posms ir mācību progresa saglabāšana, turpmāko shēmu migrācijas un servera pārbaudīti punkti. Moderācija un īsta līderu tabula vēl jāizstrādā.

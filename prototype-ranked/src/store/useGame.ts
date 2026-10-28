@@ -4,12 +4,13 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import type { AnswerLog, CardProgress, Deck, Lang, QType, Rarity, RewardItem } from '../types';
 import { BUILTIN_DECKS } from '../data/decks';
 import { gradeAnswer, newProgress, sm2 } from '../lib/sm2';
+import { combineDecks, useDeckLibrary } from './deckLibrary';
 import { TIME_LIMIT, gradeFor, sessionRP, type Grade, type RPBreakdown } from '../lib/rp';
 import { rankIndexFromRP, rankIsInRange, roadFor } from '../lib/rank';
 import { DAY, dayKey, daysBetween, weekId } from '../lib/time';
 import { questDef, rollDailyQuests, type QuestKind, type QuestState } from '../lib/quests';
 import { ACHIEVEMENTS, achievementDef } from '../lib/achievements';
-import { BOOST_PRICE, DEFAULT_EQUIPPED, DEFAULT_OWNED, DUPE_COINS, SHOP_CHESTS, cosmetic, migrateCosmetics, rollChest } from '../lib/cosmetics';
+import { DEFAULT_EQUIPPED, DEFAULT_OWNED, DUPE_COINS, SHOP_CHESTS, cosmetic, migrateCosmetics, rollChest } from '../lib/cosmetics';
 import { finalWeeklyPlace, placeFor, weeklyRewards } from '../lib/bots';
 import { uid } from '../lib/random';
 import { setSoundEnabled } from '../lib/sound';
@@ -601,10 +602,7 @@ export const useGame = create<GameState>()(
       },
 
       buyBoost: () => {
-        const st = get();
-        if (st.coins < BOOST_PRICE) return false;
-        set({ coins: st.coins - BOOST_PRICE, boosts: st.boosts + 1 });
-        return true;
+        return false;
       },
 
       buyChest: (rarity = 'rare') => {
@@ -781,7 +779,9 @@ export const useGame = create<GameState>()(
 
 export function useAllDecks(): Deck[] {
   const user = useGame((s) => s.userDecks);
-  return useMemo(() => [...BUILTIN_DECKS, ...user], [user]);
+  const shared = useDeckLibrary((s) => s.decks);
+  const retired = useDeckLibrary((s) => s.retiredIds);
+  return useMemo(() => combineDecks(BUILTIN_DECKS, user, shared, retired), [user, shared, retired]);
 }
 
 export function useDeck(id: string | undefined): Deck | undefined {

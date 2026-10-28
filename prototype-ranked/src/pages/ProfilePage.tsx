@@ -22,7 +22,7 @@ import type { Rarity } from '../types';
 import { effectiveStreak, useGame } from '../store/useGame';
 import { rankAt, rankFromRP, rankName, ROAD } from '../lib/rank';
 import { ACHIEVEMENTS } from '../lib/achievements';
-import { BOOST_PRICE, COSMETICS, RARITY_META, SHOP_CHESTS, type Cosmetic, type CosmeticKind } from '../lib/cosmetics';
+import { COSMETICS, RARITY_META, SHOP_CHESTS, type Cosmetic, type CosmeticKind } from '../lib/cosmetics';
 import { AVATARS } from '../lib/bots';
 import { dayKey, weekStart } from '../lib/time';
 import { fmtDate, fmtPct, fmtSec, fmtShortDate } from '../lib/format';
@@ -41,7 +41,7 @@ import { ProgressBar } from '../components/ui/Meters';
 import { Panel, Switch } from '../components/ui/Panel';
 import { CosmeticPreview } from '../components/ui/Reward';
 import { NameTag, TitleText } from '../components/ui/NameTag';
-import { ACH_ICONS, BoostIcon, CoinIcon, RPIcon } from '../components/ui/Icons';
+import { ACH_ICONS, CoinIcon, RPIcon } from '../components/ui/Icons';
 import { Tabs } from '../components/ui/Tabs';
 
 type Tab = 'stats' | 'achievements' | 'collection' | 'shop' | 'settings';
@@ -363,7 +363,7 @@ function CollectionTab() {
 // ── Shop ─────────────────────────────────────────────────────────────────
 
 interface Purchase {
-  kind: 'cosmetic' | 'boost' | 'chest';
+  kind: 'cosmetic' | 'chest';
   id?: string;
   price: number;
   name: string;
@@ -376,22 +376,15 @@ function ShopTab() {
   const fmt = useNumFmt();
   const coins = useGame((s) => s.coins);
   const owned = useGame((s) => s.owned);
-  const boosts = useGame((s) => s.boosts);
   const chests = useGame((s) => s.chests);
   const buyCosmetic = useGame((s) => s.buyCosmetic);
-  const buyBoost = useGame((s) => s.buyBoost);
   const buyChest = useGame((s) => s.buyChest);
   const [pending, setPending] = useState<Purchase | null>(null);
   const items = COSMETICS.filter((c) => c.price && !owned.includes(c.id));
 
   const confirm = () => {
     if (!pending) return;
-    const ok =
-      pending.kind === 'cosmetic'
-        ? buyCosmetic(pending.id!)
-        : pending.kind === 'boost'
-          ? buyBoost()
-          : buyChest(pending.rarity);
+    const ok = pending.kind === 'cosmetic' ? buyCosmetic(pending.id!) : buyChest(pending.rarity);
     if (ok) {
       sfx.coin();
       confettiBurst(['#fbbf24', '#fde68a', '#ffffff'], { x: 0.5, y: 0.55 }, 60);
@@ -400,7 +393,7 @@ function ShopTab() {
   };
 
   const PriceButton = ({ p }: { p: Purchase }) => (
-    <Button size="sm" variant="gold" disabled={coins < p.price || p.kind === 'boost'} onClick={() => setPending(p)} icon={<CoinIcon size={16} />}>
+    <Button size="sm" variant="gold" disabled={coins < p.price} onClick={() => setPending(p)} icon={<CoinIcon size={16} />}>
       {fmt(p.price)}
     </Button>
   );
@@ -414,14 +407,6 @@ function ShopTab() {
         <span className="ml-auto hidden text-sm text-dim sm:inline">{t('Pelni monētas ar uzdevumiem, lādēm un sasniegumiem', 'Earn coins from quests, chests and achievements')}</span>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="flex items-center gap-4 rounded-2xl border-2 border-info/50 bg-card shadow-hard-sm p-4">
-          <BoostIcon size={48} />
-          <div className="min-w-0 flex-1">
-            <div className="font-bold">{t('RP pastiprinājums', 'RP boost')}</div>
-            <div className="text-xs text-muted">{t(`Fiksēto RP režīmā nav pieejams. Krājumā: ${boosts}`, `Unavailable in fixed RP mode. Owned: ${boosts}`)}</div>
-          </div>
-          <PriceButton p={{ kind: 'boost', price: BOOST_PRICE, name: t('RP pastiprinājums', 'RP boost') }} />
-        </div>
         {SHOP_CHESTS.map((offer) => {
           const chestName = offer.rarity === 'epic' ? t('Episka lāde', 'Epic chest') : t('Reta lāde', 'Rare chest');
           const count = chests.filter((c) => c.rarity === offer.rarity).length;

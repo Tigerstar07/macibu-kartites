@@ -22,6 +22,8 @@ import NotFound from './pages/NotFound';
 import { currentUser, logout, sessionCheckDelay, watchAuthChanges, type AuthUser } from './lib/auth';
 import { selectGameAccount } from './store/account';
 import { Button } from './components/ui/Button';
+import { syncDecks } from './lib/deckSync';
+import { resetDeckLibrary, useDeckLibrary } from './store/deckLibrary';
 
 export default function App() {
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -33,6 +35,7 @@ export default function App() {
   const darkMode = useGame((s) => s.settings.darkMode);
   const hasProfile = useGame((s) => !!s.profile);
   const tick = useGame((s) => s.tick);
+  const deckError = useDeckLibrary((s) => s.error);
 
   useEffect(() => watchAuthChanges(() => window.location.reload()), []);
 
@@ -53,7 +56,10 @@ export default function App() {
       try {
         const user = await currentUser();
         if (cancelled) return;
-        if (user) await selectGameAccount(user);
+        if (user) {
+          await selectGameAccount(user);
+          await syncDecks().catch(() => {});
+        } else resetDeckLibrary();
         if (!cancelled) { setAuthUser(user); setAuthReady(true); }
       } catch (error) {
         if (!cancelled) setAuthError(error instanceof Error ? error.message : 'Neizdevās pārbaudīt sesiju.');
@@ -62,6 +68,14 @@ export default function App() {
     void restoreSession();
     return () => { cancelled = true; };
   }, [attempt]);
+
+  useEffect(() => {
+    if (!authUser) return;
+    const refresh = () => { if (document.visibilityState === 'visible') void syncDecks().catch(() => {}); };
+    const timer = window.setInterval(refresh, 30000);
+    window.addEventListener('focus', refresh);
+    return () => { window.clearInterval(timer); window.removeEventListener('focus', refresh); };
+  }, [authUser]);
 
   // Daily quests and the weekly leaderboard roll over on their own.
   useEffect(() => {
@@ -105,7 +119,10 @@ export default function App() {
             </div>
           </main>
         ) : !authReady ? <main className="fixed inset-0 grid place-items-center bg-ink-950 text-white" role="status">Pārbauda sesiju...</main>
-          : !authUser ? <AuthScreen onAuthenticated={async (user) => { await selectGameAccount(user); setAuthUser(user); }} /> : <>
+          : !authUser ? <AuthScreen onAuthenticated={async (user) => { await selectGameAccount(user); await syncDecks().catch(() => {}); setAuthUser(user); }} /> : <>
+        {deckError && <div role="alert" className="relative z-20 mx-auto max-w-4xl rounded-xl border-2 border-ink bg-card p-3 text-sm text-fg">
+          {deckError} <button type="button" className="font-bold underline" onClick={() => void syncDecks().catch(() => {})}>Atjaunot kopas</button>
+        </div>}
         <Routes>
           <Route path="/play" element={<PlayPage />} />
           <Route path="/play/:deckId" element={<PlayPage />} />

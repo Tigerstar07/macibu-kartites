@@ -29,7 +29,11 @@ Ja gribi trenēt konkrētu tēmu, atver “Kopas”, izvēlies kopu un spied “
 
 Kopu sarakstā izvēlies jaunas kopas izveidi. Norādi nosaukumu, tēmu un vismaz 5 kartītes. Katrā kartītē vajadzīgs jautājums un pareizā atbilde. Nepareizie varianti nedrīkst sakrist ar pareizo atbildi vai atkārtoties. Saglabā kopu, lai tā parādītos tavā sarakstā. Labošanai atver kopas redaktoru; dzēšanai apstiprini dialogu.
 
-Šīs darbības saglabā datus konkrētajā pārlūkā. Atzīme par publiskumu pagaidām nenozīmē, ka kopu redzēs citi reģistrētie lietotāji.
+Saglabājot kopu, klients sagaida servera apstiprinājumu. Ieslēgta atzīme “Publiska kopa” ļauj to atrast un spēlēt citiem kontiem. Izslēgta atzīme kopu atstāj pieejamu tikai īpašniekam. Citi lietotāji var izveidot savu kopiju, bet nevar mainīt oriģinālu.
+
+Agrāk izveidotās lokālās kopas automātiski augšupielādē pēc īpašnieka pieslēgšanās vai lapas pārlādes. Tāpēc pēc šī atjauninājuma kopas autoram vienreiz jāatver vietne tajā pašā pārlūkā, kurā kopa izveidota. Cits lietotājs pēc tam var spiest “Atjaunot kopas” un meklēt pēc nosaukuma. Saraksts atjaunojas arī pēc atgriešanās cilnē un ik pēc 30 sekundēm.
+
+Ja serveris nepieņem kopu vai nav sasniedzams, parādās kļūda. Vecā lokālā kopija paliek saglabāta. Jaunu redaktora saturu nezaudē neveiksmīga saglabāšana. Ja cita ierīce jau mainījusi kopu, serveris noraida vecās versijas pārrakstīšanu; atver atjaunoto kopu vēlreiz.
 
 ## 8.6 Profils un izrakstīšanās
 
@@ -39,4 +43,4 @@ Izrakstīšanās neizdzēš konta vietējo progresu. Pieslēdzoties tam pašam k
 
 ## 8.7 Datu robežas
 
-Citā ierīcē iespējams pieslēgties serverī izveidotajam kontam, taču progress netiek sinhronizēts. Pārlūka vietnes datu dzēšana izdzēš arī šīs vietējās kopas un progresu. Privātā pārlūkošana var nesaglabāt datus pēc loga aizvēršanas. Koplietotā datorā izraksties pēc lietošanas; vietējā glabātuve nav šifrēts personas datu seifs.
+Citā ierīcē iespējams pieslēgties kontam un atvērt serverī saglabātās kopas, taču spēles progress netiek sinhronizēts. Pārlūka vietnes datu dzēšana izdzēš vietējo progresu un vēl neaugšupielādētās kopas. Serverī jau saglabātās kopas paliek pieejamas pēc pieslēgšanās. Privātā pārlūkošana var nesaglabāt vietējos datus pēc loga aizvēršanas. Koplietotā datorā izraksties pēc lietošanas.

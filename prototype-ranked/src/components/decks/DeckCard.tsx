@@ -77,7 +77,7 @@ export const DeckCard = forwardRef<HTMLDivElement, { deck: Deck; counts: Counts;
             <span className="rounded-md border-2 border-ink bg-card px-1.5 py-0.5 font-mono text-[11px] font-bold uppercase text-ink">{deck.language}</span>
             {!deck.builtin && (
               <span className="-rotate-3 rounded-md border-2 border-ink bg-acid px-1.5 py-0.5 font-mono text-[11px] font-bold uppercase text-ink">
-                {t('Mana', 'Mine')}
+                {deck.canEdit === false ? t('Publiska', 'Public') : t('Mana', 'Mine')}
               </span>
             )}
           </div>

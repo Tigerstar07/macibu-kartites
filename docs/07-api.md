@@ -77,3 +77,18 @@ Authorization: Bearer <access_token>
 ## 7.6 Drošības robežas
 
 Izrakstīšanās šobrīd dzēš pārlūka marķieri. Tā neatsauc jau nokopētu JWT serverī; tas paliek derīgs līdz termiņam vai atslēgas nomaiņai. Nav atsvaidzināšanas marķieru, e-pasta apstiprināšanas, paroles atjaunošanas un pieprasījumu biežuma ierobežojuma. “Gmail” šeit nozīmē iespējamu e-pasta adresi, nevis Google OAuth pieslēgšanos.
+
+## 7.7 Kopu API
+
+Visiem kopu pieprasījumiem vajag `Authorization: Bearer <marķieris>`.
+
+| Metode | Ceļš | Darbība |
+|---|---|---|
+| GET | `/api/decks` | Īpašnieka un publisko kopu saraksts |
+| GET | `/api/decks/{id}` | Viena redzama kopa ar kartītēm |
+| PUT | `/api/decks/{id}` | Izveide vai esošas īpašnieka kopas labošana |
+| DELETE | `/api/decks/{id}?revision=1` | Īpašnieka kopas dzēšana ar versijas pārbaudi |
+
+PUT satur kopas nosaukumu, aprakstu, kategoriju, valodu, tagus, izskatu, `isPublic`, kartītes un esošai kopai arī `revision`. Kartītei ir `id`, `question`, `answer`, `wrong` un neobligāts `explanation`. Kopā vajag no 5 līdz 300 kartītēm. Nosaukums ir 3 līdz 60 rakstzīmes, jautājums līdz 200, atbilde līdz 120. Identifikatori un atbilžu varianti nedrīkst atkārtoties. Pilna shēma pieejama API `/docs`.
+
+Atbildē ir `id`, saturs, servera noteikts `author`, `canEdit` un `revision`. Jauna kopa sākas ar versiju 1. Svešas kopas mainīšana dod 403, neredzama kopa 404, novecojusi versija 409, dzēstas kopas atkārtota importēšana 410 un nederīgs saturs 422. E-pasta adrese un paroļu dati kopu atbildēs netiek iekļauti.

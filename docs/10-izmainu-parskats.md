@@ -47,3 +47,9 @@ No main zara izvietots React klients un FastAPI serveris Render bezmaksas plāno
 ## 10.8 Ranked izloze
 
 Manuālā Ranked kopu izvēle aizstāta ar animētu izlozes joslu. Izvēlas tikai spēlējamu, atbloķētu iebūvēto kopu un pēc apstāšanās automātiski sāk Ranked spēli. Sākumlapas, rangu un līderu lapas Ranked pogas izmanto vienu ieejas ceļu. Izlozes ekrānam piešķirts atbilstošs slānis virs fona; agrāk fons aizsedza saturu, līdz peles pārbraukšana izveidoja kartītei atsevišķu slāni. Atgriešanās no izlozes atceļ automātisko sākšanu. Pievienotas septiņas izvēles, automātiskās sākšanas, atcelšanas un tukša saraksta pārbaudes.
+
+## 10.9 Publiskas kopas un pastiprinātāju noņemšana
+
+Kopu sarakstam un redaktoram pievienots servera savienojums. Publiskas kopas var meklēt un spēlēt citi konti; privātas kopas atgriež tikai to īpašniekam. Agrākās lokālās kopas importē pēc autora pieslēgšanās vai lapas pārlādes. Saglabāšana gaida API apstiprinājumu, kļūdas gadījumā redaktora saturs paliek atvērts.
+
+Veikta tiesību pārbaude serverī, pievienotas versijas un aizsardzība pret dzēstu kopu atjaunošanu no vecas cilnes. Novecojusi saraksta atbilde nepārraksta tikko saglabātu vai dzēstu kopu. Pastiprinātāji izņemti no veikala, galvenes un jaunajām balvām; to iegāde stāvokļa loģikā vienmēr tiek noraidīta. Ranked punkti paliek fiksēti.

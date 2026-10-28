@@ -2,7 +2,7 @@
 
 RRV komandas mācību projekts ar kartīšu kopām, zināšanu pārbaudes spēli un rangu sistēmu. Komandā strādā Roberts, Rihards un Valerijs. Lietotne veidota kursam “Lietotnes programmēšana”.
 
-Šajā versijā darbojas konta izveide, pieslēgšanās un sesijas pārbaude FastAPI serverī. Kartīšu spēle, personīgās kopas un progress darbojas React klientā. Lokāli konti glabājas SQLite, bet Render demonstrācijā PostgreSQL datubāzē. Spēles dati pagaidām glabājas katram kontam atsevišķi konkrētajā pārlūkā. Nedēļas tabulā ir simulēti pretinieki.
+Šajā versijā darbojas konta izveide, pieslēgšanās, sesijas pārbaude un lietotāju kopu saglabāšana FastAPI serverī. Publiskas kopas atrod arī citi konti; privātās redz tikai īpašnieks. Lokāli konti un kopas glabājas SQLite, bet Render demonstrācijā PostgreSQL datubāzē. Spēles progress un punkti pagaidām glabājas katram kontam atsevišķi konkrētajā pārlūkā. Nedēļas tabulā ir simulēti pretinieki.
 
 ## Publiskā demonstrācija
 
@@ -74,4 +74,4 @@ Sāc ar [dokumentācijas rādītāju](docs/README.md). [Lietotāja ceļvedī](do
 
 ## Pašreizējās robežas
 
-Kopu un spēles progresa REST API, īsta vairāku spēlētāju tabula, administratora panelis, e-pasta apstiprināšana un paroles atjaunošana vēl nav ieviesti. Kontu darbība pārbaudīta arī Render PostgreSQL vidē. Plašākai lietošanai vēl jāizveido migrācijas, pieprasījumu biežuma ierobežošana un jāpārskata sesiju glabāšana. Sīkāk skatīt [prasības](docs/04-prasibu-melnraksts.md).
+Spēles progresa REST API, īsta vairāku spēlētāju tabula, administratora panelis, e-pasta apstiprināšana un paroles atjaunošana vēl nav ieviesti. Kontu darbība pārbaudīta arī Render PostgreSQL vidē. Plašākai lietošanai vēl jāizveido turpmāko shēmu izmaiņu migrācijas, pieprasījumu biežuma ierobežošana un jāpārskata sesiju glabāšana. Sīkāk skatīt [prasības](docs/04-prasibu-melnraksts.md).

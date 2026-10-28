@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
-import { Plus, Search, SearchX } from 'lucide-react';
+import { Plus, RefreshCw, Search, SearchX } from 'lucide-react';
 import type { CategoryId, Lang } from '../types';
 import { useAllDecks, useGame } from '../store/useGame';
 import { CATEGORIES } from '../data/decks';
@@ -14,6 +14,8 @@ import { DeckCard } from '../components/decks/DeckCard';
 import { Button } from '../components/ui/Button';
 import { Tabs } from '../components/ui/Tabs';
 import { SplitTitle } from '../components/ui/SplitTitle';
+import { syncDecks } from '../lib/deckSync';
+import { useDeckLibrary } from '../store/deckLibrary';
 
 /** Accent- and case-insensitive, so "galvaspilsetas" finds "galvaspilsētas". */
 const norm = (s: string) => s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
@@ -24,6 +26,7 @@ export default function DecksPage() {
   const navigate = useNavigate();
   const decks = useAllDecks();
   const progress = useGame((s) => s.progress);
+  const loading = useDeckLibrary((s) => s.loading);
   const [query, setQuery] = useState('');
   const [cat, setCat] = useState<CategoryId | 'all'>('all');
   const [language, setLanguage] = useState<Lang | 'all'>('all');
@@ -45,7 +48,7 @@ export default function DecksPage() {
       (d) =>
         (cat === 'all' || d.category === cat) &&
         (language === 'all' || d.language === language) &&
-        (!mine || !d.builtin) &&
+        (!mine || (!d.builtin && d.canEdit !== false)) &&
         (!tag || d.tags.includes(tag)) &&
         (!q || norm(`${d.title} ${d.description} ${d.tags.join(' ')}`).includes(q)),
     );
@@ -70,9 +73,14 @@ export default function DecksPage() {
             {plural(totalCards, lang, 'kartīte', 'kartītes', 'card', 'cards')}
           </p>
         </div>
+        <div className="flex flex-wrap gap-3">
+        <Button variant="secondary" size="lg" disabled={loading} icon={<RefreshCw className="size-5" />} onClick={() => void syncDecks().catch(() => {})}>
+          {loading ? t('Ielādē...', 'Loading...') : t('Atjaunot kopas', 'Refresh decks')}
+        </Button>
         <Button variant="primary" size="lg" shine icon={<Plus className="size-5" />} onClick={() => navigate('/decks/new')}>
           {t('Izveidot kopu', 'Create deck')}
         </Button>
+        </div>
       </header>
 
       <div className="mt-6 rounded-[28px] glass p-4 sm:p-5">

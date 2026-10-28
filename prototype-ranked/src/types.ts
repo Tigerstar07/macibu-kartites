@@ -46,6 +46,9 @@ export interface Deck {
   cards: Card[];
   author: string;
   builtin?: boolean;
+  /** Servera noteiktas īpašnieka tiesības un rediģēšanas versija. */
+  canEdit?: boolean;
+  revision?: number;
   /** Intended player rank for ranked matchmaking. */
   rankIndex?: number;
   isPublic: boolean;
