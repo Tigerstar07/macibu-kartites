@@ -1,5 +1,7 @@
 # Projekta dokumentācija
 
+[Lietotāja rokasgrāmata PDF formātā](lietotaja-rokasgramata.pdf) sniedz secīgas norādes par konta izveidi, kartīšu kopām, koplietošanu, Ranked spēli, balvām un iestatījumiem. Tajā apkopoti arī risinājumi biežākajām lietošanas problēmām.
+
 Dokumentācija atjaunota 2026. gada 28. oktobrī pēc reģistrācijas, pieslēgšanās un datubāzes ieviešanas pārskates. Apraksti attiecas uz šī zara kodu. Plānotās iespējas ir atzīmētas prasību tabulā.
 
 | Dokuments | Kam tas paredzēts |
